@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** escribir ciclos `while` con los patrones contador y acumulador, usar las asignaciones con operador y reconocer cuándo un ciclo no termina. Acompaña a la nota de concepto [Ciclos while](l08_concept_while_loops.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Predice** o **Tu turno**, las líneas vienen comentadas con `#`: quita el `#` **y completa lo que falte**. Los bloques marcados **"NO lo ejecutes"** son solo para leer. Compara con la respuesta esperada de cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u01_fundamentals/l08_lab_while_loops.ipynb)
 
 ## Preparación
 

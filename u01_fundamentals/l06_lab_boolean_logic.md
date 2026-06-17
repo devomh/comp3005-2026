@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** evaluar condiciones con `not`/`and`/`or` y comparaciones, y escribir tu primer condicional `if`. Acompaña a la nota de concepto [Lógica booleana](l06_concept_boolean_logic.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Completa tú** o **Tu turno**, las líneas vienen comentadas con `#`: quítalo y complétalas. Compara con la respuesta esperada de cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u01_fundamentals/l06_lab_boolean_logic.ipynb)
 
 ## Preparación
 

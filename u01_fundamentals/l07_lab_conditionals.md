@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** escribir decisiones completas con `if`/`else`, encadenar casos con `elif`, anidar condicionales y entender el cortocircuito de `and`/`or`. Acompaña a la nota de concepto [Condicionales](l07_concept_conditionals.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Predice** o **Tu turno**, las líneas vienen comentadas con `#`: quita el `#` **y completa lo que falte** (las condiciones marcadas con `____`). Compara con la respuesta esperada de cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u01_fundamentals/l07_lab_conditionals.ipynb)
 
 ## Preparación
 

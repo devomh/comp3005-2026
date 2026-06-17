@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** convertir tipos, leer datos, entender por qué un operador cambia según el tipo, leer un reporte de error y escribir código legible. Acompaña a la nota de concepto [Introducción a Python II](l05_concept_python_intro_2.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Completa tú** o **Tu turno**, las líneas vienen comentadas con `#`: quítalo y complétalas. Compara con la respuesta esperada de cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u01_fundamentals/l05_lab_python_intro_2.ipynb)
 
 ## Preparación
 

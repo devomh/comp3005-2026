@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** escribir ciclos `for` con `range`, recorrer ciclos anidados, alterar el flujo con `break` y `continue`, y aplicar un `for` a una dilución en serie. Acompaña a la nota de concepto [Ciclos for](l11_concept_for_loops.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Predice**, las líneas vienen comentadas con `#` pero están completas: quita el `#` y ejecútalas para comprobar tu predicción. Donde diga **Tu turno**, además hay una parte marcada con `____` que debes **completar** antes de ejecutar. Compara con la respuesta esperada de cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u02_data_structures_files/l11_lab_for_loops.ipynb)
 
 ## Preparación
 

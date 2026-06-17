@@ -13,6 +13,8 @@ duration: "60 mins"
 **Meta:** escribir y ejecutar tus primeros programas en Python: la calculadora, `print`, variables y tipos. Acompaña a la nota de concepto [Introducción a Python I](l04_concept_python_intro_1.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Tu turno**, escribe tú el código (las líneas vienen comentadas con `#`: quítalo y complétalas). Compara con la respuesta esperada que aparece en cada bloque desplegable.
+>
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/devomh/comp3005-2026/blob/main/u01_fundamentals/l04_lab_python_intro_1.ipynb)
 
 ## Preparación
 
