@@ -1,0 +1,237 @@
+---
+title: "Introducción a Python II: conversión de tipos, errores y estilo"
+unit: "1"
+lesson: 5
+type: concept
+tags: [python, conversion-de-tipos, input, operadores, depuracion, errores, estilo, comentarios]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Convertir** datos entre tipos con `int()`, `float()` y `str()`, y explicar por qué hace falta. *(Aplicar)*
+- **Usar** `input()` sabiendo que **siempre devuelve una cadena**, y convertir esa entrada al tipo que necesitas. *(Aplicar)*
+- **Predecir** cómo se comporta el operador `+` según el **tipo** de sus operandos (sumar números vs. pegar cadenas). *(Analizar)*
+- **Distinguir** un **error de sintaxis** de uno de **lógica/ejecución** y **leer un reporte de error** (*traceback*) para depurar. *(Analizar)*
+- **Mejorar** la **legibilidad** de un programa: nombres con significado, líneas en blanco, comentarios útiles; y reconocer un *docstring*. *(Aplicar)*
+- **Escribir** un programa que lee datos (dados como texto), los **convierte** y calcula un resultado científico de forma legible. *(Aplicar)*
+
+> **Dónde encaja:** después de la L04 (*Introducción a Python I*) · antes de la L06 (*Lógica booleana*).
+
+## Por qué importa
+
+Escribes un programa que pide dos números al usuario y los suma con `+`. Pero en pantalla, en vez de `42`, aparece `1527`. ¿Qué pasó?
+
+```python
+"15" + "27"      # '1527'   <- los PEGÓ, no los sumó
+```
+
+Pasó que lo que el usuario escribe llega como **texto** (una cadena), y el operador `+` sobre **cadenas** las **pega** (concatena), no las suma. Para que sume, primero hay que **convertir** ese texto a número. Esta lección es ese arreglo, y un par de habilidades que lo acompañan: leer un **mensaje de error** cuando algo falla y escribir código que otra persona (o tú, dentro de un mes) pueda **leer**.
+
+> **Práctica (hands-on):** [Lab — Introducción a Python II](l05_lab_python_intro_2.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u01_fundamentals/l05_lab_python_intro_2.ipynb)
+
+## Conversión de tipos
+
+Los nombres de los tipos (`int`, `float`, `str`) también funcionan como **funciones de conversión** (en inglés, *casting*): toman un dato y devuelven el equivalente en otro tipo.
+
+```python
+int("15")      # 15     (cadena -> entero)
+float("15")    # 15.0   (cadena -> flotante)
+str(15)        # '15'   (número -> cadena)
+```
+
+| Función | Convierte a | Ejemplo | Resultado |
+|---|---|---|---|
+| `int(x)` | entero | `int("15")` | `15` |
+| `float(x)` | flotante | `float("15")` | `15.0` |
+| `str(x)` | cadena | `str(15)` | `'15'` |
+
+Con eso, el problema del inicio se resuelve: convierte cada texto a número **antes** de sumar.
+
+```python
+int("15") + int("27")    # 42    (ahora sí SUMA)
+```
+
+::: {.callout-warning}
+`int("3.5")` **falla** con un `ValueError` (`invalid literal for int()`), porque `"3.5"` no es un entero. Si el texto tiene decimales, usa `float("3.5")`, que sí funciona y da `3.5`.
+:::
+
+## `input()`: leer datos del usuario
+
+La función `input()` muestra un mensaje, espera a que la persona escriba algo y presione `Enter`, y **devuelve lo escrito como una cadena**, *siempre*, aunque la persona escriba un número.
+
+```{mermaid}
+flowchart LR
+    T["<b>Teclado</b><br/>el usuario<br/>escribe 15"] --> I["<b>input()</b><br/>devuelve la<br/>cadena '15'"]
+    I --> F["<b>float()</b><br/>convierte a<br/>número 15.0"]
+    F --> C["<b>Cálculo</b><br/>ya puedes<br/>operar"]
+```
+
+El patrón habitual es **leer y convertir** en el acto:
+
+```python
+edad = input("Ingrese su edad: ")   # edad es SIEMPRE una cadena, p. ej. '20'
+edad = int(edad)                    # ahora edad es el número 20
+```
+
+o, más corto, envolviendo una función en la otra: `edad = int(input("Ingrese su edad: "))`.
+
+::: {.callout-note}
+En el **Lab** verás `input()` pero usaremos **valores fijos** en las celdas que se ejecutan (por ejemplo `lectura = "15"`), para que el notebook corra de principio a fin sin detenerse a pedir datos. En **Colab**, tú cambias esa línea por `input(...)` para hacerlo interactivo.
+:::
+
+## Un operador, varios comportamientos
+
+El mismo operador puede hacer cosas distintas según el **tipo** de sus operandos. El caso clave es `+`:
+
+```python
+3 + 5          # 8        (int + int -> suma, da int)
+3.2 + 5.1      # 8.3      (float + float -> suma, da float)
+"3.2" + "5.1"  # '3.25.1' (str + str -> CONCATENA, pega los textos)
+```
+
+| Operandos | Qué hace `+` | Ejemplo | Resultado |
+|---|---|---|---|
+| `int` + `int` | suma (resultado `int`) | `3 + 5` | `8` |
+| `float` + `float` | suma (resultado `float`) | `3.2 + 5.1` | `8.3` |
+| `str` + `str` | concatena (pega) | `"3.2" + "5.1"` | `'3.25.1'` |
+
+Por eso `int(...)` o `float(...)` son imprescindibles: deciden si `+` **suma** o **pega**.
+
+## Cuando algo falla: errores y depuración
+
+Casi todo programa, al escribirse, tiene errores. Identificarlos y corregirlos se llama **depuración** (*debugging*). Hay dos grandes tipos:
+
+| Tipo de error | Cuándo aparece | Ejemplo |
+|---|---|---|
+| **De sintaxis** | El intérprete no entiende el código y **no lo ejecuta** | falta un paréntesis: `print("hola"` |
+| **De lógica / ejecución** | El código corre pero **se detiene con un error** (o da un resultado equivocado) | sumar un número y un texto |
+
+Cuando ocurre un error de ejecución, Python imprime un **reporte de error** (*traceback*). Por ejemplo, este programa intenta sumar un número (`base`) con un texto (`altura`):
+
+```python
+base = 5.0
+altura = "3"                       # se quedó como cadena (sin convertir)
+perimetro = 2 * base + 2 * altura  # <- aquí falla
+print("El perímetro es:", perimetro)
+```
+
+Produce este *traceback*:
+
+```text
+Traceback (most recent call last):
+  File "<ipython-input>", line 3, in <module>
+    perimetro = 2 * base + 2 * altura
+                ~~~~~~~~~^~~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'float' and 'str'
+```
+
+Para **leerlo**, mira de abajo hacia arriba:
+
+- La **última línea** dice el **tipo** de error (`TypeError`) y un **mensaje** (`unsupported operand type(s) for +: 'float' and 'str'`): se intentó usar `+` entre un `float` y un `str`.
+- Arriba, señala la **línea** del programa donde ocurrió y la subraya.
+
+El arreglo es **convertir** `altura` a número (`altura = 3.0`, o `altura = float(altura)`). Con eso, `2 * 5.0 + 2 * 3.0` da `16.0` y el programa imprime `El perímetro es: 16.0`.
+
+::: {.callout-tip}
+El error no siempre está exactamente en la línea señalada, pero esa línea es el mejor punto de partida. Lee el **tipo** y el **mensaje**: casi siempre describen el problema.
+:::
+
+## Escribir código legible
+
+El intérprete solo comprueba si el programa es **correcto**, no si es **legible**. Pero el código lo leen personas (tu profesor, tu yo futuro), así que la legibilidad importa. Tres hábitos básicos:
+
+- **Nombres con significado.** Para el peso de una persona, usa `peso`, no `x` ni `p`. Evita la `l` minúscula y la `O` mayúscula como nombres (se confunden con `1` y `0`).
+- **Líneas en blanco** para separar bloques relacionados (por ejemplo, las entradas, el cálculo y la salida).
+- **Comentarios útiles.** Un comentario empieza con `#` y el intérprete lo ignora. Sirve para aclarar el *porqué*, no para repetir lo obvio:
+
+```python
+t = t + 1   # adelanta el reloj un segundo   <- útil
+t = t + 1   # suma 1 a t                      <- inútil (repite el código)
+```
+
+Un programa **menos legible** y su versión **más legible** hacen lo mismo, pero la segunda se entiende de un vistazo:
+
+```python
+# Menos legible: todo junto, nombres pobres
+v = 60.0
+t = 2.0
+d = v*t
+print("distancia", d)
+```
+
+```python
+# Más legible: nombres claros, líneas en blanco, un comentario que aporta
+velocidad = 60.0   # millas por hora
+tiempo = 2.0       # horas
+
+distancia = velocidad * tiempo
+
+print("Se recorren", distancia, "millas")
+```
+
+Por último, un **docstring** es un texto de documentación entre triple comilla (`""" ... """`) que describe lo que hace un programa o una función. Se usa sobre todo en archivos de programa (`.py`), no tanto en notebooks:
+
+```python
+"""
+densidad.py
+Calcula la densidad de una muestra a partir de su masa y volumen.
+Autor: Estudiante (estudiante@upr.edu)
+"""
+```
+
+## De vuelta a la ciencia
+
+En el laboratorio, muchas mediciones llegan como **texto** (de un formulario, de un archivo, del teclado). El patrón es siempre el mismo: **leer, convertir, calcular**. Por ejemplo, dos lecturas de pH que llegan como cadenas:
+
+```python
+lectura1 = "7.2"          # como si vinieran de input()
+lectura2 = "7.8"
+ph1 = float(lectura1)     # convertir a número
+ph2 = float(lectura2)
+promedio = (ph1 + ph2) / 2
+print("El pH promedio es", round(promedio, 2))   # El pH promedio es 7.5
+```
+
+Convertir primero es lo que permite **promediar** en vez de **pegar** los textos. Esa disciplina —leer, convertir, calcular, con código legible— te acompañará todo el curso.
+
+## Preguntas frecuentes
+
+**"¿Por qué `input()` no me da un número aunque yo escriba un número?"** — Porque `input()` devuelve **siempre** una cadena. Si vas a operar con ella como número, conviértela con `int()` o `float()` primero.
+
+**"¿`int('3.5')` funciona?"** — No: lanza un `ValueError`, porque `'3.5'` no es un entero. Usa `float('3.5')`, que da `3.5`. (Si de verdad quieres el entero, convierte a `float` y luego a `int`, sabiendo que se trunca.)
+
+**"¿Tengo que comentar todas las líneas?"** — No. Demasiados comentarios estorban. Comenta el **porqué** de algo no evidente; no repitas en español lo que el código ya dice.
+
+**"¿Necesito *docstrings* en los notebooks?"** — Casi nunca; en notebooks usamos celdas de texto para explicar. Los *docstrings* brillan en archivos `.py` y en funciones, que verás en el Módulo 2.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué imprime `"15" + "27"`? ¿Y `int("15") + int("27")`? Explica la diferencia.
+2. Un compañero escribe `total = input("Suma: ") + 10` y obtiene un error. ¿Por qué? ¿Cómo lo arreglas?
+3. Lee este *traceback* y di **qué** tipo de error es y **en qué línea**: `TypeError: unsupported operand type(s) for +: 'float' and 'str'` en la línea 3.
+4. Reescribe este fragmento para hacerlo más legible: `v=60.0;t=2.0;d=v*t;print(d)`.
+5. Dos masas llegan como texto, `"12.5"` y `"7.5"` (gramos). Escribe el programa que imprime su **suma** en gramos. ¿Qué pasa si olvidas convertir?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Conversión de tipos | `int()`, `float()`, `str()` convierten un dato de un tipo a otro |
+| `input()` | Lee del teclado y **siempre devuelve una cadena**; conviértela para operar |
+| `+` según el tipo | Suma números (`int`/`float`); **concatena** cadenas (`"15"+"27"="1527"`) |
+| Errores | De **sintaxis** (no ejecuta) vs. de **lógica/ejecución** (se detiene o da mal) |
+| Leer un *traceback* | La última línea da el **tipo** y el **mensaje**; arriba, la **línea** del error |
+| Legibilidad | Nombres con significado, líneas en blanco, comentarios útiles, *docstrings* |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — los capítulos sobre tipos, conversión y entrada de datos.
+- **Guía de estilo (referencia):** *PEP 8*, la guía de estilo oficial de Python (`peps.python.org/pep-0008/`) — la fuente de las convenciones de legibilidad (en este curso usamos una versión ligera).
+- **Para conectar con lo que viene:** en la **L06** aprenderás **lógica booleana** y a **tomar decisiones**; ahí, leer y convertir bien los datos será el primer paso de cada programa.

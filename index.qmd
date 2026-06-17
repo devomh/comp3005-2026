@@ -1,0 +1,16 @@
+---
+title: "COMP 3005 — Introducción al Uso de la Computadora"
+---
+
+Sitio del curso en construcción. Las lecciones aparecerán aquí, agrupadas por módulo, a
+medida que se publican mediante el flujo de autoría. Curso introductorio de **programación
+en Python** orientado a aplicaciones en **biología y química** (UPR-Humacao).
+
+| Módulo | Carpeta | Estado |
+|--------|---------|--------|
+| 1 — Fundamentos y programación básica | `u01_fundamentals` | pendiente |
+| 2 — Estructuras de datos, funciones y archivos | `u02_data_structures_files` | pendiente |
+| 3 — Cómputo científico con Python | `u03_scientific_computing` | pendiente |
+
+El orden de enseñanza y el alcance sesión por sesión están en el calendario de lecciones
+(`_syllabus/lesson-schedule.md`).

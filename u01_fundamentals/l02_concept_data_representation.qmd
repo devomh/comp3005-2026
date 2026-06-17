@@ -1,0 +1,217 @@
+---
+title: "Arquitectura de la computadora y representación de datos"
+unit: "1"
+lesson: 2
+type: concept
+tags: [arquitectura, von-neumann, binario, hexadecimal, almacenamiento, representación-de-datos]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Describir** los componentes de la arquitectura de von Neumann (memoria, procesador, entrada y salida) y cómo cooperan al ejecutar un programa. *(Comprender)*
+- **Explicar** por qué la computadora representa todo en **binario**, usando la idea de un banco de interruptores encendido/apagado. *(Comprender)*
+- **Convertir** números entre **binario y decimal** en ambos sentidos. *(Aplicar)*
+- **Convertir** números entre **hexadecimal y binario** y explicar por qué el hexadecimal abrevia al binario. *(Aplicar)*
+- **Calcular** con las **unidades de almacenamiento** (bit, byte, KB, MB, GB...) y convertir entre ellas. *(Aplicar)*
+- **Reconocer** que un dato científico (un píxel, una medición) se guarda internamente como un **número**. *(Comprender)*
+
+> **Dónde encaja:** después de la L01 (*Historia de la computación*) · antes de la L03 (*Sistemas operativos y lenguajes*).
+
+## Por qué importa
+
+Una foto de microscopio, la lectura de un sensor de pH, la masa de un compuesto: por dentro, la computadora guarda todo eso como **números**, y guarda cada número como una secuencia de **ceros y unos**. No hay nada más ahí abajo.
+
+¿Por qué tan poco? Porque una computadora es, físicamente, un enorme banco de **interruptores** que solo pueden estar **encendidos** o **apagados**. Toda la riqueza de un programa científico —analizar datos, dibujar una gráfica, procesar una imagen— se construye sobre esos dos estados. En esta lección verás de qué partes se compone una computadora y cómo esas partes representan la información. Es el cimiento de todo lo que programarás después para tu biología o tu química.
+
+> **Analogía:** piensa en el sistema Braille o en el código Morse. Con muy pocos símbolos (punto y raya; punto en relieve o no) se puede escribir cualquier texto. El binario hace lo mismo con solo dos símbolos: `0` y `1`.
+
+## La arquitectura de von Neumann
+
+Casi todas las computadoras actuales siguen un mismo plano, propuesto por **John von Neumann en 1945**. Tiene cuatro tipos de componentes que trabajan juntos:
+
+```{mermaid}
+flowchart LR
+    E["<b>Entrada</b><br/>teclado, ratón<br/>sensor, cámara"] --> C["<b>Procesador (CPU)</b><br/>ejecuta las<br/>instrucciones"]
+    M["<b>Memoria principal (RAM)</b><br/>guarda los datos<br/>y las instrucciones"] --> C
+    C --> M
+    C --> S["<b>Salida</b><br/>monitor, bocinas<br/>archivo guardado"]
+```
+
+| Componente | Qué es | Qué hace | Ejemplo |
+|---|---|---|---|
+| Memoria principal | La RAM | Guarda los **datos** y las **instrucciones** del programa mientras se ejecuta | Módulos de RAM |
+| Procesador (CPU) | El "cerebro" | Lee las instrucciones de la memoria y las **ejecuta**, una tras otra | Intel, AMD |
+| Dispositivos de entrada | Por donde entran datos | Llevan información **hacia** la computadora | Teclado, ratón, sensor |
+| Dispositivos de salida | Por donde salen | Muestran o entregan los **resultados** | Monitor, bocinas |
+
+![Un módulo de memoria RAM. La memoria principal guarda los datos e instrucciones del programa en ejecución. Foto: Martyn M (Martyx), vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Generic_DDR_Memory_%28Xytram%29.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/ram_module.jpg){width=75%}
+
+La idea clave de von Neumann es que **los datos y las instrucciones viven juntos en la memoria**: el procesador va a la memoria, trae la próxima instrucción, la ejecuta, y repite. Ese ciclo, millones de veces por segundo, es "el funcionamiento de una computadora".
+
+## Por qué binario: un banco de interruptores
+
+El procesador y la memoria están hechos de circuitos con muchísimos **interruptores** (en inglés, *switches*). Cada interruptor solo entiende dos estados: **encendido (on)** o **apagado (off)**. Por eso a la computadora le conviene contar con solo dos símbolos —un **sistema binario**, de base 2— en vez de los diez símbolos que usamos las personas (el sistema **decimal**, de base 10).
+
+A la unidad mínima de información, ese "encendido o apagado", la llamamos **bit** (de *binary digit*): vale `0` o `1`. Como un solo bit dice muy poco, los agrupamos: **8 bits forman 1 byte**. Un byte alcanza para representar, por ejemplo, una letra o un número del 0 al 255.
+
+## Numeración posicional: el valor depende de la posición
+
+Antes de convertir entre sistemas, recordemos cómo funciona el decimal que ya conoces. En un número, **el valor de cada dígito depende de su posición**. Por ejemplo, el `123` decimal significa:
+
+$$123 = 1 \times 10^2 + 2 \times 10^1 + 3 \times 10^0 = 100 + 20 + 3$$
+
+Cada posición vale una **potencia de la base** (aquí, base 10: unidades, decenas, centenas). El binario funciona igual, pero con **potencias de 2**:
+
+| Sistema | Base | Dígitos | Las posiciones valen |
+|---|---|---|---|
+| Decimal | 10 | 0 1 2 3 4 5 6 7 8 9 | 1, 10, 100, 1000, ... |
+| Binario | 2 | 0 1 | 1, 2, 4, 8, 16, ... |
+| Hexadecimal | 16 | 0-9 y A B C D E F | 1, 16, 256, ... |
+
+## Convertir entre binario y decimal
+
+### De binario a decimal: suma de potencias de 2
+
+Escribe cada bit sobre su valor de posición (potencia de 2) y **suma los valores donde hay un `1`**. Por ejemplo, para `1101`:
+
+$$1101_2 = 1 \times 2^3 + 1 \times 2^2 + 0 \times 2^1 + 1 \times 2^0 = 8 + 4 + 0 + 1 = 13_{10}$$
+
+Así, `1101` en binario vale **13** en decimal: solo sumamos las posiciones encendidas (8, 4 y 1).
+
+### De decimal a binario: divisiones sucesivas entre 2
+
+Divide el número entre 2 una y otra vez, **anotando el residuo** (0 o 1) en cada paso. El binario se lee de los residuos, **del último al primero**. Para 13:
+
+| División | Cociente | Residuo |
+|---|---|---|
+| 13 / 2 | 6 | **1** (menos significativo) |
+| 6 / 2 | 3 | **0** |
+| 3 / 2 | 1 | **1** |
+| 1 / 2 | 0 | **1** (más significativo) |
+
+Leyendo los residuos de abajo hacia arriba: `1101`. Coincide con lo anterior: 13 en decimal es `1101` en binario.
+
+::: {.callout-note}
+## Tu turno
+Convierte `10110100` (binario) a decimal, y `45` (decimal) a binario.
+
+<details><summary>Ver respuesta</summary>
+
+- `10110100` = 128 + 0 + 32 + 16 + 0 + 4 + 0 + 0 = **180**.
+- `45` por divisiones sucesivas: residuos 1, 0, 1, 1, 0, 1 (de menos a más significativo) = **101101**.
+</details>
+:::
+
+## Hexadecimal: una forma corta de escribir binario
+
+El binario es cómodo para la máquina, pero largo y fácil de equivocar para las personas (¿cuántos `1` hay en `111101100101`?). El **hexadecimal** (base 16) lo abrevia. Usa 16 dígitos: `0` a `9` y luego `A, B, C, D, E, F` para los valores 10 a 15.
+
+Su gran ventaja: **un dígito hexadecimal equivale exactamente a 4 bits** (un grupo de 4 bits se llama *nibble*). Convertir es, entonces, agrupar de a 4:
+
+| Hex | Binario | Hex | Binario |
+|---|---|---|---|
+| 0 | 0000 | 8 | 1000 |
+| 1 | 0001 | 9 | 1001 |
+| 2 | 0010 | A | 1010 |
+| 3 | 0011 | B | 1011 |
+| 4 | 0100 | C | 1100 |
+| 5 | 0101 | D | 1101 |
+| 6 | 0110 | E | 1110 |
+| 7 | 0111 | F | 1111 |
+
+**De hexadecimal a binario:** cambia cada dígito por sus 4 bits. Por ejemplo, `4E`:
+
+- `4` se convierte en `0100`
+- `E` se convierte en `1110`
+- Resultado: `4E` = `0100 1110` (o `01001110` sin el espacio).
+
+**De binario a hexadecimal:** agrupa los bits de a 4 (desde la derecha) y cambia cada grupo por su dígito hex. Por ejemplo, `01001110` se separa en `0100` y `1110`, que son `4` y `E`: el resultado es `4E`.
+
+::: {.callout-note}
+## Tu turno
+Convierte `3A0` (hexadecimal) a binario, y `11010110` (binario) a hexadecimal.
+
+<details><summary>Ver respuesta</summary>
+
+- `3A0`: `3`=`0011`, `A`=`1010`, `0`=`0000`, entonces `0011 1010 0000`, que sin los ceros a la izquierda es **1110100000**.
+- `11010110`: se separa en `1101` y `0110`, que son `D` y `6`, entonces **D6**.
+</details>
+:::
+
+## Unidades de almacenamiento
+
+Los archivos y la memoria se miden en bytes y sus múltiplos. Cada salto multiplica por **1024** (que es $2^{10}$), no por 1000, porque la computadora cuenta en potencias de 2.
+
+| Unidad | Equivale a | En bytes (aprox.) |
+|---|---|---|
+| 1 bit | un `0` o un `1` | — |
+| 1 byte (B) | 8 bits | 1 |
+| 1 kilobyte (KB) | 1024 B | mil |
+| 1 megabyte (MB) | 1024 KB | un millón |
+| 1 gigabyte (GB) | 1024 MB | mil millones |
+| 1 terabyte (TB) | 1024 GB | un billón |
+| 1 petabyte (PB) | 1024 TB | mil billones |
+
+**Regla práctica:** para bajar un nivel (por ejemplo, de KB a B) **multiplicas por 1024**; para subir un nivel (de B a KB) **divides entre 1024**. Por ejemplo, 3 KB son $3 \times 1024 = 3072$ bytes.
+
+::: {.callout-note}
+## Tu turno
+¿Cuántos bits hay en 2 bytes? ¿Cuántos bytes hay en 2 KB?
+
+<details><summary>Ver respuesta</summary>
+
+- 2 bytes = $2 \times 8$ = **16 bits**.
+- 2 KB = $2 \times 1024$ = **2048 bytes**.
+</details>
+:::
+
+## De vuelta a la ciencia: un dato es un número
+
+Cierra el círculo con el que abrimos. ¿Por qué te importa todo esto para la biología o la química?
+
+- Una **imagen de microscopio** en escala de grises es una **cuadrícula de números**: cada píxel guarda un valor (típicamente de 0 a 255, que cabe en **1 byte**). Una imagen de 100 por 100 píxeles son unos $100 \times 100 = 10\,000$ bytes, es decir cerca de 9.8 KB (casi 10 KB, recordando que 1 KB son 1024 B). En el Módulo 3 trabajarás imágenes científicas justamente así, como arreglos de números.
+- Una **medición** (un pH, una concentración, una masa) es un número que la computadora guarda en binario.
+- Una **secuencia de ADN** o una **tabla de datos** son, por dentro, números y caracteres codificados como bytes.
+
+Como todo es número, la computadora puede **calcular** sobre tus datos: sumarlos, promediarlos, compararlos, graficarlos. Esa es la herramienta que aprenderás a manejar en este curso.
+
+## Preguntas frecuentes
+
+**"¿Tengo que memorizar la tabla de hexadecimal?"** — No de memoria. Lo que importa es entender la **regla**: cada dígito hex son 4 bits. Con esa regla y un poco de práctica, la tabla la reconstruyes sola; al principio puedes tenerla a la vista.
+
+**"¿Por qué 1 KB son 1024 bytes y no 1000?"** — Porque la computadora mide en potencias de 2, y $2^{10} = 1024$ es la potencia de 2 más cercana a mil. Por eso los saltos de unidad usan 1024. (En etiquetas comerciales de discos a veces se usa 1000; en este curso usamos 1024.)
+
+**"¿De verdad una foto es solo números?"** — Sí. Una imagen es una cuadrícula de píxeles y cada píxel es uno o varios números (su brillo o su color). Por eso una computadora puede analizarla: para ella, "ver" es "calcular con números".
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. Convierte `10110100` (binario) a decimal y `45` (decimal) a binario.
+2. Convierte `3A0` (hexadecimal) a binario y `01001110` (binario) a hexadecimal.
+3. ¿Cuántos bits hay en 1 byte? ¿Cuántos bytes hay en 2 KB?
+4. Nombra los **cuatro** componentes de la arquitectura de von Neumann y di, en una frase, qué hace cada uno.
+5. Una imagen de microscopio en escala de grises de 100 por 100 píxeles ocupa cerca de 1 byte por píxel. ¿Cuántos bytes son, aproximadamente? ¿Por qué la computadora puede "calcular" sobre esa imagen?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Arquitectura de von Neumann | Memoria, CPU, entrada y salida; datos e instrucciones viven en la memoria |
+| Por qué binario | Los circuitos son interruptores on/off: solo `0` y `1` |
+| Bit y byte | 1 bit = un `0`/`1`; 1 byte = 8 bits |
+| Numeración posicional | El valor de un dígito depende de su posición (potencias de la base) |
+| Binario y decimal | Suma de potencias de 2 (a decimal); divisiones sucesivas entre 2 (a binario) |
+| Hexadecimal | Base 16; **1 dígito hex = 4 bits**; abrevia el binario |
+| Almacenamiento | bit · byte · KB · MB · GB...; cada salto multiplica o divide por 1024 |
+| Por qué importa | Todo dato científico es, por dentro, un número; por eso se puede calcular con él |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — repasa sistemas de numeración y representación de datos en sus capítulos iniciales.
+- **Referencia (accesible):** los artículos *"Sistema binario"* y *"Sistema hexadecimal"* en `es.wikipedia.org`, con ejemplos de conversión paso a paso.
+- **Para conectar con lo que viene:** en el Módulo 3 verás que una imagen científica es un arreglo de números (la idea de "un dato es un número" en acción).

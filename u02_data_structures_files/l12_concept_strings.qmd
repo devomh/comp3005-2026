@@ -1,0 +1,258 @@
+---
+title: "Cadenas de caracteres: indexación, subcadenas, métodos, escape, format() y recorrido"
+unit: "2"
+lesson: 12
+type: concept
+tags: [python, cadenas, strings, indexacion, slicing, metodos, escape, format, recorrido]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Crear** cadenas (con comillas simples o dobles, y escapando comillas con `\'`) y **combinarlas** con `+` (concatenación) y `*` (repetición), reconociendo que una cadena es **inmutable**: los métodos producen una cadena **nueva**, no cambian la original. *(Comprender / Aplicar)*
+- **Indizar** una cadena con `str[i]`, sabiendo que los índices empiezan en `0` y que los **negativos** cuentan desde el final (`str[-1]` es el último carácter). *(Aplicar)*
+- **Extraer subcadenas** con *slicing*: `str[a:b]`, `str[a:b:p]`, omitir extremos y `str[::-1]` (invertir). *(Aplicar)*
+- **Usar** métodos de cadena (`len`, `.upper()`, `.lower()`, `.strip()`, `.replace()`, `.count()`, `.find()`), sabiendo que `.find()` devuelve `-1` cuando no encuentra. *(Aplicar)*
+- **Aplicar** secuencias de escape (`\n`, `\t`, `\\`) y dar formato con `.format()` (marcas `{}`, `{0}`, `{:.2f}`). *(Aplicar)*
+- **Recorrer** una cadena con un `for` (carácter por carácter) para un caso científico: contar las bases de una secuencia de ADN y calcular su contenido GC. *(Aplicar)*
+
+> **Dónde encaja:** después de la L11 (*Ciclos `for`*) · antes de la L13 (*Listas*). Es la primera **estructura de datos** del curso: una secuencia de caracteres que se puede indizar, rebanar y recorrer.
+
+## Por qué importa
+
+Una secuencia de ADN (`'ATGCGC...'`), el nombre de un compuesto, la respuesta de un usuario: en el fondo, **todo es texto**. Hasta ahora una cadena era una caja cerrada que imprimías entera. Pero el texto tiene **estructura**: cada carácter ocupa una **posición**, una porción es otra cadena, y hay partes que se repiten, se buscan o se reemplazan.
+
+En esta lección la cadena deja de ser un dato opaco y se vuelve algo que puedes **diseccionar**: indizar un carácter (`str[0]`), extraer una porción (`str[2:5]`), transformarla con métodos (`.upper()`, `.replace()`), darle formato y, sobre todo, **recorrerla** con el `for` que aprendiste en la L11. Esa última pieza es la que prometía la L11: una cadena es un **iterable**, así que un `for` la visita carácter por carácter.
+
+> **Práctica (hands-on):** [Lab — Cadenas](l12_lab_strings.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u02_data_structures_files/l12_lab_strings.ipynb)
+
+## Crear y combinar cadenas
+
+Una cadena se escribe entre **comillas simples** (`'...'`) o **dobles** (`"..."`); son equivalentes. Para incluir una comilla dentro de la cadena, usa el otro tipo de comilla, o **escápala** con una barra invertida (`\'`):
+
+```python
+s = "Usando 'comilla simple' en la cadena"
+print(s)
+r = 'Usando \'comilla simple\' en la cadena'
+print(r)
+```
+
+```
+Usando 'comilla simple' en la cadena
+Usando 'comilla simple' en la cadena
+```
+
+Dos operadores combinan cadenas: `+` las **concatena** (las une) y `*` las **repite**:
+
+```python
+print('Hola' + ' ' + 'mundo')
+print('ADN' * 3)
+```
+
+```
+Hola mundo
+ADNADNADN
+```
+
+Ojo con un detalle de la L05: con cadenas, `+` **concatena**, no suma. `'2' + '3'` es `'23'`, no `5`. Y una cosa clave: en Python las cadenas son **inmutables** -- una vez creadas no se pueden cambiar. Todos los métodos que verás más abajo **no modifican** la cadena original: devuelven una cadena **nueva**.
+
+```python
+adn = 'atgcat'
+print(adn.upper())   # una cadena NUEVA en mayusculas
+print(adn)           # la original NO cambio
+```
+
+```
+ATGCAT
+atgcat
+```
+
+## Indización: cada carácter tiene una posición
+
+Puedes acceder a un carácter individual por su **índice**, entre corchetes: `str[i]`. Los índices empiezan en **`0`**. Los índices **negativos** cuentan desde el final: `str[-1]` es el último carácter, `str[-2]` el penúltimo.
+
+```python
+adn = 'ATGCAT'
+#      012345    <- cada caracter tiene su indice (desde 0)
+print(adn[0])    # primer caracter
+print(adn[2])    # tercer caracter
+print(adn[-1])   # ultimo caracter (indice negativo)
+```
+
+```
+A
+G
+T
+```
+
+`adn[0]` es `'A'` (posición 0), `adn[2]` es `'G'` (posición 2), y `adn[-1]` es `'T'` (el último). Intentar un índice que no existe (por ejemplo `adn[100]`) produce un error.
+
+## Subcadenas: *slicing*
+
+Una **porción** (o *slice*) devuelve una **subcadena**: `str[a:b]` va desde el índice `a` **hasta `b-1`** (el extremo `b` **no** se incluye, igual que `range`). Puedes **omitir** un extremo (se entiende "desde el principio" o "hasta el final") y dar un **paso**: `str[a:b:p]`.
+
+| Forma | Devuelve | Ejemplo (`adn = 'ATGCAT'`) |
+|---|---|---|
+| `str[a:b]` | de `a` hasta `b-1` | `adn[0:3]` -> `'ATG'` |
+| `str[a:]` | de `a` hasta el final | `adn[2:]` -> `'GCAT'` |
+| `str[:b]` | del principio hasta `b-1` | `adn[:3]` -> `'ATG'` |
+| `str[a:b:p]` | de `a` a `b-1` saltando `p` | `adn[1:5:2]` -> `'TC'` |
+| `str[::-1]` | la cadena **invertida** | `adn[::-1]` -> `'TACGTA'` |
+
+```python
+adn = 'ATGCAT'
+print(adn[0:3])
+print(adn[2:])
+print(adn[1:5:2])   # con paso de 2
+print(adn[::-1])
+```
+
+```
+ATG
+GCAT
+TC
+TACGTA
+```
+
+`adn[1:5:2]` toma los índices `1` y `3` (de `1` a `4` saltando de `2` en `2`) -> `'TC'`, y `adn[::-1]` es un truco muy usado para **invertir** una cadena (paso `-1`, de atrás hacia adelante).
+
+## Métodos de cadena
+
+Una cadena trae **métodos** (funciones que se llaman con un punto: `cadena.metodo(...)`). Aquí los más útiles. Recuerda: **ninguno cambia la cadena original** (son inmutables); devuelven una nueva o un valor.
+
+| Método | Qué hace | Ejemplo |
+|---|---|---|
+| `len(s)` | cantidad de caracteres | `len('ATGCAT')` -> `6` |
+| `s.upper()` / `s.lower()` | mayúsculas / minúsculas | `'adn'.upper()` -> `'ADN'` |
+| `s.strip()` | quita espacios de los extremos | `'  hola  '.strip()` -> `'hola'` |
+| `s.replace(a, b)` | reemplaza `a` por `b` | `'ATGCAT'.replace('A', 'a')` -> `'aTGCaT'` |
+| `s.count(sub)` | cuántas veces aparece `sub` | `'ATGCAT'.count('A')` -> `2` |
+| `s.find(sub)` | posición de `sub` (o `-1` si no está) | `'ATGCAT'.find('GC')` -> `2` |
+
+```python
+print(len('ATGCAT'))
+print('ATGCAT'.count('A'))
+print('ATGCAT'.find('GC'))
+print('ATGCAT'.find('Z'))
+```
+
+```
+6
+2
+2
+-1
+```
+
+`find` devuelve la **posición** de la primera aparición, o **`-1`** si la subcadena no está (por eso `find('Z')` da `-1`: no hay ninguna `Z`). `len` no es un método con punto, sino una función: `len(s)`.
+
+## Escape y formato
+
+Algunas combinaciones con `\` dentro de una cadena tienen un efecto especial: son **secuencias de escape**.
+
+| Secuencia | Resultado |
+|---|---|
+| `\n` | salto de línea |
+| `\t` | tabulador |
+| `\\` | una barra invertida `\` |
+| `\"` `\'` | una comilla `"` o `'` |
+
+```python
+print('linea1\nlinea2')
+print('col1\tcol2')
+```
+
+```
+linea1
+linea2
+col1	col2
+```
+
+Para construir un mensaje insertando valores, el método **`.format()`** rellena las marcas `{}` de una cadena en orden. Con `{0}`, `{1}`, ... eliges la posición (y puedes repetirla); con `{:.2f}` das formato a un decimal (2 cifras):
+
+```python
+print('{} mide {:.2f} cm'.format('muestra', 3.14159))
+print('{0} y {0}'.format('eco'))
+print('Muestra {0}: {1} mg/mL'.format('A', 25))
+```
+
+```
+muestra mide 3.14 cm
+eco y eco
+Muestra A: 25 mg/mL
+```
+
+## Recorrer una cadena: el texto como secuencia
+
+Como una cadena es un **iterable** (una secuencia de caracteres), un `for` la recorre **carácter por carácter** -- justo lo que la L11 anunció:
+
+```python
+for letra in 'ADN':
+    print(letra)
+```
+
+```
+A
+D
+N
+```
+
+Esto abre la puerta a procesar texto. Por ejemplo, una **secuencia de ADN** es una cadena de bases (`A`, `T`, `G`, `C`); su **contenido GC** (qué fracción son `G` o `C`) es un dato biológico real. Se calcula recorriendo la secuencia y contando:
+
+```python
+secuencia = 'ATGCGCGATTAC'
+gc = 0
+for base in secuencia:
+    if base == 'G' or base == 'C':
+        gc += 1
+total = len(secuencia)
+print('Bases G+C:', gc, 'de', total)
+print('Contenido GC: {:.1f}%'.format(gc / total * 100))
+```
+
+```
+Bases G+C: 6 de 12
+Contenido GC: 50.0%
+```
+
+Un **contador** (de la L08), un `for` que recorre la cadena (de la L11), un `if` con `or` (de la L06) y `.format()` para el reporte: todo junto, sobre texto. Este mismo "texto como dato" reaparecerá al leer archivos **FASTA** (S16) y con **Biopython** (S25).
+
+## Preguntas frecuentes
+
+**"¿`str[i]` o `str[i:j]`?"** — `str[i]` (un número) devuelve **un carácter**; `str[i:j]` (con dos puntos) devuelve una **subcadena** (una porción, que también es una cadena). Recuerda que en `str[i:j]` el extremo `j` no se incluye.
+
+**"¿Por qué `find` devuelve `-1`?"** — Porque `-1` no es una posición válida "hacia adelante": es la señal de "no encontré la subcadena". Si quieres saber *si* algo está, compara: `if cadena.find('GC') != -1:`.
+
+**"¿`'2' + '3'` da `'23'` o `5`?"** — Da `'23'`. Con cadenas, `+` **concatena**. Para sumar como números, primero convierte: `int('2') + int('3')` (la lección L05).
+
+**"¿`.upper()` cambia mi cadena?"** — No. Las cadenas son **inmutables**: `.upper()` (y todos los métodos) devuelven una cadena **nueva**; la original queda igual. Si quieres conservar el resultado, asígnalo: `mayus = texto.upper()`.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. Dada `gen = 'ATGCAT'`, ¿qué devuelven `gen[1]`, `gen[-2]`, `gen[1:4]` y `gen[::-1]`? Escríbelos a mano y compruébalo.
+2. ¿En qué se parecen el `b` de `range(a, b)` y el `b` de `str[a:b]`? (Pista: el extremo final.)
+3. Escribe (en papel o en Colab) una línea que cuente cuántas `'A'` hay en `'BANANA'` con un método, y otra que lo cuente con un `for`.
+4. Explica por qué `texto.replace('a', 'x')` no cambia `texto` a menos que escribas `texto = texto.replace('a', 'x')`.
+5. ¿Qué imprime `print('a\tb\nc')`? Dibuja la salida en una cuadrícula.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Crear / combinar | comillas `'...'`/`"..."`; `+` concatena, `*` repite; las cadenas son **inmutables** |
+| Indización | `str[i]` desde `0`; `str[-1]` es el último |
+| Slicing | `str[a:b]` llega hasta `b-1`; `str[a:b:p]` con paso; `str[::-1]` invierte |
+| Métodos | `len`, `.upper/.lower/.strip/.replace/.count/.find` (`.find` da `-1` si no está) |
+| Escape / formato | `\n` salto de línea, `\t` tabulador; `.format()` con `{}`, `{0}`, `{:.2f}` |
+| Recorrer | `for c in cadena` visita carácter por carácter (una cadena es un iterable) |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre cadenas (indización, *slicing* y métodos).
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección de cadenas (`str`) y sus métodos.
+- **Más allá de esta lección:** las **f-strings** (`f"GC = {gc}%"`) son una forma moderna y compacta de formatear, alternativa a `.format()`; y las funciones `ord()` / `chr()` conectan cada carácter con su número en la **tabla ASCII** (la idea de "un dato es un número" de la L02). En la **L13** verás las **listas**, la estructura natural para guardar muchos valores -- y `cadena.split()`, que parte un texto en una lista de palabras.

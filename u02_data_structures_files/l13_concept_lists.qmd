@@ -1,0 +1,213 @@
+---
+title: "Listas: crear, mutar, operadores y métodos, recorrido, split/join y comprensión"
+unit: "2"
+lesson: 13
+type: concept
+tags: [python, listas, lists, mutabilidad, append, split, join, comprension-de-listas]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Crear** e **indizar** una lista (`[...]`, que puede mezclar tipos) y **modificarla** (`lista[i] = x`, `.append()`, `del`), reconociendo que una lista es **mutable** -- a diferencia de la cadena, que es inmutable. *(Comprender / Aplicar)*
+- **Usar** los operadores de lista: `+` (concatena dos listas), `*` (repite una lista) e `in` (pertenencia: `x in lista` da `True` o `False`). *(Aplicar)*
+- **Usar** funciones y métodos de lista: `len()`, `.append()`, `.count()`, `.index()` y `del lista[i]`. *(Aplicar)*
+- **Recorrer** una lista con un `for` para procesar sus elementos (por ejemplo, acumular una suma). *(Aplicar)*
+- **Convertir** entre texto y lista con `str.split()` (cadena -> lista) y `str.join()` (lista -> cadena). *(Aplicar)*
+- **Construir** una lista de forma compacta con una **comprensión**: `[expr for x in iterable]`, y filtrando con `if`. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L12 (*Cadenas*) · antes de la L14 (*Diccionarios*). Generaliza la idea de "secuencia" de la cadena a una colección de **cualquier** tipo de dato, y **mutable**.
+
+## Por qué importa
+
+Para guardar una medición usas una variable. ¿Y para guardar **cincuenta** lecturas de pH? ¿Cincuenta variables `ph1`, `ph2`, ..., `ph50`? No escala, y no podrías recorrerlas con un `for`.
+
+La respuesta es una **lista**: un solo nombre que guarda **muchos** valores **en orden**. Una lista es como una cadena (la indizas con `lista[i]`, la recorres con un `for`, mides su largo con `len`), pero con dos diferencias clave: guarda **cualquier** tipo de dato (números, cadenas, incluso otras listas), y es **mutable** -- puedes cambiar, agregar y quitar elementos. Es la estructura con la que de verdad empiezas a manejar **datos** (una columna de mediciones, una lista de genes), el corazón del Módulo 2.
+
+> **Práctica (hands-on):** [Lab — Listas](l13_lab_lists.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u02_data_structures_files/l13_lab_lists.ipynb)
+
+## Crear, indizar y mutar una lista
+
+Una lista se escribe encerrando sus elementos, separados por comas, entre **corchetes** `[...]`. Puede mezclar tipos (es **heterogénea**) e incluso contener otras listas. Se indiza igual que una cadena, con `lista[i]` (desde `0`):
+
+```python
+notas = [90, 80, 75, 100]
+print(notas)        # toda la lista
+print(notas[0])     # primer elemento
+```
+
+```
+[90, 80, 75, 100]
+90
+```
+
+Aquí está la diferencia esencial con la cadena: una lista es **mutable**. Puedes **cambiar** un elemento por su índice, **agregar** al final con `.append()` y **eliminar** con `del`. La cadena no permite nada de esto (`'ATG'[0] = 'X'` daría error); la lista sí:
+
+```python
+notas = [90, 80, 75, 100]
+notas[0] = 88         # cambiar el primer elemento
+print(notas)
+notas.append(65)      # agregar al final
+print(notas)
+del notas[1]          # eliminar el de la posicion 1
+print(notas)
+```
+
+```
+[88, 80, 75, 100]
+[88, 80, 75, 100, 65]
+[88, 75, 100, 65]
+```
+
+La misma lista `notas` fue cambiando: `notas[0] = 88` reemplazó el primer valor, `.append(65)` pegó un `65` al final, y `del notas[1]` quitó el elemento de la posición `1` (el `80`). Una **lista vacía** se escribe `[]`, lista para irle agregando elementos con `.append()`.
+
+## Operadores
+
+| Operador | Qué hace | Ejemplo |
+|---|---|---|
+| `lista + lista` | **concatena** (une) dos listas | `[1, 2, 3] + [4, 5]` -> `[1, 2, 3, 4, 5]` |
+| `lista * int` | **repite** la lista | `[0] * 3` -> `[0, 0, 0]` |
+| `x in lista` | **pertenencia** (`True`/`False`) | `90 in [90, 80]` -> `True` |
+
+```python
+print([1, 2, 3] + [4, 5])
+print([0] * 3)
+print(90 in [90, 80, 75])
+print(50 in [90, 80, 75])
+```
+
+```
+[1, 2, 3, 4, 5]
+[0, 0, 0]
+True
+False
+```
+
+`+` y `*` funcionan como en las cadenas (concatenar y repetir), pero sobre listas. El operador `in` es nuevo y muy útil: pregunta si un valor **está** en la lista.
+
+## Funciones y métodos
+
+| Función / método | Qué hace | Ejemplo (`base = [90, 80, 75, 100, 90]`) |
+|---|---|---|
+| `len(lista)` | cantidad de elementos | `len(base)` -> `5` |
+| `lista.count(x)` | cuántas veces aparece `x` | `base.count(90)` -> `2` |
+| `lista.index(x)` | posición de la primera aparición de `x` | `base.index(75)` -> `2` |
+| `lista.append(x)` | agrega `x` al final (modifica la lista) | `base.append(65)` |
+| `del lista[i]` | elimina el elemento en la posición `i` | `del base[0]` |
+
+```python
+base = [90, 80, 75, 100, 90]
+print(len(base))
+print(base.count(90))
+print(base.index(75))
+```
+
+```
+5
+2
+2
+```
+
+`.append()` y `del` **modifican** la lista en el sitio (no devuelven una lista nueva); `len`, `.count` e `.index` solo consultan. Recuerda que `.index` da la **primera** posición donde aparece el valor.
+
+## Recorrer una lista
+
+Una lista es un **iterable**, así que un `for` la recorre **elemento por elemento** -- igual que recorría los caracteres de una cadena (L12) o los números de un `range` (L11). El patrón acumulador de la L08 funciona tal cual:
+
+```python
+edades = [45, 33, 55, 30]
+suma = 0
+for e in edades:
+    suma += e
+print(suma)
+```
+
+```
+163
+```
+
+En cada vuelta, `e` toma el siguiente valor de la lista y el acumulador `suma` lo agrega: `45 + 33 + 55 + 30 = 163`.
+
+## De cadenas a listas y de vuelta: `split` y `join`
+
+Dos métodos conectan el mundo de las cadenas (L12) con el de las listas. `str.split(sep)` **parte** una cadena en una **lista** de subcadenas, cortando por `sep` (si lo omites, corta por espacios). `sep.join(lista)` hace lo inverso: **une** una lista de cadenas en una sola cadena, poniendo `sep` entre cada par:
+
+```python
+print('7.1, 6.8, 7.4'.split(','))
+print('-'.join(['A', 'T', 'G']))
+```
+
+```
+['7.1', ' 6.8', ' 7.4']
+A-T-G
+```
+
+`split(',')` cortó por las comas y devolvió una lista de tres cadenas (ojo: como había un espacio tras cada coma, quedó pegado al texto: `' 6.8'`). `'-'.join([...])` pegó los tres elementos con un guion en medio. `split` es la herramienta para **parsear texto a datos**: una línea de mediciones separadas por comas se vuelve una lista con la que ya puedes trabajar (esto, en grande, es lo que hace `read_csv` de Pandas en el Módulo 3).
+
+## Comprensión de listas
+
+Construir una lista a partir de otra (transformando o filtrando) es tan común que Python ofrece una forma compacta: la **comprensión de listas**. Su forma básica es `[<expr> for <variable> in <iterable>]`: recorre el iterable y, por cada elemento, evalúa `<expr>` y lo agrega a la lista nueva.
+
+```python
+edades = [45, 33, 55, 30, 25, 33, 25, 40]
+intervalo = [e for e in edades if e >= 35 and e <= 45]
+print(intervalo)
+```
+
+```
+[45, 40]
+```
+
+Con un `if` al final, `[<expr> for <var> in <iterable> if <condicion>]` solo agrega los elementos que cumplen la condición: aquí, las edades **entre 35 y 45**, o sea `[45, 40]`. Una comprensión equivale a un `for` con un `if` y un `.append()`, pero en una sola línea legible. Combinada con `split`, es la forma natural de convertir un texto de mediciones en una lista de números:
+
+```python
+texto = '7.1,6.8,7.4,7.0,6.9'
+lecturas = [float(x) for x in texto.split(',')]
+print(lecturas)
+```
+
+```
+[7.1, 6.8, 7.4, 7.0, 6.9]
+```
+
+## Preguntas frecuentes
+
+**"¿Cuándo uso una lista y cuándo una cadena?"** — Una **cadena** guarda texto (caracteres) y es **inmutable**. Una **lista** guarda **cualquier** tipo de dato, en orden, y es **mutable** (puedes cambiar, agregar y quitar). Si necesitas modificar la colección o guardar números/objetos, lista.
+
+**"¿`append` devuelve la lista nueva?"** — No. `.append()` (y `del`) **modifican la lista en el sitio** y no devuelven nada útil. Escribe `lista.append(x)`, no `lista = lista.append(x)` (eso dejaría `lista` en `None`).
+
+**"¿Por qué `'7.1, 6.8'.split(',')` deja un espacio en `' 6.8'`?"** — Porque `split(',')` corta **exactamente** por la coma, y el espacio que escribiste después de la coma queda pegado al texto. Si las separas sin espacios (`'7.1,6.8'`) no pasa; o puedes limpiar cada parte con `.strip()` (L12).
+
+**"¿Qué hace una comprensión de listas?"** — Recorre un iterable y construye una lista nueva en una línea: `[expr for x in it]` transforma cada elemento; con `if` al final, además filtra. Es un `for` + `if` + `append` resumido.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué diferencia fundamental hay entre una lista y una cadena? Da un ejemplo de algo que puedas hacer con una lista pero no con una cadena.
+2. Si `xs = [3, 1, 4, 1, 5]`, ¿qué valen `len(xs)`, `xs.count(1)`, `xs.index(4)` y `7 in xs`?
+3. Escribe (en papel o en Colab) un `for` que sume los elementos de `[10, 20, 30]`, y luego una comprensión que produzca `[20, 40, 60]` (el doble de cada uno).
+4. ¿Qué devuelve `'a,b,c'.split(',')`? ¿Y `'+'.join(['a', 'b', 'c'])`? Nota que uno da una lista y el otro una cadena.
+5. Reescribe con una comprensión: "de `[1, 2, 3, 4, 5, 6]`, quédate solo con los pares".
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Crear / indizar | `[a, b, c]` entre corchetes; `lista[i]` desde `0`; heterogénea |
+| **Mutabilidad** | una lista **sí** se puede cambiar (`lista[i]=x`, `.append`, `del`) -- la cadena no |
+| Operadores | `+` concatena, `*` repite, `in` pregunta pertenencia |
+| Métodos | `len`, `.append` (al final), `.count`, `.index`, `del lista[i]` |
+| Recorrer | `for e in lista` visita cada elemento (es un iterable) |
+| split / join | `split` parte una cadena en **lista**; `join` une una lista en **cadena** |
+| Comprensión | `[expr for x in it]` (y `... if cond`) construye una lista en una línea |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre listas y comprensiones.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — las secciones de listas (`list`) y de comprensiones de listas.
+- **Más allá de esta lección:** las listas tienen más métodos para **ordenar** (`.sort()`, `sorted()`) y quitar (`.pop()`, `.remove()`); y existen otras colecciones (tuplas, conjuntos) que verás en otros cursos. En la **L14** llegan los **diccionarios** (`{clave: valor}`), que guardan datos por **nombre** en vez de por posición; y en el **Módulo 3**, `split` y las listas serán el puente hacia leer archivos **CSV** con Pandas.

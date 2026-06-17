@@ -1,0 +1,233 @@
+---
+title: "Ciclos: el while (contador, acumulador, validación y asignación con operador)"
+unit: "1"
+lesson: 8
+type: concept
+tags: [python, ciclos, while, contador, acumulador, validacion, asignacion-con-operador, terminacion]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Explicar** qué es un ciclo y cómo `while` repite un bloque **mientras** su condición sea `True` (su sintaxis y su semántica), y reconocer el patrón de **validación con un centinela**. *(Comprender)*
+- **Escribir** un ciclo **contador**: inicializar una variable de control, poner la condición e incrementarla para repetir un número conocido de veces. *(Aplicar)*
+- **Escribir** un ciclo **acumulador** que combina valores a lo largo de las vueltas (por ejemplo, una suma). *(Aplicar)*
+- **Usar** las asignaciones con operador (`+=`, `-=`, `*=`, ...) para actualizar una variable. *(Aplicar)*
+- **Verificar la terminación** de un `while`: reconocer el cambio de estado que lleva a la salida y detectar un **ciclo infinito**. *(Analizar)*
+- **Aplicar** un `while` a un caso científico: contar las generaciones de una duplicación celular hasta superar un umbral. *(Aplicar)*
+
+> **Dónde encaja:** después de la L07 (*Condicionales*) · antes de la L11 (*Ciclos `for`*, ya en el Módulo 2). Cierra el contenido del Módulo 1.
+
+## Por qué importa
+
+Para hacer algo una vez, escribes una línea. ¿Y para hacerlo cien veces? ¿O un número de veces que **no conoces de antemano** —insistir hasta que el dato sea válido, sumar mediciones mientras lleguen, contar pasos hasta cruzar un umbral?
+
+Copiar líneas no escala. Lo que necesitas es **repetir**: un `while` ejecuta un bloque **una y otra vez mientras** una condición se mantenga verdadera. Es la segunda forma de cambiar el flujo de tu programa (la primera fue el condicional): en vez de decidir **si** corre un bloque, decides **cuántas veces** se repite.
+
+> **Práctica (hands-on):** [Lab — Ciclos `while`](l08_lab_while_loops.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u01_fundamentals/l08_lab_while_loops.ipynb)
+
+## La instrucción `while`
+
+Un `while` repite su bloque **indentado mientras** una condición booleana sea `True`. Cada vez que termina el bloque, vuelve a evaluar la condición; en cuanto resulta `False`, sale y sigue con el resto del programa. Su forma:
+
+```python
+while <condicion booleana>:
+    <bloque indentado: se repite mientras la condicion sea True>
+```
+
+```{mermaid}
+flowchart TD
+    A["<b>inicializar</b> el estado<br/>(p. ej. i = 1)"] --> C{"condición<br/>booleana"}
+    C -- "True" --> B["<b>ejecutar el bloque</b> (indentado)<br/>y <b>cambiar el estado</b><br/>(p. ej. i = i + 1)"]
+    B --> C
+    C -- "False" --> N["<b>sigue el programa</b>"]
+```
+
+Fíjate en la flecha que **regresa** del bloque a la condición: eso es lo que distingue un ciclo de un `if`. El `if` ejecuta su bloque **a lo sumo una vez**; el `while` lo repite **mientras** la condición se mantenga. Por eso todo `while` seguro tiene **tres piezas**: se **inicializa** un estado antes del ciclo, se **prueba** una condición, y el bloque **cambia ese estado** acercándolo a la salida. Si falta la tercera, el ciclo nunca termina.
+
+## Patrón contador
+
+El uso más común es **contar**: una variable de control (aquí `i`) se inicializa, se compara en la condición y se **incrementa** en cada vuelta. Este programa imprime los primeros `n` números naturales:
+
+```python
+n = 5
+i = 1
+while i <= n:
+    print(i)
+    i = i + 1
+print("Termine!")
+```
+
+```
+1
+2
+3
+4
+5
+Termine!
+```
+
+`i` empieza en `1`; mientras `i <= n` (es decir, `i <= 5`) sea `True`, imprime `i` y luego le suma `1`. Cuando `i` llega a `6`, la condición `6 <= 5` es `False` y el ciclo termina, así que se imprime `Termine!` una sola vez.
+
+## Patrón acumulador
+
+Otro patrón clave es **acumular** un total a lo largo de las vueltas: una variable se inicializa **fuera** del ciclo y se actualiza **dentro**. Este programa suma los primeros `n` naturales:
+
+```python
+n = 5
+suma = 0
+i = 1
+while i <= n:
+    suma = suma + i
+    i = i + 1
+print("La suma es:", suma)
+```
+
+```
+La suma es: 15
+```
+
+`suma` empieza en `0` y, en cada vuelta, le agrega el valor actual de `i` (`0+1+2+3+4+5 = 15`). Hay **dos** variables que cambian: el contador `i` (controla cuándo parar) y el acumulador `suma` (guarda el resultado). El `print` va **después** del ciclo, cuando la suma ya está completa.
+
+## Asignaciones con operador
+
+Actualizar una variable a partir de sí misma (`i = i + 1`, `suma = suma + i`) es tan común que Python ofrece un **atajo**: la asignación con operador. `i += 1` significa exactamente `i = i + 1`.
+
+| Atajo | Equivale a |
+|---|---|
+| `i += 1` | `i = i + 1` |
+| `i -= 1` | `i = i - 1` |
+| `i *= 2` | `i = i * 2` |
+| `i /= 2` | `i = i / 2` |
+| `i //= 2` | `i = i // 2` |
+| `i %= 2` | `i = i % 2` |
+| `i **= 2` | `i = i ** 2` |
+
+Funciona con cualquier operador aritmético. Cuidado con los tipos: el operador `/` siempre produce un `float`, así que un `i /= ...` convierte `i` en `float`. Mira esta secuencia paso a paso (parte de `i = 2`):
+
+```python
+i = 2
+i += 3    # i = 5
+i -= 1    # i = 4
+i *= 2    # i = 8
+i /= 8    # i = 1.0   (la division / da float)
+i **= 3   # i = 1.0
+i //= 3   # i = 0.0
+i %= 2    # i = 0.0
+print(i)
+```
+
+```
+0.0
+```
+
+El valor final es `0.0` (un `float`, por culpa del `/=`). Con asignaciones con operador, el patrón contador se escribe más corto: `i += 1` en vez de `i = i + 1`.
+
+## Que el ciclo termine
+
+La regla de oro del `while`: **el bloque debe acercar la condición a `False`**. Si olvidas actualizar la variable de control, tienes un **ciclo infinito**: el programa se queda repitiendo para siempre.
+
+```python
+# NO LO EJECUTES: es un ciclo infinito (nunca termina).
+i = 0
+while i < 5:
+    print(i)
+```
+
+Aquí `i` siempre vale `0`, así que `i < 5` es **siempre** `True` y el ciclo imprime `0` sin parar (en Colab tendrías que **interrumpir** la ejecución). El arreglo es la tercera pieza que falta: actualizar `i` dentro del bloque.
+
+```python
+i = 0
+while i < 5:
+    print(i)
+    i = i + 1   # el arreglo: ahora i avanza hacia 5 y el ciclo termina
+```
+
+::: {.callout-tip}
+**Error de uno-en-uno (*off-by-one*).** Confundir `<` con `<=` cambia cuántas vueltas da el ciclo. Con `i = 1` y `while i <= 5` das **5** vueltas (1 a 5); con `while i < 5`, solo **4** (1 a 4). Antes de confiar en un ciclo, **trázalo a mano** una o dos vueltas y comprueba dónde se detiene.
+:::
+
+## Validación con un centinela
+
+Un `while` también sirve para **insistir hasta que un dato sea válido**: se repite la lectura mientras el valor esté fuera de rango. (Aquí se muestra la forma interactiva con `input()`; en el lab usamos valores fijos porque `input()` no corre en una ejecución automática.)
+
+```python
+horas = int(input("Ingrese hora [1...12]: "))
+while horas < 1 or horas > 12:
+    horas = int(input("Vuelva a ingresar hora [1...12]: "))
+```
+
+Si la primera lectura es válida (por ejemplo `5`), la condición `horas < 1 or horas > 12` es `False` de entrada y el bloque **no se ejecuta ni una vez**. Si es inválida (por ejemplo `15`), el ciclo vuelve a pedir el dato hasta que esté entre `1` y `12`. A la variable que controla la salida (aquí `horas`) se le llama **centinela**.
+
+## De vuelta a la ciencia: contar generaciones
+
+Muchos procesos científicos se repiten hasta cruzar un umbral. Un cultivo de células que se **duplica** cada generación: ¿cuántas generaciones hasta superar las `1000` células, partiendo de `10`?
+
+```python
+celulas = 10
+generaciones = 0
+while celulas < 1000:
+    celulas = celulas * 2
+    generaciones = generaciones + 1
+print("Generaciones hasta pasar 1000:", generaciones)
+print("Celulas:", celulas)
+```
+
+```
+Generaciones hasta pasar 1000: 7
+Celulas: 1280
+```
+
+Aquí no sabíamos de antemano cuántas vueltas harían falta: el `while` repite **mientras** `celulas < 1000` y se detiene en cuanto el cultivo lo supera (a las `7` generaciones, con `1280` células). Contar pasos hasta una condición es justo lo que un ciclo hace mejor que copiar líneas.
+
+## Preguntas frecuentes
+
+**"¿Cuándo uso `while` y cuándo `if`?"** — El `if` ejecuta su bloque **a lo sumo una vez** (decide si corre o no). El `while` lo repite **mientras** la condición se mantenga `True` (decide cuántas veces). Si la tarea es "repetir", es `while`; si es "decidir", es `if`.
+
+**"¿Por qué mi ciclo no termina nunca?"** — Casi siempre porque el bloque **no cambia** la variable de la condición (olvidaste el `i += 1`, o actualizaste la variable equivocada). Revisa que cada vuelta acerque la condición a `False`.
+
+**"¿`i += 1` es lo mismo que `i = i + 1`?"** — Sí, exactamente. Es solo un atajo más corto y legible; funciona con `+ - * / // % **`.
+
+**"¿Uso `<` o `<=` en la condición?"** — Depende de cuántas vueltas quieras. Es la fuente más común del error de uno-en-uno: traza el ciclo a mano una o dos vueltas y confirma dónde se detiene.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. Explica con tus palabras la diferencia entre un `if` y un `while`. ¿En qué se parecen?
+2. ¿Cuántas veces imprime este ciclo y qué valores? **Traza** `i` vuelta por vuelta.
+   ```python
+   i = 2
+   while i <= 8:
+       print(i)
+       i = i + 2
+   ```
+3. Este ciclo es **infinito**. ¿Por qué, y cómo lo arreglas con una sola línea?
+   ```python
+   i = 10
+   while i > 0:
+       print(i)
+   ```
+4. Escribe (en papel o en Colab) un acumulador que sume los números **pares** del `2` al `10` e imprima el total.
+5. Reescribe `cuenta = cuenta + 3` y `total = total * 2` usando asignaciones con operador.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| `while` | repite el bloque **indentado** mientras la condición sea `True` |
+| Las tres piezas | inicializar el estado · probar la condición · **cambiar el estado** hacia la salida |
+| Contador | una variable de control que se inicializa y se incrementa cada vuelta |
+| Acumulador | una variable que se inicializa fuera y acumula un total dentro |
+| Asignación con operador | `i += 1` es `i = i + 1` (funciona con `+ - * / // % **`) |
+| Terminación | sin cambio de estado hay **ciclo infinito**; cuidado con el off-by-one (`<` vs `<=`) |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre la instrucción `while` y los esquemas de recorrido (contador y acumulador).
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sentencia `while` y la idea de iteración.
+- **Para conectar con lo que viene:** en la **L11** (Módulo 2) conocerás el ciclo `for`, la forma natural de **recorrer una colección** en Python; entenderás el `while` como el mecanismo general y el `for` como el atajo cómodo cuando ya sabes sobre qué iterar.

@@ -1,0 +1,61 @@
+project:
+  type: website
+  render:                 # .ipynb excluded: notebooks are artifacts, .md is the page source
+    - "*.qmd"
+    - "**/*.qmd"
+    - "**/*.md"
+
+lang: es                  # Spanish-authored course: screen readers / SEO treat prose as Spanish
+
+website:
+  title: "COMP 3005 — Introducción al Uso de la Computadora"
+  site-url: https://devomh.github.io/comp3005-2026/
+  page-navigation: true
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - index.qmd
+      # Los módulos se añaden aquí a medida que las lecciones se publican.
+      # Orden y mapa de sesiones: _syllabus/lesson-schedule.md (S1-S28; S29-S30 reservadas).
+      # Las carpetas/slugs son inglés+ASCII (convención del repo); los rótulos son español.
+      - section: "Módulo 1 — Fundamentos y programación básica"
+        contents:
+          - u01_fundamentals/l01_concept_computing_history.qmd
+          - u01_fundamentals/l02_concept_data_representation.qmd
+          - u01_fundamentals/l03_concept_os_and_languages.qmd
+          - u01_fundamentals/l04_concept_python_intro_1.qmd
+          - u01_fundamentals/l04_lab_python_intro_1.md
+          - u01_fundamentals/l05_concept_python_intro_2.qmd
+          - u01_fundamentals/l05_lab_python_intro_2.md
+          - u01_fundamentals/l06_concept_boolean_logic.qmd
+          - u01_fundamentals/l06_lab_boolean_logic.md
+          - u01_fundamentals/l07_concept_conditionals.qmd
+          - u01_fundamentals/l07_lab_conditionals.md
+          - u01_fundamentals/l08_concept_while_loops.qmd
+          - u01_fundamentals/l08_lab_while_loops.md
+      - section: "Módulo 2 — Estructuras de datos, funciones y archivos"
+        contents:
+          - u02_data_structures_files/l11_concept_for_loops.qmd
+          - u02_data_structures_files/l11_lab_for_loops.md
+          - u02_data_structures_files/l12_concept_strings.qmd
+          - u02_data_structures_files/l12_lab_strings.md
+          - u02_data_structures_files/l13_concept_lists.qmd
+          - u02_data_structures_files/l13_lab_lists.md
+      # - section: "Módulo 3 — Cómputo científico con Python"
+      #   contents:
+      #     - u03_scientific_computing/...
+
+format:
+  html:
+    theme: cosmo
+    mermaid:
+      theme: neutral      # default theme gives dark subgraph fills (unreadable in light mode)
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    html-math-method: katex
+
+execute:
+  freeze: auto

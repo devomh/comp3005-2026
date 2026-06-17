@@ -1,0 +1,225 @@
+---
+title: "Condicionales: if/else, elif, anidados y cortocircuito"
+unit: "1"
+lesson: 7
+type: concept
+tags: [python, condicionales, if-else, elif, anidados, cortocircuito, flujo-de-control]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Usar** `if ... else` para elegir entre **dos** caminos: la rama `else` se ejecuta cuando la condición del `if` es `False`. *(Aplicar)*
+- **Encadenar** varios casos mutuamente excluyentes con `if ... elif ... else` (se evalúan en orden; gana el **primer** `True`). *(Aplicar)*
+- **Anidar** condicionales: un `if`/`else` dentro del bloque de otro, para una decisión de dos niveles. *(Aplicar)*
+- **Explicar** la evaluación de **cortocircuito** de `and`/`or` y usarla para **proteger** una operación (evitar dividir entre cero). *(Comprender)*
+- **Aplicar** condicionales a un caso científico: **clasificar** una medición en varias categorías (un pH ácido, neutro o básico). *(Aplicar)*
+
+> **Dónde encaja:** después de la L06 (*Lógica booleana*) · antes de la L08 (*Ciclos `while`*).
+
+## Por qué importa
+
+En la L06 tu `if` hacía algo... **o nada**. Si la condición era falsa, el programa simplemente se saltaba el bloque y seguía. Pero casi todas las decisiones reales tienen **al menos dos salidas**: un número es par **o** impar; una muestra es ácida, neutra **o** básica; una nota es A, B, C, D **o** F.
+
+Para eso necesitas decir **"y si no..."**. Esa es la rama `else`. Y cuando hay **varios** casos, los encadenas con `elif`. Con estas tres piezas —`if`, `elif`, `else`— y la posibilidad de **anidar** unas decisiones dentro de otras, puedes expresar cualquier clasificación que necesites en un análisis científico.
+
+> **Práctica (hands-on):** [Lab — Condicionales](l07_lab_conditionals.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u01_fundamentals/l07_lab_conditionals.ipynb)
+
+## Decidir entre dos caminos: `if ... else`
+
+Un `if` simple ejecuta su bloque solo si la condición es verdadera. Para darle una **alternativa**, le añades un `else`: el bloque del `else` se ejecuta **cuando la condición del `if` es `False`**. Así el programa siempre toma **exactamente uno** de los dos caminos.
+
+```python
+nro = 8
+if nro % 2 == 0:
+    print("Es par")
+else:
+    print("No es par")
+```
+
+```
+Es par
+```
+
+Como `8 % 2` es `0` (el residuo de dividir 8 entre 2), la condición `nro % 2 == 0` es `True` y se ejecuta el bloque del `if`. Si `nro` fuera `7`, la condición sería `False` y se ejecutaría el bloque del `else`, imprimiendo `No es par`.
+
+::: {.callout-note}
+El `else` **no lleva condición propia**: es el "en cualquier otro caso". Va al mismo nivel de indentación que su `if`, seguido de dos puntos (`:`), y su bloque va indentado.
+:::
+
+## Varios casos: `if ... elif ... else`
+
+Cuando hay **más de dos** posibilidades, encadenas condiciones con `elif` (abreviatura de *else if*). Python las evalúa **en orden, de arriba hacia abajo**, y ejecuta el bloque del **primer** `elif` (o `if`) cuya condición sea `True`; **descarta todos los demás**. El `else` final recoge "todo lo que no encajó".
+
+```{mermaid}
+flowchart TD
+    A["<b>evaluar</b> n"] --> C1{"n > 0?"}
+    C1 -- "True" --> P["imprime<br/><b>Positivo</b>"]
+    C1 -- "False" --> C2{"n == 0?"}
+    C2 -- "True" --> Z["imprime<br/><b>Cero</b>"]
+    C2 -- "False" --> NG["imprime<br/><b>Negativo</b>"]
+    P --> N["<b>sigue el programa</b>"]
+    Z --> N
+    NG --> N
+```
+
+```python
+n = -3.0
+if n > 0:
+    print("Positivo")
+elif n == 0:
+    print("Cero")
+else:
+    print("Negativo")
+```
+
+```
+Negativo
+```
+
+Con `n = -3.0`: la primera condición (`n > 0`) es `False`, la segunda (`n == 0`) también, así que se ejecuta el `else` y se imprime `Negativo`. Solo se ejecuta **un** bloque, aunque varias condiciones pudieran cumplirse: gana la **primera** que sea verdadera.
+
+Otro ejemplo clásico: convertir una nota numérica a su letra. Aquí el orden importa, porque cada `elif` ya asume que las condiciones anteriores fallaron:
+
+```python
+nota = 83
+if nota >= 90:
+    letra = "A"
+elif nota >= 80:
+    letra = "B"
+elif nota >= 70:
+    letra = "C"
+elif nota >= 60:
+    letra = "D"
+else:
+    letra = "F"
+print("La nota en letra es:", letra)
+```
+
+```
+La nota en letra es: B
+```
+
+Con `nota = 83`: `83 >= 90` es `False`, pero `83 >= 80` es `True`, así que `letra` queda en `"B"` y los `elif` siguientes **ni se evalúan**. Fíjate en que `83` *también* cumpliría `>= 70` y `>= 60`: varias condiciones son verdaderas a la vez, pero como gana la **primera**, esas nunca se llegan a comprobar. Por eso el orden importa —de mayor a menor— y cada `elif` ya asume que los anteriores fallaron.
+
+## Una decisión dentro de otra: condicionales anidados
+
+A veces, **después** de tomar una decisión necesitas tomar otra. Para eso **anidas** un condicional dentro del bloque de otro. Retomemos la ecuación lineal `a*x + b = 0` de la L06, ahora con el análisis completo: si `a` no es cero, hay una solución; si `a` **es** cero, todavía hay que distinguir dos casos según `b`.
+
+```python
+a = 0.0
+b = 2.0
+if a != 0:
+    x = -b / a
+    print("Solucion x =", x)
+else:
+    if b != 0:
+        print("La ecuacion no tiene solucion")
+    else:
+        print("La ecuacion tiene infinitas soluciones")
+```
+
+```
+La ecuacion no tiene solucion
+```
+
+Con `a = 0.0`, la condición externa `a != 0` es `False`, así que entramos al `else` externo. Allí, un **segundo** `if` distingue: como `b` (que vale `2.0`) **no** es cero, imprime `La ecuacion no tiene solucion`. Cada nivel de anidación añade su propia indentación.
+
+::: {.callout-tip}
+**¿`elif` o anidar?** Usa `elif` cuando los casos son **alternativas al mismo nivel** (positivo / cero / negativo). Anida cuando una decisión **depende del resultado** de otra (primero "¿`a` es cero?", y solo entonces "¿y `b`?"). Muchos anidamientos se pueden reescribir con `elif`, que suele leerse mejor.
+:::
+
+## Cómo evalúa Python `and`/`or`: cortocircuito
+
+Cuando combinas condiciones con `and` y `or`, Python es **perezoso**: deja de evaluar en cuanto el resultado ya está decidido. A esto se le llama **evaluación de cortocircuito**.
+
+- En `A and B`: si `A` es `False`, el resultado ya es `False`, así que **`B` ni se evalúa**.
+- En `A or B`: si `A` es `True`, el resultado ya es `True`, así que **`B` ni se evalúa**.
+
+Esto no es solo un detalle de eficiencia: te permite **proteger** una operación riesgosa. Observa:
+
+```python
+a = 0
+b = 2
+
+if a != 0 and 1/a > 0:
+    print("El reciproco de a es positivo.")
+
+if (b > 0) or (b/a > 0):
+    print("b es positivo o b y a tienen el mismo signo.")
+```
+
+```
+b es positivo o b y a tienen el mismo signo.
+```
+
+Aunque `a` vale `0`, **este programa no falla**. En el primer `if`, `a != 0` es `False`, y como es un `and`, Python **no evalúa** `1/a > 0` —que habría dado un error de división entre cero—. En el segundo `if`, `b > 0` es `True`, y como es un `or`, Python **no evalúa** `b/a > 0`. Por eso solo se imprime la segunda línea. Poner la condición protectora (`a != 0`) **antes** del `and` es un patrón muy útil para validar datos.
+
+## De vuelta a la ciencia: clasificar una medición
+
+La mayoría de las clasificaciones en el laboratorio son una cadena `if/elif/else`. Por ejemplo, decidir si una muestra es ácida, neutra o básica según su pH:
+
+```python
+ph = 8.2
+if ph < 7:
+    print("La muestra es acida")
+elif ph == 7:
+    print("La muestra es neutra")
+else:
+    print("La muestra es basica")
+```
+
+```
+La muestra es basica
+```
+
+Con `ph = 8.2`: `8.2 < 7` es `False`, `8.2 == 7` es `False`, así que el `else` la clasifica como `basica`. Cambiar el valor de `ph` te lleva por una rama distinta —ese es justamente el poder de un condicional—.
+
+## Preguntas frecuentes
+
+**"¿El `else` lleva condición?"** — No. El `else` es el "en cualquier otro caso": se ejecuta cuando ninguna de las condiciones anteriores (`if` y `elif`) fue verdadera. Solo el `if` y los `elif` llevan condición.
+
+**"¿`elif` o anidar?"** — Usa `elif` para alternativas al mismo nivel (varios casos excluyentes). Anida cuando una segunda decisión solo tiene sentido **después** de una primera. Cuando puedas elegir, `elif` suele leerse mejor que anidar.
+
+**"¿Por qué no falla `1/a` si `a` es `0`?"** — Por el **cortocircuito**. En `a != 0 and 1/a > 0`, como `a != 0` es `False`, Python ya sabe que el `and` será `False` y **no llega a evaluar** `1/a`. Si inviertes el orden (`1/a > 0 and a != 0`), sí fallaría.
+
+**"¿Cuántos `elif` puedo poner?"** — Los que necesites: cero, uno o muchos. El `else` final es **opcional** (sin él, si ningún caso se cumple, no se ejecuta nada). El `if` inicial siempre va; los `elif` y el `else` son añadidos.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Cuándo se ejecuta el bloque de un `else`? ¿El `else` tiene condición propia?
+2. En una cadena `if/elif/elif/else`, si **dos** condiciones fueran verdaderas, ¿qué bloque se ejecuta? ¿Por qué?
+3. ¿Qué imprime este programa? ¿Y si `n` fuera `0`?
+   ```python
+   n = 5.0
+   if n > 0:
+       print("Positivo")
+   elif n == 0:
+       print("Cero")
+   else:
+       print("Negativo")
+   ```
+4. Explica con tus palabras por qué `a != 0 and 1/a > 0` **no** produce un error cuando `a` vale `0`.
+5. Escribe una cadena `if/elif/else` que, a partir de una `temperatura`, imprima `"baja"` si es menor que `36`, `"normal"` si está entre `36` y `38`, y `"alta"` si es mayor que `38`.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| `if ... else` | dos caminos: el `else` corre cuando la condición del `if` es `False` |
+| `if ... elif ... else` | varios casos en orden; gana el **primer** `True`; el `else` recoge el resto |
+| Condicionales anidados | una decisión dentro del bloque de otra (dos niveles); cada nivel se indenta |
+| Cortocircuito | `and` para en el primer `False`, `or` en el primer `True`; sirve para **proteger** |
+| Aplicación científica | clasificar (pH, nota, rango) es una cadena `if/elif/else` |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre la instrucción condicional (`if`/`elif`/`else`) y la evaluación de expresiones booleanas.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección "Más herramientas de control de flujo" (la parte de `if`/`elif`/`else`).
+- **Para conectar con lo que viene:** en la **L08** darás el siguiente paso del flujo de control con `while`: en lugar de decidir **si** se ejecuta un bloque, decidirás **cuántas veces** se repite.

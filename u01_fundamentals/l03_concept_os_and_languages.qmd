@@ -1,0 +1,172 @@
+---
+title: "Sistemas operativos y lenguajes de programación"
+unit: "1"
+lesson: 3
+type: concept
+tags: [sistema-operativo, lenguajes, alto-nivel, bajo-nivel, compilador, interprete, etica]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Explicar** qué es un programa y por qué necesitamos **lenguajes de programación** entre la persona y una máquina que solo entiende `0` y `1`. *(Comprender)*
+- **Contrastar** un lenguaje de **alto nivel** con uno de **bajo nivel** (máquina y ensamblador), viendo el mismo programa en cada uno. *(Analizar)*
+- **Distinguir** un **compilador** de un **intérprete**: cómo y cuándo traducen, y qué implica cada uno. *(Comprender)*
+- **Describir** qué es un **sistema operativo** y cómo administra el hardware y los recursos para darles servicio a las aplicaciones. *(Comprender)*
+- **Reconocer** el **sistema de archivos** (archivos y directorios) como la forma en que el sistema operativo organiza los datos. *(Comprender)*
+- **Discutir** aspectos **éticos** del uso de la computadora y su impacto en la ciencia y la sociedad. *(Evaluar)*
+
+> **Dónde encaja:** después de la L02 (*Arquitectura y representación de datos*) · antes de la L04 (*Introducción a Python*), donde empezarás a escribir y ejecutar tu propio código.
+
+## Por qué importa
+
+En la L02 vimos algo incómodo: la computadora, por dentro, solo entiende **ceros y unos**. Entonces, ¿cómo es que más adelante le escribirás algo como `print('Hola')` y te hace caso?
+
+La respuesta es de lo que trata esta lección. Entre tu intención y los `0` y `1` de la máquina hay dos piezas clave: los **lenguajes de programación**, que te acercan a la máquina con palabras que una persona puede leer, y los **traductores** (compiladores e intérpretes), que convierten ese lenguaje a algo que el procesador ejecuta. Y por encima de todo, coordinando el hardware, está el **sistema operativo**. Para tu biología o tu química no programarás en ceros y unos: usarás un lenguaje de alto nivel sobre un sistema operativo que administra la máquina por ti.
+
+> **Analogía:** es como traducir un texto. Tú escribes en tu idioma (alto nivel); un traductor lo lleva al idioma de la máquina. Un **compilador** traduce el libro entero de una vez y te entrega la versión final; un **intérprete** va traduciendo en voz alta, frase por frase, cada vez que lo lees.
+
+## Del 0 y 1 a un lenguaje: los niveles
+
+Un **programa** es un conjunto de instrucciones que la máquina sigue para hacer algo (lo vimos en la L01). El problema es que las primeras programadoras y programadores escribían directamente en **lenguaje de máquina**: cadenas de `0` y `1`. Era tremendamente tedioso y fácil de equivocar. Con el tiempo se inventaron lenguajes cada vez más cercanos a las personas.
+
+Mira el **mismo programa** —sumar 15 + 1— escrito en tres niveles distintos.
+
+**Lenguaje de máquina** (lo que de verdad ejecuta el procesador; aquí en hexadecimal, la forma corta del binario que viste en la L02):
+
+```text
+0004
+2005
+1006
+FFFF
+000F
+0001
+```
+
+**Lenguaje ensamblador** (los mismos pasos, pero con *mnemónicos* cortos en lugar de cadenas de bits):
+
+```text
+ld   4      # cargar el valor de la posicion 4 (que vale 15)
+add  5      # sumarle el valor de la posicion 5 (que vale 1)
+st   6      # guardar el resultado en la posicion 6
+halt        # detener
+```
+
+**Lenguaje de alto nivel** (Python, que aprenderás a escribir a partir de la L04):
+
+```python
+numero1 = 15
+numero2 = 1
+print(numero1 + numero2)   # imprime 16
+```
+
+Los tres hacen exactamente lo mismo, pero su legibilidad no podría ser más distinta. Esa es la idea de **nivel**:
+
+| Nivel | Qué tan cerca está de... | Ejemplo |
+|---|---|---|
+| **Bajo nivel** | de la **máquina** (bits, direcciones) | lenguaje de máquina, ensamblador |
+| **Alto nivel** | de la **persona** (palabras, fórmulas) | Python, y casi todo lo que usarás |
+
+![Una "baraja" de tarjetas perforadas: un programa completo guardado físicamente, donde la presencia o ausencia de un hueco codifica la información en forma binaria que lee la máquina. Foto: ArnoldReinhold, vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Punched_card_program_deck.agr.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/punched_card_deck.jpg){width=60%}
+
+Cuanto más alto el nivel, más fácil para la persona y más trabajo hace el traductor por debajo. Por eso en ciencia se usan lenguajes de alto nivel: te concentras en *qué* calcular, no en mover bits.
+
+## Traductores: compilador e intérprete
+
+Ningún procesador entiende Python directamente: hace falta **traducir** el alto nivel a lenguaje de máquina. Hay dos estrategias:
+
+```{mermaid}
+flowchart TB
+    A["Código en alto nivel<br/>(lo que tú escribes)"] --> C["<b>Compilador</b><br/>traduce TODO de una vez<br/>y produce un ejecutable"]
+    A --> I["<b>Intérprete</b><br/>traduce y ejecuta<br/>línea por línea, cada vez"]
+    C --> M["Lenguaje de máquina<br/>(0 y 1) que corre el procesador"]
+    I --> M
+```
+
+| | Compilador | Intérprete |
+|---|---|---|
+| Cuándo traduce | **Todo de una vez**, antes de correr | **Línea por línea**, mientras corre |
+| Qué produce | Un **archivo ejecutable** | Nada permanente; traduce cada vez |
+| Para correr | Ejecutas el archivo ya traducido | Necesitas el intérprete instalado |
+| Atado a... | Un hardware y un sistema operativo (si cambias, hay que recompilar) | Corre donde haya intérprete |
+| Ejemplo | C, FORTRAN (el primer compilador, 1954) | **Python**, el lenguaje del curso |
+
+Como **Python es interpretado**, basta tener su intérprete (o un servicio como Google Colab) para correr tu código tal cual lo escribes, sin un paso de compilación. Por eso, más adelante, podrás escribir una línea y ejecutarla en el acto.
+
+## El sistema operativo
+
+Tu programa no habla con el hardware directamente. En medio está el **sistema operativo (SO)**: el software que **administra el hardware y los recursos** de la computadora y les da servicio a las aplicaciones.
+
+```{mermaid}
+flowchart TB
+    U["Tú y tus aplicaciones<br/>(Python, navegador, editor)"] --> SO["<b>Sistema operativo</b><br/>administra los recursos<br/>y el sistema de archivos"]
+    SO --> HW["Hardware<br/>(CPU, memoria, entrada/salida)"]
+```
+
+El SO reparte recursos que ya conoces de la L02:
+
+- el **uso del procesador (CPU)**: decide qué programa se ejecuta y cuándo;
+- el **espacio de memoria**: le da a cada programa su parte de la RAM;
+- los **dispositivos de entrada y salida**: coordina el teclado, la pantalla, el disco, la red.
+
+Gracias a eso, tus aplicaciones no tienen que pelearse con el hardware: le piden el servicio al SO. Ejemplos de sistemas operativos: **Windows, macOS y Linux**. En la ciencia, **Linux** es muy común porque es estable, gratuito, de código abierto y fácil de automatizar con guiones (*scripts*), lo que ayuda a que los análisis sean **reproducibles**.
+
+## El sistema de archivos
+
+Una de las tareas del SO es el **sistema de archivos**: cómo se guardan y organizan los datos en el almacenamiento (el disco). Tiene dos piezas:
+
+- **Archivos:** contienen los datos (un texto, una imagen, una tabla de mediciones).
+- **Directorios** (o carpetas): organizados de forma **jerárquica**, contienen archivos y otros directorios.
+
+Puedes manejarlos con una interfaz **gráfica** (el explorador de archivos, con iconos) o **textual** (escribiendo comandos). Saber que tus datos viven en archivos dentro de carpetas será importante en el Módulo 2, cuando tu programa lea y escriba archivos científicos.
+
+## Aspectos éticos e impacto
+
+Usar la computadora para hacer ciencia trae responsabilidades. Esta es la mirada equilibrada que la L01 dejó pendiente; aquí no agotamos el tema, solo abrimos el panorama:
+
+- **Reproducibilidad y software libre:** publicar tu código y usar herramientas de **código abierto** (como Python) permite que otras personas **repitan y verifiquen** tu análisis. Es un pilar de la buena ciencia.
+- **Privacidad y manejo de datos:** muchos datos científicos son sensibles (por ejemplo, datos de pacientes). Hay que protegerlos y usarlos solo para lo acordado.
+- **Integridad de los datos y los resultados:** la facilidad para procesar datos no autoriza a manipularlos o a presentar resultados que no se sostienen.
+- **Costo del cómputo:** los grandes cálculos consumen energía; conviene ser consciente de su huella.
+- **Uso responsable de la inteligencia artificial:** las herramientas de IA pueden ayudar, pero en un curso introductorio el aprendizaje viene de **entender** lo que haces; veremos su uso responsable más adelante.
+
+La lección de fondo: la computadora es una herramienta poderosa para la ciencia, y usarla bien —no solo rápido— es parte de tu formación.
+
+## Preguntas frecuentes
+
+**"¿Python es compilado o interpretado?"** — Es **interpretado**: su intérprete traduce y ejecuta tu código línea por línea, sin un paso previo de compilación. Por eso puedes escribir una instrucción y correrla de inmediato (como harás en Colab).
+
+**"¿Necesito instalar Linux para este curso?"** — No. Usaremos **Google Colab** en el navegador, así que no importa qué sistema operativo tengas en tu computadora. El concepto de SO es para que entiendas qué pasa por debajo.
+
+**"¿Para qué me sirve saber lo que es el lenguaje de máquina si nunca lo escribiré?"** — Para entender *por qué* existen los lenguajes de alto nivel y qué hacen los traductores por ti. Ese mapa te ayuda a depurar y a tomar mejores decisiones cuando programes.
+
+## Para reflexionar
+
+Discute estas preguntas (en clase o por escrito):
+
+1. ¿Por qué no programamos directamente en ceros y unos? ¿Qué gana un lenguaje de alto nivel frente a uno de máquina?
+2. Explica con tus palabras la diferencia entre **compilar** e **interpretar**, y da una ventaja de cada uno.
+3. ¿Qué hace por ti el **sistema operativo** mientras corres un programa? Nombra dos recursos que administra y di qué es un **sistema de archivos**.
+4. Menciona un **beneficio** y un **riesgo** del uso de computadoras en tu disciplina (biología o química), con un ejemplo concreto.
+5. **Clasifica** como *alto nivel* o *bajo nivel*: Python, lenguaje ensamblador y lenguaje de máquina. ¿Cuál usarás en este curso?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Programa | Instrucciones que sigue la máquina; la máquina solo entiende `0` y `1` |
+| Niveles de lenguaje | Bajo nivel (cercano a la máquina) vs. alto nivel (cercano a la persona) |
+| Compilador | Traduce **todo** de una vez y produce un ejecutable |
+| Intérprete | Traduce y ejecuta **línea por línea**; Python es interpretado |
+| Sistema operativo | Administra el hardware y los recursos; da servicio a las aplicaciones |
+| Sistema de archivos | Organiza los datos en **archivos** y **directorios** jerárquicos |
+| Ética e impacto | Reproducibilidad, privacidad e integridad: usar la herramienta con responsabilidad |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — sus primeros capítulos explican qué es un lenguaje de alto nivel y un intérprete.
+- **Compilado vs. interpretado (accesible):** el artículo *"Lenguaje de programación"* en `es.wikipedia.org`, con la distinción entre compiladores e intérpretes.
+- **Código abierto y sistemas operativos:** la definición oficial en `opensource.org` y los sitios de los sistemas operativos libres (por ejemplo, `getfedora.org` o `ubuntu.com`).

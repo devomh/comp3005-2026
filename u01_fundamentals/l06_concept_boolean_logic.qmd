@@ -1,0 +1,202 @@
+---
+title: "Lógica booleana: comparaciones, not/and/or y un primer condicional"
+unit: "1"
+lesson: 6
+type: concept
+tags: [python, booleanos, comparaciones, and-or-not, flujo-de-ejecucion, condicional-if]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Evaluar** expresiones con los operadores booleanos `not`, `and` y `or` (sus tablas de verdad). *(Aplicar)*
+- **Usar** los operadores de **comparación** (`==`, `!=`, `<`, `<=`, `>`, `>=`), cuyo resultado es `True` o `False`. *(Aplicar)*
+- **Explicar** el **flujo de ejecución** secuencial y cómo las **estructuras de control** lo modifican. *(Comprender)*
+- **Escribir** un **condicional `if`** simple (una condición booleana y un bloque **indentado**) que se ejecuta solo si la condición es verdadera. *(Aplicar)*
+- **Aplicar** un `if` a un caso científico: decidir si se hace un cálculo (validar un dato, clasificar una medición, evitar dividir entre cero). *(Aplicar)*
+
+> **Dónde encaja:** después de la L05 (*Introducción a Python II*) · antes de la L07 (*Condicionales*).
+
+## Por qué importa
+
+Tus programas hasta ahora hacen **siempre lo mismo**: ejecutan sus líneas de arriba a abajo, sin excepción. Pero el análisis científico está lleno de **decisiones**: avisar solo si el pH es menor que 7, validar que un dato tenga sentido antes de usarlo, no dividir entre cero.
+
+Para que un programa **decida**, primero necesita responder preguntas de **sí o no**. Esas respuestas son **valores booleanos** (`True` o `False`), y se obtienen **comparando** datos o **combinando** condiciones. Con ellas, el `if` ejecuta un bloque **solo cuando** la respuesta es verdadera. Este es el primer cambio al flujo de tu programa.
+
+> **Práctica (hands-on):** [Lab — Lógica booleana](l06_lab_boolean_logic.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u01_fundamentals/l06_lab_boolean_logic.ipynb)
+
+## Preguntas de sí o no: los booleanos
+
+Recuerda de la L04 que `True` y `False` son el tipo `bool`. Son las dos únicas respuestas a una pregunta de sí o no, y son la base de toda decisión en un programa. Hay dos maneras de obtener un booleano: **comparar** valores y **combinar** condiciones.
+
+## Comparaciones
+
+Un operador de **comparación** compara dos datos y devuelve un booleano (`True` o `False`):
+
+| Operador | Significa | Ejemplo | Resultado |
+|---|---|---|---|
+| `==` | es igual que | `5 == 6` | `False` |
+| `!=` | es distinto de | `5 != 6` | `True` |
+| `<` | es menor que | `5 < 6` | `True` |
+| `<=` | es menor o igual que | `5 <= 6` | `True` |
+| `>` | es mayor que | `5 > 6` | `False` |
+| `>=` | es mayor o igual que | `5 >= 6` | `False` |
+
+::: {.callout-important}
+Ojo con `=` y `==`: **no** son lo mismo. `=` **asigna** (`x = 5` guarda 5 en `x`); `==` **compara** (`x == 5` pregunta si `x` vale 5 y da `True`/`False`). Confundirlos es un error clásico.
+:::
+
+## Combinar condiciones: `not`, `and`, `or`
+
+Los operadores **booleanos** (o lógicos) combinan o niegan condiciones. Sus **tablas de verdad**:
+
+`not` invierte el valor:
+
+| `A` | `not A` |
+|---|---|
+| `True` | `False` |
+| `False` | `True` |
+
+`and` es verdadero **solo si ambos** lo son:
+
+| `A` | `B` | `A and B` |
+|---|---|---|
+| `True` | `True` | `True` |
+| `True` | `False` | `False` |
+| `False` | `True` | `False` |
+| `False` | `False` | `False` |
+
+`or` es verdadero si **al menos uno** lo es:
+
+| `A` | `B` | `A or B` |
+|---|---|---|
+| `True` | `True` | `True` |
+| `True` | `False` | `True` |
+| `False` | `True` | `True` |
+| `False` | `False` | `False` |
+
+Así, `(5 < 6) and (6 < 7)` es `True` (las dos se cumplen), y `(5 > 6) or (3 == 3)` es `True` (la segunda se cumple).
+
+## El flujo de ejecución
+
+El **flujo de ejecución** es el orden en que se ejecutan las instrucciones. Por defecto es **secuencial**: empieza por la primera y sigue hacia abajo, una tras otra, hasta la última.
+
+Las **estructuras de control** son las herramientas del lenguaje que **cambian** ese orden: deciden qué instrucciones se ejecutan o cuántas veces se repiten. Las principales son los **condicionales** (ejecutar algo solo si se cumple una condición), los **ciclos** (repetir) y las **funciones**. En esta lección ves la primera: el condicional `if`.
+
+## El condicional `if`
+
+El `if` ejecuta un bloque de instrucciones **solo si** una condición booleana es verdadera. Su forma:
+
+```python
+if <condicion booleana>:
+    <bloque indentado: una o mas instrucciones>
+```
+
+La condición va seguida de dos puntos (`:`), y el bloque que depende de ella va **indentado** (con sangría, normalmente cuatro espacios). **La indentación es la que marca qué instrucciones forman el bloque del `if`.**
+
+```{mermaid}
+flowchart TD
+    A["<b>instrucción anterior</b>"] --> C{"condición<br/>booleana"}
+    C -- "True" --> B["<b>bloque del if</b><br/>(indentado)<br/>se ejecuta"]
+    C -- "False" --> S["el bloque<br/>se salta"]
+    B --> N["<b>sigue el programa</b>"]
+    S --> N
+```
+
+Por ejemplo, un programa que resuelve la ecuación `a*x + b = 0` solo si `a` no es cero (para no dividir entre cero):
+
+```python
+a = 2.0
+b = -6.0
+if a != 0:                # evita dividir entre cero
+    x = -b / a
+    print("Solucion x =", x)
+```
+
+```
+Solucion x = 3.0
+```
+
+Como `a` vale `2.0` (distinto de `0`), la condición `a != 0` es `True`, así que el bloque se ejecuta y se imprime `Solucion x = 3.0`. Si `a` fuera `0`, la condición sería `False`, el bloque se saltaría y el programa seguiría sin imprimir nada (ni dar error).
+
+::: {.callout-note}
+Este es un `if` **simple**, sin alternativa. En la **L07** aprenderás a decir "y si no..." con `else`, a encadenar varios casos con `elif`, y a anidar condiciones.
+:::
+
+## De vuelta a la ciencia: decidir un cálculo
+
+Un `if` te deja **decidir** según los datos. Dos usos típicos en el laboratorio:
+
+**Validar antes de calcular** (evitar un error o un resultado sin sentido):
+
+```python
+volumen = 20.0
+masa = 18.0
+if volumen != 0:
+    densidad = masa / volumen
+    print("La densidad es", densidad)
+```
+
+```
+La densidad es 0.9
+```
+
+**Clasificar una medición**:
+
+```python
+ph = 6.5
+if ph < 7:
+    print("La muestra es acida")
+```
+
+```
+La muestra es acida
+```
+
+En ambos casos, la comparación produce un booleano y el `if` actúa solo si es `True`. Decidir, validar y clasificar son operaciones que harás en casi todos tus análisis de datos.
+
+## Preguntas frecuentes
+
+**"¿`=` y `==` son lo mismo?"** — No. `=` **asigna** un valor a una variable (`x = 5`); `==` **compara** dos valores y da `True` o `False` (`x == 5`). Usar uno por el otro es un error muy común al empezar.
+
+**"¿Qué pasa si la condición del `if` es falsa?"** — El bloque indentado **se salta** y el programa sigue con la instrucción que viene después (sin error, sin imprimir nada de ese bloque).
+
+**"¿Por qué importa la indentación?"** — Porque en Python la **sangría** es la que define qué instrucciones pertenecen al bloque del `if`. Si no indentas, Python no sabe qué depende de la condición (y normalmente da un error). En otros lenguajes se usan llaves `{ }`; en Python, la indentación.
+
+**"¿Puedo poner una alternativa para cuando sea falsa?"** — Sí, con `else`, pero eso es de la **L07**. Aquí solo usamos el `if` simple.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Cuál es el resultado de `not True`? ¿Y de `True and False`? ¿Y de `False or True`?
+2. ¿Qué da `7 >= 7`? ¿Y `7 != 7`? ¿Por qué `==` no es lo mismo que `=`?
+3. Explica con tus palabras qué es el **flujo de ejecución secuencial** y da un ejemplo de una estructura de control que lo cambie.
+4. ¿Qué imprime este programa? ¿Y si `nota` fuera `50`?
+   ```python
+   nota = 80
+   if nota >= 60:
+       print("Aprobado")
+   ```
+5. Escribe un `if` que imprima `"Temperatura alta"` solo si una variable `temperatura` es mayor que `38`.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Booleanos | `True`/`False`: las respuestas de sí o no que guían toda decisión |
+| Comparaciones | `== != < <= > >=` comparan y dan un booleano; `=` asigna, `==` compara |
+| `not`/`and`/`or` | combinan o niegan condiciones (tablas de verdad); `and` exige ambas, `or` una |
+| Flujo de ejecución | secuencial por defecto; las estructuras de control lo cambian |
+| `if` simple | ejecuta el bloque **indentado** solo si la condición es `True` |
+| Por qué importa | validar, clasificar y decidir son el corazón de un análisis |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre tipos booleanos y la instrucción condicional.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección "Más herramientas de control de flujo" (la parte de `if`).
+- **Para conectar con lo que viene:** en la **L07** ampliarás el `if` con `else`, `elif` y condiciones anidadas; en la **L08**, con `while`, repetirás instrucciones mientras una condición sea verdadera.

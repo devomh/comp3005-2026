@@ -1,0 +1,220 @@
+---
+title: "Introducción a Python I: el notebook, algoritmos y primeros programas"
+unit: "1"
+lesson: 4
+type: concept
+tags: [python, algoritmo, notebook, colab, variables, tipos-de-datos, operadores]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Explicar** qué es un **algoritmo** (una secuencia ordenada y finita de pasos) y su relación con un **programa** (ese algoritmo escrito en un lenguaje). *(Comprender)*
+- **Describir** qué es un **notebook** (celdas de código y de texto) y usar **Colab** para ejecutar celdas. *(Comprender)*
+- **Usar** Python como **calculadora**: los operadores `+ - * / ** // %` y el orden de las operaciones. *(Aplicar)*
+- **Escribir** programas simples con `print()` y con **variables** (la asignación `nombre = dato`). *(Aplicar)*
+- **Identificar** el **tipo** de un dato con `type()` y nombrar los **tipos primitivos** de Python. *(Aplicar)*
+- **Aplicar** lo anterior a un cálculo científico sencillo (densidad, concentración o BMI) a partir de valores dados. *(Aplicar)*
+
+> **Dónde encaja:** después de la L03 (*Sistemas operativos y lenguajes*) · antes de la L05 (*Introducción a Python II: conversión de tipos y estilo*).
+
+## Por qué importa
+
+En la L01 dijimos que un **algoritmo** es una receta de pasos y que una computadora los sigue. En las L02 y L03 viste de qué está hecha esa máquina y por qué necesitamos un **lenguaje de alto nivel** para hablarle. Hoy empiezas a escribir tú esos pasos —en **Python**— y la máquina los ejecuta.
+
+Mira lo cerca que está una receta de un programa. Para calcular la **densidad** de una muestra:
+
+1. toma la **masa**,
+2. toma el **volumen**,
+3. divide la masa entre el volumen,
+4. muestra el resultado.
+
+Esos cuatro pasos se vuelven cuatro líneas de Python. Eso es programar: convertir un algoritmo en instrucciones que la computadora entiende. Estos serán los ladrillos de todo lo que harás después con datos de biología y química.
+
+> **Práctica (hands-on):** [Lab — Introducción a Python I](l04_lab_python_intro_1.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u01_fundamentals/l04_lab_python_intro_1.ipynb)
+
+## De algoritmo a programa
+
+Un **algoritmo** es una **secuencia ordenada y finita de pasos** que resuelve un problema. La palabra es vieja (viene del matemático al-Juarismi, siglo IX), pero la idea es la que ya conoces: una receta, un instructivo, los pasos de un protocolo de laboratorio.
+
+Un **programa** es ese algoritmo **escrito en un lenguaje de programación**. Nosotros usaremos Python. Como Python es **interpretado** (lo viste en la L03), no hay que compilar nada: el intérprete lee tus instrucciones y las ejecuta una por una.
+
+```{mermaid}
+flowchart LR
+    A["<b>Algoritmo</b><br/>los pasos<br/>en palabras"] --> B["<b>Programa</b><br/>los pasos escritos<br/>en Python"]
+    B --> C["<b>Intérprete de Python</b><br/>ejecuta cada<br/>instrucción"]
+    C --> D["<b>Resultado</b><br/>en pantalla"]
+```
+
+La habilidad central del curso es **pasar de la columna izquierda a la derecha**: tomar un problema científico, descomponerlo en pasos y escribirlos en Python.
+
+## El notebook: donde escribimos y ejecutamos
+
+Trabajaremos en un **documento computacional**, también llamado *notebook* (o *Jupyter notebook*). Es una lista ordenada de **celdas** de dos tipos:
+
+| Tipo de celda | Contiene | Al ejecutarla |
+|---|---|---|
+| Celda de **código** | Instrucciones de Python | Las corre y muestra el resultado debajo |
+| Celda de **texto** | Texto con formato (Markdown) | Lo muestra con formato (títulos, listas, negritas) |
+
+Usaremos **Google Colab**, que corre el notebook **en el navegador**: no hay que instalar Python en tu computadora. Para ejecutar una celda de código, la seleccionas y presionas `Shift + Enter` (o el botón de "play"). El resultado aparece justo debajo.
+
+::: {.callout-tip}
+Esta página es solo de lectura. La práctica real —escribir y correr código— va en el **Lab** que abre en Colab con el botón de arriba.
+:::
+
+## Python como calculadora
+
+Una celda de código se puede usar como una calculadora. Python ofrece estos operadores aritméticos:
+
+| Operador | Operación | Ejemplo | Resultado |
+|---|---|---|---|
+| `+` | suma | `7 + 3` | `10` |
+| `-` | resta | `7 - 3` | `4` |
+| `*` | multiplicación | `7 * 3` | `21` |
+| `/` | división (real) | `7 / 3` | `2.3333333333333335` |
+| `**` | potencia | `7 ** 3` | `343` |
+| `//` | división **entera** (el cociente) | `7 // 3` | `2` |
+| `%` | **módulo** (el residuo) | `7 % 3` | `1` |
+
+Dos operadores suelen confundir al principio:
+
+- `/` da la división **real** (con decimales): `7 / 3` es `2.3333333333333335`.
+- `//` da solo el **cociente entero**: `7 // 3` es `2`. Y `%` da el **residuo**: `7 % 3` es `1`.
+
+Las expresiones con varias operaciones respetan el **orden de las operaciones** (primero `**`, luego `*` `/` `//` `%`, después `+` `-`; los paréntesis mandan). Un ejemplo científico: la concentración de `0.5` moles en `2.0` litros es
+
+```python
+0.5 / 2.0      # 0.25  (mol/L)
+```
+
+## Primer programa: `print()` y las funciones
+
+El primer programa clásico muestra un mensaje en pantalla. En Python se usa la **función** `print()`:
+
+```python
+print("Hola, mundo")
+```
+
+```
+Hola, mundo
+```
+
+Una **función** (como `print`) es un bloque de código con un nombre que realiza una acción. Los datos que necesita —sus **argumentos**— van **entre paréntesis**. A `print()` le pasamos el mensaje que queremos mostrar.
+
+Python ya trae muchas **funciones incorporadas** (en inglés *built-in*) que se usan llamándolas por su nombre. Además de `print()`, en el Lab usarás `round(valor, decimales)` para **redondear** un número (por ejemplo, `round(25.0854, 1)` da `25.1`). Crear tus propias funciones con `def` llegará más adelante, en el Módulo 2.
+
+Ese mensaje, `"Hola, mundo"`, es una **cadena** (en inglés *string*): una serie de caracteres entre comillas (dobles `"..."` o simples `'...'`). Por ahora basta con saber que el texto va entre comillas; sus detalles los verás en el Módulo 2.
+
+## Variables: ponerle nombre a un dato
+
+Una **variable** es un **nombre que le damos a un dato** para reutilizarlo. La operación de **asignación** usa el signo `=`, con el nombre a la izquierda y el dato a la derecha:
+
+```python
+ancho = 5
+largo = 6
+area = ancho * largo
+print("area =", area)
+```
+
+```
+area = 30
+```
+
+Reglas para nombrar variables:
+
+- El nombre se forma con **letras, dígitos o `_`** (guion bajo); **no puede empezar con un dígito** ni ser una palabra reservada del lenguaje (como `print` o `if`).
+- Elige nombres **con significado**: para el peso de una persona usa `peso`, no `x` ni `p`.
+
+::: {.callout-note}
+Una **asignación no imprime nada** (solo guarda el dato). Si quieres ver un valor, usa `print()` o escribe el nombre de la variable solo en una celda. Por eso `area = ancho * largo` no muestra nada, pero `print("area =", area)` sí.
+:::
+
+## Tipos de datos
+
+Cada dato tiene un **tipo**, que determina qué valores admite y qué operaciones se pueden hacer con él. La función `type()` te dice el tipo de un dato:
+
+```python
+type(7)        # <class 'int'>
+type(7 / 3)    # <class 'float'>
+type("hola")   # <class 'str'>
+type(True)     # <class 'bool'>
+```
+
+Estos son los **tipos primitivos** de Python:
+
+| Tipo | Descripción | Ejemplos |
+|---|---|---|
+| `int` | número entero | `-5`, `4`, `343` |
+| `float` | número real (punto flotante) | `3.1416`, `0.25`, `2.5e10` |
+| `complex` | número complejo (no lo usaremos) | `3 + 2j` |
+| `str` | cadena de caracteres | `"hola"`, `'ADN'` |
+| `bool` | valor booleano (verdadero/falso) | `True`, `False` |
+| `None` | "sin valor"; un tipo especial | `None` |
+
+Fíjate en un detalle importante: `"5"` (con comillas) es una **cadena**, no un número. `type(5 + 1/2)` es `float`, pero `type("5+1/2")` es `str`: lo segundo es solo texto. En la **L05** aprenderás a **convertir** entre tipos (por ejemplo, de cadena a número) cuando el programa lea datos del usuario.
+
+## De vuelta a la ciencia: tu primer cálculo
+
+Cierra el círculo con la densidad del inicio. Con los cuatro pasos del algoritmo escritos en Python (usando valores dados; en la L05 los pediremos al usuario):
+
+```python
+masa = 18.0        # gramos
+volumen = 20.0     # mililitros
+densidad = masa / volumen
+print("La densidad es", densidad, "g/mL")
+```
+
+```
+La densidad es 0.9 g/mL
+```
+
+Cuatro líneas, un cálculo científico. A partir de aquí, todo lo que añadas —decisiones, repeticiones, funciones, datos reales— se construye sobre estos mismos ladrillos.
+
+## Preguntas frecuentes
+
+**"¿Tengo que instalar Python en mi computadora?"** — No para este curso. Usaremos **Colab**, que corre en el navegador con Python ya listo. Más adelante, si quieres, puedes instalarlo localmente, pero no es necesario.
+
+**"¿`/` y `//` son lo mismo?"** — No. `/` da la división real con decimales (`7 / 3` es `2.333...`); `//` da solo el cociente entero (`7 // 3` es `2`). El operador `%` (módulo) da el residuo (`7 % 3` es `1`).
+
+**"Ejecuté una celda y no se imprimió nada. ¿Está mal?"** — Probablemente hiciste una **asignación** (`x = 5`), que guarda el dato pero no lo muestra. Para ver un valor, usa `print()` o escribe el nombre de la variable solo en una celda.
+
+**"¿Cuál es la diferencia entre `5` y `\"5\"`?"** — `5` es un **número** (`int`); `"5"` es una **cadena** (`str`), es decir, texto. Se ven parecidos, pero no se comportan igual: con números se hace aritmética; con cadenas, no (eso lo verás en la L05).
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. Escribe, en palabras, el **algoritmo** (los pasos) para calcular el **promedio** de tres notas. ¿Cuántos pasos tiene?
+2. ¿Qué resultado da `7 // 3`? ¿Y `7 % 3`? ¿En qué se diferencian de `7 / 3`?
+3. ¿Qué imprime este programa?
+   ```python
+   ancho = 5
+   largo = 6
+   area = ancho * largo
+   print("area =", area)
+   ```
+4. ¿Cuál es el `type()` de `7`, de `7 / 3`, de `"hola"` y de `True`?
+5. Escribe el programa que calcula la **densidad** a partir de `masa = 18.0` y `volumen = 20.0`. ¿Qué imprime?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Algoritmo y programa | Algoritmo = pasos ordenados y finitos; programa = esos pasos escritos en Python |
+| Notebook / Colab | Documento de celdas (código y texto); Colab lo corre en el navegador |
+| Calculadora | `+ - * / ** // %`; `/` es real, `//` es cociente, `%` es residuo |
+| `print()` | Función que muestra resultados; sus argumentos van entre paréntesis |
+| Variable | Un nombre para un dato: `nombre = dato`; una asignación no imprime |
+| Tipos | `int`, `float`, `str`, `bool`, `None` (y `complex`); `type()` lo dice |
+| Por qué importa | Un cálculo científico es un algoritmo de pocos pasos escrito en Python |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — los capítulos iniciales sobre tipos, variables y expresiones.
+- **Documentación oficial (accesible):** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección "Usar Python como una calculadora".
+- **Para conectar con lo que viene:** en la **L05** harás que tus programas **pidan datos al usuario** (`input()`) y **conviertan tipos**; en la **L06** aprenderás a **tomar decisiones** con lógica booleana.
