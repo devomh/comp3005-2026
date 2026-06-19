@@ -1,0 +1,218 @@
+---
+title: "Pandas: DataFrames, read_csv y selección de columnas y filas"
+unit: "3"
+lesson: 21
+type: concept
+tags: [python, pandas, dataframe, read_csv, columnas, filas, seleccion, tabular]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Importar** Pandas (`import pandas as pd`) y explicar qué es un **DataFrame**: una tabla con filas y columnas etiquetadas. *(Comprender)*
+- **Cargar** un CSV con `pd.read_csv('archivo.csv')` y reconocer que hace en **una línea** toda la receta manual de la L19. *(Comprender / Aplicar)*
+- **Inspeccionar** un DataFrame con `.shape`, `.columns`, `.head(n)` y `.describe()`. *(Aplicar)*
+- **Seleccionar** una columna (`df['ph']`) y aplicarle un agregado (`df['ph'].mean()`, el `mean` de la L20). *(Aplicar)*
+- **Seleccionar** varias columnas con una lista de nombres (`df[['sitio', 'ph']]`). *(Aplicar)*
+- **Filtrar** filas por una condición (`df[df['ph'] > 7.0]`) -- la máscara booleana de la L20, ahora sobre la tabla. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L20 (*NumPy*) · **cierra la apertura del Módulo 3** · antes de la L22 (*Pandas: análisis*). Hoy se juntan las tres últimas lecciones: leer un CSV a mano (L19), los arreglos (L20) y, ahora, la tabla cómoda que lo une todo.
+
+## Por qué importa
+
+Sigamos la **misma** `muestras.csv` por tres lecciones. En la **L19** la leíste **a mano**: abrir el archivo, recorrerlo `for linea in f:`, saltar el encabezado con `next(f)`, separar con `.split(',')`, convertir cada campo -- varias líneas para una tarea muy común. En la **L20** pusiste una columna de mediciones en un **arreglo** de NumPy para calcular sobre todas a la vez. Hoy llega la herramienta que une las dos ideas: **Pandas**.
+
+Con **una sola línea**, `pd.read_csv('muestras.csv')` lee toda la tabla a un **DataFrame** -- y hace por dentro **toda la receta de la L19**. ¿El promedio de pH? `df['ph'].mean()` da `6.95`, **el mismo número** que en la L19 sacaste con un `for`, porque la columna `df['ph']` es, por dentro, un **arreglo de NumPy** (L20). Filtrar filas (`df[df['ph'] > 7.0]`) es la **máscara booleana** de la L20 aplicada a la tabla. El mensaje de hoy: *Pandas no es magia nueva; es la receta de la L19 y los arreglos de la L20, empaquetados en una tabla cómoda.* Por eso valió la pena hacerlo a mano primero: ahora entiendes qué automatiza.
+
+> **Práctica (hands-on):** [Lab — Pandas](l21_lab_pandas.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l21_lab_pandas.ipynb)
+
+## Importar Pandas y el DataFrame
+
+**Pandas** es el módulo estándar para trabajar con datos en **tablas**. Se importa con el alias `pd` (la convención, como `np` para NumPy):
+
+```python
+import pandas as pd
+```
+
+Su estructura central es el **DataFrame**: una **tabla** con filas y columnas **etiquetadas** -- cada columna tiene un nombre y cada fila un número de índice (`0, 1, 2, ...`). Es, en esencia, lo que abriste a mano en la L19, pero como un objeto que sabe operar sobre sí mismo.
+
+## Leer un CSV: read_csv
+
+Aquí está el salto. Toda la receta de la L19 -- abrir, recorrer, separar por comas, usar el encabezado como nombres de columna, convertir los tipos -- la hace `pd.read_csv` en **una línea**:
+
+| La receta manual (L19) | Con Pandas (hoy) |
+|---|---|
+| `open(...)`, `for linea in f:`, `next(f)` | `pd.read_csv('muestras.csv')` |
+| `.split(',')` campo por campo | automático (separa por comas) |
+| el encabezado a mano | se vuelve los nombres de columna |
+| `float(campo)` en cada valor | convierte los tipos por ti |
+
+```python
+df = pd.read_csv('muestras.csv')
+print(df)
+```
+
+```text
+   muestra      sitio   ph  temperatura
+0        1  rio_Norte  7.2         18.0
+1        2    rio_Sur  6.8         21.0
+2        3  rio_Norte  7.4         17.0
+3        4    rio_Sur  6.5         22.0
+4        5  rio_Norte  7.0         19.0
+5        6    rio_Sur  6.8         20.0
+```
+
+El DataFrame `df` tiene las cuatro columnas con sus nombres (`muestra`, `sitio`, `ph`, `temperatura`) y un índice de filas a la izquierda (`0` a `5`). Una línea reemplazó todo el bucle de la L19.
+
+## Información del DataFrame
+
+Pandas trae métodos para ver de qué se trata la tabla sin imprimirla entera:
+
+| Método | Qué da |
+|---|---|
+| `df.shape` | una tupla `(filas, columnas)` |
+| `df.columns` | los nombres de las columnas |
+| `df.head(n)` | las primeras `n` filas (5 por defecto) |
+| `df.describe()` | un resumen estadístico por columna numérica |
+
+```python
+print(df.shape)
+print(df.columns.tolist())
+print(df.head(3))
+```
+
+```text
+(6, 4)
+['muestra', 'sitio', 'ph', 'temperatura']
+   muestra      sitio   ph  temperatura
+0        1  rio_Norte  7.2         18.0
+1        2    rio_Sur  6.8         21.0
+2        3  rio_Norte  7.4         17.0
+```
+
+`df.describe()` da, de un vistazo, el conteo, la media, la desviación, el mínimo, el máximo y los cuartiles de **cada columna numérica**:
+
+```python
+print(df.describe())
+```
+
+```text
+        muestra        ph  temperatura
+count  6.000000  6.000000     6.000000
+mean   3.500000  6.950000    19.500000
+std    1.870829  0.320936     1.870829
+min    1.000000  6.500000    17.000000
+25%    2.250000  6.800000    18.250000
+50%    3.500000  6.900000    19.500000
+75%    4.750000  7.150000    20.750000
+max    6.000000  7.400000    22.000000
+```
+
+Fíjate en la fila `mean` de la columna `ph`: `6.95`, otra vez el mismo promedio. (La columna `muestra` es un identificador, así que su resumen -- promediar números de muestra -- no tiene sentido real; describe resume todas las columnas numéricas por igual.)
+
+## Seleccionar una columna
+
+Para tomar **una** columna se usa su nombre entre corchetes. El resultado es una **Series** (una columna con su índice):
+
+```python
+print(df['ph'])
+```
+
+```text
+0    7.2
+1    6.8
+2    7.4
+3    6.5
+4    7.0
+5    6.8
+Name: ph, dtype: float64
+```
+
+Y aquí está la conexión con la L20: **una columna de un DataFrame es, por dentro, un arreglo de NumPy.** Por eso le puedes aplicar los agregados de la L20 directamente:
+
+```python
+print(round(df['ph'].mean(), 2))
+```
+
+```text
+6.95
+```
+
+`df['ph'].mean()` usa el mismo `mean` de la L20 (lo mostramos con `round` porque el valor crudo trae muchos decimales). Es `6.95`: el promedio que en la L19 calculaste con un `for`, en la L20 habrías sacado con `np.mean`, y hoy es un método de la columna.
+
+## Seleccionar varias columnas
+
+Para tomar **varias** columnas se le pasa una **lista** de nombres. El resultado es un DataFrame más pequeño:
+
+```python
+print(df[['sitio', 'ph']])
+```
+
+```text
+       sitio   ph
+0  rio_Norte  7.2
+1    rio_Sur  6.8
+2  rio_Norte  7.4
+3    rio_Sur  6.5
+4  rio_Norte  7.0
+5    rio_Sur  6.8
+```
+
+Ojo a la diferencia: `df['ph']` (un nombre) da **una** columna (Series); `df[['sitio', 'ph']]` (una **lista** de nombres) da un **DataFrame** con esas columnas.
+
+## Filtrar filas por condición
+
+Para quedarte con las **filas** que cumplen una condición, se usa exactamente la **máscara booleana** de la L20, ahora sobre el DataFrame. `df['ph'] > 7.0` marca cada fila como `True`/`False`, y `df[...]` se queda con las `True`:
+
+```python
+print(df[df['ph'] > 7.0])
+```
+
+```text
+   muestra      sitio   ph  temperatura
+0        1  rio_Norte  7.2         18.0
+2        3  rio_Norte  7.4         17.0
+```
+
+Quedan solo las filas con `ph` mayor que 7.0: la `muestra` 1 (`7.2`) y la `muestra` 3 (`7.4`) -- exactamente el mismo filtro que en la L19 hiciste con un `if` dentro de un `for`, ahora en una línea. (Fíjate que el índice conserva los números originales, `0` y `2`.)
+
+## Preguntas frecuentes
+
+**"¿`df['ph']` o `df[['ph']]`?"** — `df['ph']` (un nombre suelto) da **una** columna como **Series**. `df[['sitio', 'ph']]` (una **lista** de nombres entre corchetes dobles) da un **DataFrame** con esas columnas. Un nombre: Series; una lista de nombres: DataFrame.
+
+**"¿`read_csv` da lo mismo que el parseo manual de la L19?"** — Sí. `read_csv` hace la **misma** receta -- separar por comas, tomar el encabezado, convertir los números -- solo que en una línea. Por eso `df['ph'].mean()` da el `6.95` de la L19.
+
+**"¿Por qué `df['ph'].mean()` y no un `for`?"** — Porque la columna `df['ph']` es, por dentro, un **arreglo de NumPy** (L20), y los arreglos saben calcular su media en una llamada. No hace falta el `for` de la L19.
+
+**"¿Y si escribo mal el nombre de una columna?"** — Pandas lanza un `KeyError`. Por ejemplo, `df['PH']` (con mayúsculas) no existe -- la columna se llama `ph` -- y da `KeyError: 'PH'`. Los nombres de columna distinguen mayúsculas de minúsculas.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué hace `pd.read_csv('muestras.csv')` que en la L19 te tomaba varias líneas?
+2. ¿Qué diferencia hay entre `df['ph']` y `df[['ph']]`? ¿Qué tipo devuelve cada uno?
+3. ¿Por qué `df['ph'].mean()` funciona sin escribir un `for`? (Pista: ¿qué es una columna por dentro?)
+4. Escribe (en papel o en Colab) cómo seleccionarías solo las filas con `temperatura` mayor que 19.
+5. La fila `mean` de `df.describe()` para `ph` da `6.95`. ¿Dónde viste ese mismo número antes?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Importar | `import pandas as pd`; la estructura central es el **DataFrame** (una tabla etiquetada) |
+| `read_csv` | `pd.read_csv('archivo.csv')` lee un CSV a un DataFrame en una línea (la receta de la L19) |
+| Información | `df.shape` (filas, columnas), `df.columns`, `df.head(n)`, `df.describe()` (resumen) |
+| Una columna | `df['ph']` da una **Series** (un arreglo de NumPy); `df['ph'].mean()` usa el `mean` de la L20 |
+| Varias columnas | `df[['sitio', 'ph']]` (una **lista** de nombres) da un DataFrame |
+| Filtrar filas | `df[df['ph'] > 7.0]` -- la máscara booleana de la L20 sobre la tabla |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC).
+- **Documentación oficial:** *10 minutes to pandas* en `pandas.pydata.org` (DataFrame, `read_csv`, selección).
+- **Más allá de esta lección:** en la **S22** harás más con esta tabla -- contar valores únicos (`value_counts`), crear columnas calculadas y **agrupar** por categoría (`groupby`) -- y en la **S23** la **graficarás** con matplotlib. También existen formas más finas de seleccionar filas (`.iloc`, `.loc`). La idea de hoy -- *un CSV se vuelve un DataFrame, y de ahí seleccionas columnas y filas* -- es la base de todo el análisis de datos que sigue.

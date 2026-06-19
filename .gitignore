@@ -3,3 +3,38 @@
 **/*.quarto_ipynb
 .jupyter_cache/
 .ipynb_checkpoints/
+
+# L16 (Archivos de texto) lab writes these at runtime -- setup-cell-regenerated
+# artifacts, never source. Colab/local users regenerate them by running the lab.
+u02_data_structures_files/secuencias.fasta
+u02_data_structures_files/mediciones.txt
+
+# L19 (Archivos CSV) lab writes these at runtime -- setup-cell-regenerated
+# artifacts, never source. Colab/local users regenerate them by running the lab.
+u03_scientific_computing/muestras.csv
+u03_scientific_computing/especies.csv
+
+# L22 (Pandas analisis) lab writes these at runtime -- setup-cell-regenerated
+# artifacts, never source. Colab/local users regenerate them by running the lab.
+u03_scientific_computing/biodiversidad.csv
+u03_scientific_computing/reacciones.csv
+
+# L23 (Visualizacion) lab writes these at runtime -- setup-cell-regenerated
+# artifacts, never source (biodiversidad.csv already ignored above). The PNGs in
+# assets/ are author-generated figures, TRACKED (the website needs them).
+u03_scientific_computing/crecimiento.csv
+u03_scientific_computing/absorbancia.csv
+u03_scientific_computing/lecturas_ph.csv
+u03_scientific_computing/titulacion.csv
+
+# L24 (Imagenes cientificas) lab fabricates these images at runtime --
+# setup-cell-regenerated artifacts, never source. The figures in assets/
+# (l24_*.png) are author-generated and TRACKED (the website needs them).
+u03_scientific_computing/microscopia.png
+u03_scientific_computing/gel.png
+u03_scientific_computing/campo.png
+u03_scientific_computing/campo.jpg
+
+# L25 (Biopython) lab writes this FASTA at runtime -- setup-cell-regenerated
+# artifact, never source. Colab/local users regenerate it by running the lab.
+u03_scientific_computing/genes.fasta

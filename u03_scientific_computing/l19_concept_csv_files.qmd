@@ -1,0 +1,241 @@
+---
+title: "Archivos CSV: leer datos tabulares y el puente hacia Pandas"
+unit: "3"
+lesson: 19
+type: concept
+tags: [python, csv, archivos, split, tabular, datos, read_csv, pandas-puente]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Describir** la estructura de un archivo **CSV**: texto plano con filas (registros) y columnas (campos) separadas por comas, donde la primera línea suele ser el **encabezado**. *(Comprender)*
+- **Parsear** una línea de un CSV con `.split(',')` y **desempaquetarla** en variables (`muestra, sitio, ph, temp = ...`). *(Aplicar)*
+- **Saltar** el encabezado con `next(f)` y **convertir** cada campo (que llega como cadena) a número con `int()` o `float()` antes de calcular. *(Aplicar)*
+- **Aplicar** la receta de procesamiento tabular: abrir, saltar el encabezado, separar y convertir cada línea, acumular en listas y calcular un promedio, un máximo o un conteo. *(Aplicar)*
+- **Filtrar** registros por una columna **categórica** (con un `if`) y **agregar** una columna numérica -- por ejemplo, el promedio de un solo sitio. *(Aplicar / Analizar)*
+- **Reconocer** que `pandas.read_csv` automatiza toda esa receta en una sola línea (el puente al Módulo 3) y que un CSV puede vivir en un archivo local o en una URL remota. *(Comprender)*
+
+> **Dónde encaja:** después de la L16 (*Archivos de texto*) · **abre el Módulo 3** -- el cómputo científico con Python · antes de la L20 (*NumPy*). Un CSV no es nada nuevo: es un archivo de texto (L16) cuyas líneas separas con `.split(',')` (L13), conviertes a número (L05) y acumulas en listas (L13).
+
+## Por qué importa
+
+Un experimento casi nunca produce **un** número: produce una **tabla**. Una fila por muestra, una columna por medición: el pH y la temperatura de cada río, el conteo de cada especie en cada laguna, la absorbancia de cada compuesto. El formato universal para guardar esa tabla como texto es el **CSV** (*comma-separated values*, valores separados por comas): lo exportan Excel y Google Sheets, lo entienden casi todos los programas, y -- por ser texto plano -- lo puedes abrir y leer con lo que ya sabes.
+
+Y esa es la buena noticia: **ya sabes leer un CSV**. Es un archivo de texto, así que lo abres con `with open(...)` y lo recorres `for linea in f:` (L16); cada línea la separas en columnas con `.split(',')` (L13), conviertes los campos a número (L05) y los acumulas en listas (L13) para calcular sobre ellas. Hoy juntas todo eso para analizar datos tabulares de verdad. Y al final verás el destino del camino: **Pandas** (S21) hace toda esta receta en **una sola línea** con `read_csv`. Primero lo harás a mano -- para *entender* qué automatiza la herramienta -- igual que en el Módulo 1 aprendiste el `while` explícito antes del `for` conveniente.
+
+> **Práctica (hands-on):** [Lab — Archivos CSV](l19_lab_csv_files.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l19_lab_csv_files.ipynb)
+
+## Qué es un CSV
+
+Un CSV es un archivo de texto donde cada **línea es una fila** de la tabla y, dentro de cada línea, los **campos** (las columnas) van separados por comas. La primera línea suele ser el **encabezado**: los nombres de las columnas. Este es el archivo `muestras.csv`, un pequeño monitoreo de calidad de agua:
+
+```text
+muestra,sitio,ph,temperatura
+1,rio_Norte,7.2,18.0
+2,rio_Sur,6.8,21.0
+3,rio_Norte,7.4,17.0
+4,rio_Sur,6.5,22.0
+5,rio_Norte,7.0,19.0
+6,rio_Sur,6.8,20.0
+```
+
+| Parte del CSV | Qué es |
+|---|---|
+| **Encabezado** (`muestra,sitio,ph,temperatura`) | la primera línea; nombra las columnas (no es un dato) |
+| **Registro / fila** (`1,rio_Norte,7.2,18.0`) | una muestra; los demás renglones |
+| **Campo / columna** (`7.2`) | un valor dentro de una fila, separado por comas |
+
+Si abres este archivo en una hoja de cálculo lo verás en celdas; pero por dentro es solo texto con comas. (A veces el separador es un punto y coma `;` o un tabulador en vez de la coma, pero la idea es la misma.)
+
+## Leer un CSV a mano
+
+Para leerlo usamos lo de la L16 -- `with open(...)` e iterar `for linea in f:` -- más dos piezas nuevas y pequeñas. Primero, **saltamos el encabezado** con `next(f)`, que avanza una línea sin procesarla (no queremos tratar `muestra,sitio,ph,temperatura` como si fueran datos). Segundo, cada línea la separamos en **campos** con `.split(',')` (la L13, ahora con la coma como separador) y la **desempaquetamos** en variables de una vez:
+
+```python
+with open('muestras.csv', 'r') as f:
+    next(f)                      # salta el encabezado
+    for linea in f:
+        muestra, sitio, ph, temp = linea.strip().split(',')
+        print(ph)
+```
+
+```text
+7.2
+6.8
+7.4
+6.5
+7.0
+6.8
+```
+
+La línea `muestra, sitio, ph, temp = linea.strip().split(',')` es el corazón del parseo: `.strip()` quita el `\n` del final (L16), `.split(',')` devuelve la lista de campos (L13), y la **asignación múltiple** reparte esos cuatro valores en cuatro variables a la vez. **La cantidad de variables a la izquierda debe coincidir con la cantidad de campos**; por eso conviene mirar el archivo y saber cuántas columnas tiene.
+
+Un detalle clave: **todo lo que sale del archivo es texto.** El `ph` de arriba es la cadena `'7.2'`, no el número `7.2`. Para calcular con él hay que **convertirlo** con `float()` (o `int()` para enteros), como en la L05. El flujo completo es:
+
+```{mermaid}
+flowchart TD
+    A["<b>with open('muestras.csv', 'r') as f:</b><br/>abre el CSV en modo lectura"] --> B["<b>next(f)</b><br/>salta la línea de encabezado"]
+    B --> C{"<b>for linea in f:</b><br/>¿queda otro registro?"}
+    C -->|sí| D["<b>linea.split(',')</b> separa en campos;<br/>convertir con float/int y acumular en listas"]
+    D --> C
+    C -->|no| E["sale del bloque <b>with</b> (cierra solo):<br/>calcula sobre las listas (promedio, máximo, conteo)"]
+```
+
+## La receta de procesamiento tabular
+
+Casi todo ejercicio con un CSV sigue la misma receta: **recorrer las líneas acumulando los valores que interesan en una lista, y luego calcular sobre la lista** con los programas que ya escribiste en el Módulo 2.
+
+| Paso | Qué se hace | Herramienta (de qué lección) |
+|---|---|---|
+| 1 | Abrir el archivo y saltar el encabezado | `with open(...)` (L16) · `next(f)` |
+| 2 | Por cada línea: separar en campos | `linea.split(',')` (L13) |
+| 3 | Convertir los campos que se van a usar | `float()` / `int()` (L05) |
+| 4 | (Opcional) filtrar con una condición | `if` (L06/L07) |
+| 5 | Acumular en una lista | `lista.append(...)` (L13) |
+| 6 | Calcular sobre la lista | promedio / máximo / conteo (L08, L11) |
+
+Por ejemplo, el **promedio de pH** de todas las muestras: acumular cada pH en una lista y dividir la suma entre la cantidad.
+
+```python
+with open('muestras.csv', 'r') as f:
+    next(f)
+    phs = []
+    for linea in f:
+        muestra, sitio, ph, temp = linea.strip().split(',')
+        phs.append(float(ph))
+
+print('Promedio de pH:', sum(phs) / len(phs))
+```
+
+```text
+Promedio de pH: 6.95
+```
+
+Y la **temperatura máxima**, sin usar `max()`, con el patrón del acumulador (L08): guardar la mayor vista hasta ahora.
+
+```python
+with open('muestras.csv', 'r') as f:
+    next(f)
+    tmax = 0.0
+    for linea in f:
+        muestra, sitio, ph, temp = linea.strip().split(',')
+        t = float(temp)
+        if t > tmax:
+            tmax = t
+
+print(tmax)
+```
+
+```text
+22.0
+```
+
+## Filtrar y agregar
+
+Muchas preguntas científicas no son sobre *toda* la tabla, sino sobre un **grupo**: "¿cuál es la temperatura promedio del `rio_Norte`?". Eso es **filtrar** por una columna categórica (con un `if`) y **agregar** una columna numérica (promediar). Solo acumulamos las filas que cumplen la condición:
+
+```python
+with open('muestras.csv', 'r') as f:
+    next(f)
+    temps = []
+    for linea in f:
+        muestra, sitio, ph, temp = linea.strip().split(',')
+        if sitio == 'rio_Norte':
+            temps.append(float(temp))
+
+print('Promedio temp rio_Norte:', sum(temps) / len(temps))
+```
+
+```text
+Promedio temp rio_Norte: 18.0
+```
+
+Y si quieres saber **cuántos registros hay de cada sitio**, el idioma de conteo con diccionario de la L14 funciona igual sobre un CSV:
+
+```python
+conteo = {}
+with open('muestras.csv', 'r') as f:
+    next(f)
+    for linea in f:
+        muestra, sitio, ph, temp = linea.strip().split(',')
+        conteo[sitio] = conteo.get(sitio, 0) + 1
+
+print(conteo)
+```
+
+```text
+{'rio_Norte': 3, 'rio_Sur': 3}
+```
+
+Esa tabla de frecuencias por categoría es exactamente lo que Pandas llamará `value_counts` en la S22 -- el mismo conteo que ya sabes hacer a mano.
+
+## Un CSV puede ser local o remoto
+
+El archivo no tiene por qué estar en tu computadora: un CSV puede vivir en una **URL** (por ejemplo, datos públicos de un laboratorio o de una agencia ambiental). La buena noticia es que **el procesamiento no cambia**: una vez que tienes las líneas, las recorres con el mismo `for linea in f:` y la misma receta. Solo cambia *de dónde* vienen las líneas. En Colab se vería así (esto es solo una **demostración**; lo veremos a fondo en la S20, cuando aprendas a importar módulos):
+
+```python
+# Demostracion (no se ejecuta aqui): leer un CSV desde una URL en Colab
+import urllib.request
+url = 'https://ejemplo.org/datos/muestras.csv'
+for linea_bytes in urllib.request.urlopen(url):
+    linea = linea_bytes.decode()   # los datos remotos llegan como bytes
+    # ... la MISMA receta: next/split/convertir/acumular ...
+```
+
+La idea para recordar: **local o remoto, un CSV se procesa línea por línea igual.**
+
+## El puente a Pandas
+
+Toda la receta de esta lección -- abrir, saltar el encabezado, separar en campos, convertir tipos, acumular y calcular -- es tan común que existe una biblioteca que la hace por ti: **Pandas**. Con `read_csv`, leer el archivo y promediar una columna se reduce a tres líneas (lo verás de verdad en la S21):
+
+```python
+# Esto es la S21 (no se ejecuta aqui): el destino del puente
+import pandas as pd
+df = pd.read_csv('muestras.csv')
+print(round(df['ph'].mean(), 2))    # -> 6.95
+```
+
+`read_csv` lee el archivo, detecta el encabezado, separa las columnas y hasta convierte los números por ti: hace en una línea lo que hoy hiciste en ocho. Entonces, ¿para qué aprender el parseo manual? Porque ahora **entiendes qué hace Pandas por dentro**: cuando `read_csv` "convierte la columna `ph` a número", sabes que está haciendo el `float(ph)` que tú escribiste; cuando algo sale mal (una coma de más, un campo vacío), sabes dónde mirar. La herramienta te ahorra el trabajo; los fundamentos te dan el criterio.
+
+## Preguntas frecuentes
+
+**"¿Por qué `next(f)`?"** — Para **saltar el encabezado**. La primera línea (`muestra,sitio,ph,temperatura`) son los nombres de las columnas, no datos. Si no la saltas e intentas `float(ph)` sobre ella, Python da un `ValueError: could not convert string to float: 'ph'`, porque `'ph'` no es un número.
+
+**"¿Por qué hay que convertir con `float`?"** — Porque **todo lo que sale del archivo es texto**. `.split(',')` te da cadenas (`'7.2'`), aunque parezcan números. Para sumar, promediar o comparar tienes que convertirlas con `float()` o `int()` primero.
+
+**"¿Qué pasa si una línea tiene más o menos comas de las que espero?"** — La asignación múltiple falla: si escribes `a, b, c, d = ...` pero la línea tiene tres campos, Python avisa que no hay suficientes (o sobran) valores para desempaquetar. Por eso conviene **mirar el archivo** y saber cuántas columnas tiene.
+
+**"¿Cuándo uso Pandas en vez de hacerlo a mano?"** — En la práctica, casi siempre que tengas una tabla usarás Pandas (S21): es más corto y más rápido. El parseo manual de hoy es para **entender** qué hace Pandas por dentro, no para competir con él.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué hace `next(f)` y por qué lo necesitas antes del `for`? ¿Qué pasaría si lo olvidas?
+2. Después de `muestra, sitio, ph, temp = linea.strip().split(',')`, ¿qué **tipo** tiene `ph`? ¿Qué hay que hacer para promediarlo?
+3. Escribe (en papel o en Colab) la receta para calcular el **promedio de pH del `rio_Sur`**. ¿Qué línea cambia respecto al ejemplo del `rio_Norte`?
+4. ¿En qué se parece contar registros por sitio con un diccionario a la tabla de frecuencias de bases de la L14?
+5. Si `read_csv` hace todo esto en una línea, ¿por qué crees que vale la pena aprender el parseo manual primero?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| CSV | un archivo de **texto**: cada línea es una fila; los campos van separados por comas; la 1.ª línea suele ser el encabezado |
+| Saltar encabezado | `next(f)` avanza una línea sin procesarla (los nombres de columna no son datos) |
+| Parsear | `campos = linea.strip().split(',')`; asignación múltiple `a, b, c = ...` reparte los campos |
+| Convertir | todo sale como texto; `float()`/`int()` antes de calcular |
+| La receta | abrir, saltar, por línea: separar + convertir + (filtrar) + acumular, y calcular sobre la lista |
+| Filtrar y agregar | `if columna == valor` para un grupo; promedio/máximo/conteo del grupo; conteo por categoría con un dict |
+| Puente a Pandas | `pandas.read_csv('archivo.csv')` hace toda la receta en una línea (S21); a mano primero para entenderla |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — los capítulos sobre archivos y procesamiento de texto.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección de archivos (`open`, `with`, iterar líneas).
+- **Más allá de esta lección:** Python trae un módulo `csv` que también separa los campos por ti, pero el verdadero salto llega en el **Módulo 3**: en la **S20** importarás **NumPy** para operar sobre arreglos de mediciones, y en la **S21-S22** **Pandas** convertirá el CSV en un `DataFrame` con `read_csv` -- y entonces el `value_counts` que hoy hiciste con un diccionario será un método. La idea de hoy -- *una tabla es texto que se recorre, se separa y se procesa* -- es la base de todo el módulo.

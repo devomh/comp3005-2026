@@ -1,0 +1,190 @@
+---
+title: "Diccionarios: pares clave-valor, métodos, operadores y recorrido"
+unit: "2"
+lesson: 14
+type: concept
+tags: [python, diccionarios, dict, clave-valor, keys, values, items, get, conteo]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Crear** un diccionario `{clave: valor}` y **acceder** a un valor por su clave con `d[clave]`, distinguiendo el mapa **clave -> valor** de la indización por **posición** de listas y cadenas. *(Comprender / Aplicar)*
+- **Modificar** y **agregar** pares con `d[clave] = valor` (crea el par si la clave no existe, modifica el valor si ya existe). *(Aplicar)*
+- **Usar** los métodos `len()`, `.keys()`, `.values()`, `.items()` y `.get(clave, default)`. *(Aplicar)*
+- **Usar** el operador `in` para preguntar si una **clave** está en el diccionario. *(Aplicar)*
+- **Recorrer** un diccionario con un `for` (sus claves, y con `.items()` la clave y el valor a la vez). *(Aplicar)*
+- **Construir** una **tabla de frecuencias** contando elementos en un diccionario con el idioma `conteo[k] = conteo.get(k, 0) + 1`. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L13 (*Listas*) · antes de la L15 (*Funciones `def`*). Cierra el trío de estructuras de datos: tras la cadena y la lista (indizadas por **posición**), el diccionario indexa por **clave**.
+
+## Por qué importa
+
+Una lista guarda masas atómicas en orden: `masas[0]`, `masas[1]`, `masas[2]`... pero, ¿cuál era el carbono? ¿La posición `1` o la `5`? Tendrías que **recordar el orden**, y si insertas un elemento, todas las posiciones se corren.
+
+La respuesta es un **diccionario**: guardas `{'C': 12.011, 'O': 15.999, ...}` y preguntas directamente `masas['C']`. La **clave** (el símbolo del elemento) es el índice natural -- con sentido, no un número de posición. Un diccionario es un **mapa**: asocia cada **clave** con un **valor**, y se accede **por la clave**. Donde una lista contesta *"¿qué hay en la posición 2?"*, un diccionario contesta *"¿qué valor tiene la clave `'C'`?"*. Es la estructura para datos con **etiqueta**: una tabla de masas atómicas, un código genético (codón -> aminoácido), o el **conteo** de cuántas veces aparece cada cosa.
+
+> **Práctica (hands-on):** [Lab — Diccionarios](l14_lab_dictionaries.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u02_data_structures_files/l14_lab_dictionaries.ipynb)
+
+## Qué es un diccionario
+
+Un diccionario se escribe encerrando sus pares `clave: valor`, separados por comas, entre **llaves** `{...}`. Cada par asocia una **clave** (a la izquierda de los dos puntos) con un **valor** (a la derecha). Se accede a un valor escribiendo la clave entre corchetes, `d[clave]` -- no un número de posición:
+
+```python
+masas = {'H': 1.008, 'C': 12.011, 'O': 15.999}
+print(masas)          # todo el diccionario
+print(masas['C'])     # el valor asociado a la clave 'C'
+```
+
+```
+{'H': 1.008, 'C': 12.011, 'O': 15.999}
+12.011
+```
+
+Las claves son **únicas** (no se repiten) y suelen ser cadenas o números; los valores pueden ser de cualquier tipo. Un **diccionario vacío** se escribe `{}`, listo para irle agregando pares. La gran diferencia con la lista: aquí `masas['C']` no es "el elemento en la posición C" (eso no tendría sentido), sino "el valor que **mapea** la clave `'C'`".
+
+## Crear, modificar y agregar
+
+La instrucción `d[clave] = valor` hace **dos cosas según el caso**: si la clave **ya existe**, *modifica* su valor; si **no existe**, *crea* el par nuevo. Es la misma sintaxis para ambas:
+
+```python
+masas['N'] = 14.007     # 'N' no existia -> agrega el par nuevo
+masas['H'] = 1.0079     # 'H' ya existia -> modifica su valor
+print(masas)
+```
+
+```
+{'H': 1.0079, 'C': 12.011, 'O': 15.999, 'N': 14.007}
+```
+
+`'N'` se agregó al diccionario y el valor de `'H'` pasó de `1.008` a `1.0079`. Ojo con **leer** una clave que no existe: `masas['Na']` lanzaría un error `KeyError`, porque no hay ningún valor asociado a `'Na'`. Para eso está `.get()`, que veremos enseguida.
+
+## Métodos
+
+| Función / método | Qué hace | Ejemplo (`masas` de 4 pares) |
+|---|---|---|
+| `len(d)` | cantidad de pares | `len(masas)` -> `4` |
+| `d.keys()` | las **claves** | `masas.keys()` -> `dict_keys(['H', 'C', 'O', 'N'])` |
+| `d.values()` | los **valores** | `masas.values()` -> `dict_values([1.0079, 12.011, 15.999, 14.007])` |
+| `d.items()` | los **pares** (clave, valor) | `masas.items()` -> `dict_items([('H', 1.0079), ...])` |
+| `d.get(clave, default)` | el valor, o `default` si la clave no está (**sin error**) | `masas.get('Na', 0.0)` -> `0.0` |
+
+```python
+print(len(masas))
+print(masas.get('Na', 0.0))   # clave ausente -> devuelve el default
+print(masas.get('C', 0.0))    # clave presente -> su valor
+# print(masas['Na'])          # esto daria KeyError: 'Na'
+```
+
+```
+4
+0.0
+12.011
+```
+
+`.get(clave, default)` es la forma **segura** de leer: si la clave existe, devuelve su valor; si no, devuelve el `default` que le des (aquí `0.0`) en vez de lanzar `KeyError`. `keys()`, `values()` e `items()` te dan las tres "vistas" del diccionario, muy útiles para recorrerlo.
+
+## Operador `in`
+
+El operador `in` pregunta si una **clave** está en el diccionario (no mira los valores), y devuelve `True` o `False`:
+
+```python
+print('C' in masas)
+print('Na' in masas)
+```
+
+```
+True
+False
+```
+
+Es la comprobación natural antes de leer con `d[clave]`: `if 'Na' in masas:` evita el `KeyError`. (Para preguntar por un **valor** usarías `in masas.values()`.)
+
+## Recorrer un diccionario
+
+Un diccionario es un **iterable**: un `for k in d` lo recorre dando una **clave** por vuelta (con la clave accedes al valor con `d[k]`). El recorrido va **sin un orden garantizado** -- no dependas de que salgan en cierto orden. Para obtener la clave **y** el valor a la vez, recorre `d.items()`, que entrega pares `(clave, valor)`:
+
+```python
+for sym in masas:
+    print(sym, masas[sym])
+```
+
+```
+H 1.0079
+C 12.011
+O 15.999
+N 14.007
+```
+
+```python
+for sym, m in masas.items():
+    print('Elemento: {0:>2} | Masa: {1}'.format(sym, m))
+```
+
+```
+Elemento:  H | Masa: 1.0079
+Elemento:  C | Masa: 12.011
+Elemento:  O | Masa: 15.999
+Elemento:  N | Masa: 14.007
+```
+
+El primer `for` recorre las claves (`sym` es `'H'`, `'C'`, ...) y usa `masas[sym]` para el valor. El segundo desempaca cada par de `.items()` en dos variables, `sym` y `m`, y las alinea con `.format()` (el `{0:>2}` de la L12).
+
+## Contar con un diccionario
+
+Uno de los usos más potentes de un diccionario es **contar**: armar una **tabla de frecuencias** que diga cuántas veces aparece cada cosa. El idioma clave combina `.get()` con la asignación:
+
+```python
+adn = 'ATGCATGCAT'
+conteo = {}
+for base in adn:
+    conteo[base] = conteo.get(base, 0) + 1
+print(conteo)
+```
+
+```
+{'A': 3, 'T': 3, 'G': 2, 'C': 2}
+```
+
+Empezamos con un diccionario vacío `{}`. Por cada `base` de la cadena, `conteo.get(base, 0)` da el conteo que llevamos para esa base (o `0` si es la primera vez que la vemos), le sumamos `1` y lo guardamos de vuelta en `conteo[base]`. Al terminar, `conteo` tiene cada base con su cantidad. Este patrón -- recorrer datos y acumular conteos en un diccionario -- es exactamente lo que, en grande, hace `value_counts` de Pandas en el Módulo 3.
+
+## Preguntas frecuentes
+
+**"¿Cuándo uso una lista y cuándo un diccionario?"** — Una **lista** guarda valores **en orden**, accedidos por **posición** (`lista[0]`, `lista[1]`). Un **diccionario** guarda valores accedidos por **clave** con sentido (`masas['C']`). Si tus datos tienen una etiqueta natural (un nombre, un símbolo, un id), usa un diccionario; si son una secuencia donde la posición importa, una lista.
+
+**"¿`d[clave]` o `d.get(clave)`?"** — `d[clave]` lanza `KeyError` si la clave no existe; úsalo cuando estás seguro de que está. `d.get(clave, default)` nunca falla: devuelve el `default` si la clave no está. Para contar o leer datos que pueden faltar, `.get()` es más seguro.
+
+**"¿En qué orden recorre un `for` el diccionario?"** — Trátalo como **sin orden garantizado**: recorre todas las claves, pero no escribas código que dependa de un orden particular. Si necesitas orden, ordena las claves aparte (`sorted(d.keys())`).
+
+**"¿`in` mira las claves o los valores?"** — Las **claves**. `'C' in masas` pregunta si `'C'` es una clave. Para buscar entre los valores, usa `valor in masas.values()`.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Cuál es la diferencia central entre indexar una lista (`lista[2]`) y un diccionario (`d['C']`)? ¿Por qué un diccionario no usa posiciones?
+2. Si `notas = {'Ana': 90, 'Luis': 85}`, ¿qué valen `notas['Ana']`, `len(notas)`, `'Luis' in notas` y `notas.get('Sara', 0)`?
+3. Escribe `notas['Sara'] = 78` y luego `notas['Ana'] = 95`. ¿Cuál de las dos *agrega* un par y cuál *modifica* uno?
+4. ¿Qué imprime `for k in notas: print(k, notas[k])`? ¿Y usando `notas.items()`?
+5. Dada la cadena `'AABBBC'`, traza a mano cómo `conteo[c] = conteo.get(c, 0) + 1` llena el diccionario letra por letra.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Crear / acceder | `{clave: valor}` entre llaves; `d[clave]` accede por **clave**, no por posición |
+| Modificar / agregar | `d[clave] = valor` modifica si la clave existe, crea el par si no |
+| Métodos | `len`, `.keys()`, `.values()`, `.items()`, `.get(clave, default)` (sin error) |
+| Operador `in` | `clave in d` pregunta por la **clave** (`True`/`False`) |
+| Recorrer | `for k in d` da las claves (sin orden garantizado); `for k, v in d.items()` da ambos |
+| Contar | `conteo[k] = conteo.get(k, 0) + 1` arma una tabla de frecuencias |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre diccionarios.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección sobre diccionarios (`dict`) y la del bucle `for` con `.items()`.
+- **Más allá de esta lección:** un diccionario también se construye con una **comprensión** (`{k: v for ...}`); tiene métodos como `.update()` y `.pop()`; y para contar existe `collections.Counter`, un atajo del idioma que viste aquí. En la **L15** llegan las **funciones** (`def`), para empaquetar y reutilizar tu código; y en el **Módulo 3**, esta misma "tabla de frecuencias" será un `value_counts` de Pandas.

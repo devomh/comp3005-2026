@@ -1,0 +1,220 @@
+---
+title: "Pandas: análisis de datos -- valores únicos, columnas calculadas, subconjuntos y agrupaciones"
+unit: "3"
+lesson: 22
+type: concept
+tags: [python, pandas, dataframe, value_counts, groupby, columnas_calculadas, subconjuntos, analisis, tabular]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Listar** los valores distintos de una columna (`df['col'].unique()`) y **contar** cuántas veces aparece cada uno (`df['col'].value_counts()`). *(Comprender / Aplicar)*
+- **Crear** una columna calculada a partir de otras (`df['nueva'] = ...`), operando la columna entera. *(Aplicar)*
+- **Extraer** un subconjunto de filas por condición (`df[df['col'] == valor]`) y **renumerar** el índice con `.reset_index(drop=True)`. *(Aplicar)*
+- **Agrupar** por una columna y aplicar un agregado (`df.groupby('col')['otra'].mean()`). *(Aplicar / Analizar)*
+- **Interpretar** un resultado por grupo o un `value_counts` para responder una pregunta sobre los datos. *(Analizar)*
+- **Distinguir** `value_counts` (ordena por frecuencia) de `groupby` (ordena por la clave del grupo). *(Comprender)*
+
+> **Dónde encaja:** después de la L21 (*Pandas: DataFrames y read_csv*) · dentro del Módulo 3 · antes de la L23 (*Visualización científica*). La L21 te dio la tabla y dos acciones (ver una columna, filtrar filas); hoy llegan los **verbos de análisis** que la convierten en respuestas.
+
+## Por qué importa
+
+En la **L19** contaste por categoría **a mano**, con un `dict`. En la **L21** filtraste filas de un DataFrame con una máscara booleana. Esos dos gestos -- contar y recortar -- son el corazón del análisis de datos, y hoy se vuelven **una línea cada uno**. Además llega el verbo que falta: **agrupar**.
+
+`df['especie'].value_counts()` cuenta cuántas veces aparece cada valor. `df.groupby('sitio')['conteo'].mean()` calcula el promedio **por cada sitio** de una sola vez. Ese `groupby` -- "para cada categoría, calcula algo" -- es lo que convierte una tabla en un análisis: en lugar de un bucle con un `dict` por cada pregunta, una línea. Vamos a tomar una tabla de **biodiversidad** (conteos de peces por laguna) y preguntarle: ¿qué especie es la más abundante? ¿qué laguna acumula más individuos?
+
+> **Práctica (hands-on):** [Lab — Pandas: análisis de datos](l22_lab_pandas_analysis.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l22_lab_pandas_analysis.ipynb)
+
+## La tabla de hoy
+
+Leemos `biodiversidad.csv` a un DataFrame, igual que en la L21. Son siete muestreos de peces en dos lagunas (el Lab escribe este archivo y corre todo el código; aquí solo mostramos los resultados):
+
+```python
+import pandas as pd
+
+df = pd.read_csv('biodiversidad.csv')
+print(df)
+```
+
+```text
+      sitio  especie  conteo
+0  laguna_A  tilapia      15
+1  laguna_B    molly       5
+2  laguna_A    guppy      10
+3  laguna_B  tilapia      25
+4  laguna_A  tilapia      20
+5  laguna_B    guppy      15
+6  laguna_B    molly      10
+```
+
+Hay tres columnas (`sitio`, `especie`, `conteo`) y un índice de filas de `0` a `6`. Sobre esta tabla aplicaremos los cuatro verbos de análisis.
+
+| Verbo | Qué hace | Método |
+|---|---|---|
+| valores únicos / conteos | qué valores hay y cuántos de cada uno | `df['col'].unique()` / `df['col'].value_counts()` |
+| columna calculada | una columna nueva a partir de otras | `df['nueva'] = expresión` |
+| subconjunto | recortar las filas que cumplen una condición | `df[df['col'] == valor]` |
+| agrupación | calcular un agregado por cada categoría | `df.groupby('col')['otra'].mean()` |
+
+## Valores únicos y conteos
+
+Para saber qué **valores distintos** tiene una columna, `.unique()`; para saber **cuántas veces** aparece cada uno, `.value_counts()` (que ya viene ordenado de mayor a menor):
+
+```python
+print(df['especie'].unique())
+print(df['especie'].value_counts())
+```
+
+```text
+['tilapia' 'molly' 'guppy']
+especie
+tilapia    3
+molly      2
+guppy      2
+Name: count, dtype: int64
+```
+
+Hay tres especies, y `tilapia` es la más frecuente (3 muestreos). Esto es exactamente lo que en la L19 hiciste a mano con un `dict` de conteo: recorrer y sumar uno por categoría. Aquí es un método, y además queda ordenado por frecuencia.
+
+## Columnas calculadas
+
+Una **columna nueva** se crea a partir de las que ya hay: la operación se aplica a la columna **entera** de una vez (vectorizada, como los arreglos de NumPy de la L20). Calculemos la **proporción** de cada conteo sobre el total (`df['conteo'].sum()` es 100):
+
+```python
+df['proporcion'] = df['conteo'] / df['conteo'].sum()
+print(df)
+```
+
+```text
+      sitio  especie  conteo  proporcion
+0  laguna_A  tilapia      15        0.15
+1  laguna_B    molly       5        0.05
+2  laguna_A    guppy      10        0.10
+3  laguna_B  tilapia      25        0.25
+4  laguna_A  tilapia      20        0.20
+5  laguna_B    guppy      15        0.15
+6  laguna_B    molly      10        0.10
+```
+
+La columna `proporcion` se agregó al DataFrame (las proporciones suman 1.0). No hubo que recorrer fila por fila: `df['conteo'] / df['conteo'].sum()` es una operación vectorizada, la idea de la L20 sobre una columna de la tabla.
+
+## Subconjuntos
+
+Para quedarte con un **subconjunto** de filas se usa la máscara booleana de la L21. Tomemos solo `laguna_A`:
+
+```python
+dfA = df[df['sitio'] == 'laguna_A']
+print(dfA)
+```
+
+```text
+      sitio  especie  conteo  proporcion
+0  laguna_A  tilapia      15        0.15
+2  laguna_A    guppy      10        0.10
+4  laguna_A  tilapia      20        0.20
+```
+
+Fíjate en el índice: `0, 2, 4`. Al filtrar, Pandas **conserva las etiquetas originales** de las filas (eran la 0, la 2 y la 4 en la tabla completa). Para renumerar desde 0 se usa `reset_index(drop=True)`:
+
+```python
+print(dfA.reset_index(drop=True))
+```
+
+```text
+      sitio  especie  conteo  proporcion
+0  laguna_A  tilapia      15        0.15
+1  laguna_A    guppy      10        0.10
+2  laguna_A  tilapia      20        0.20
+```
+
+Ahora el índice es `0, 1, 2`. El `drop=True` descarta el índice viejo (sin él, Pandas lo guardaría como una columna nueva).
+
+## Agrupaciones
+
+Este es el verbo más potente. `groupby('columna')` divide las filas en **grupos** según esa columna, y luego aplica un **agregado** a cada grupo. ¿Cuántos individuos acumula cada laguna? Agrupamos por `sitio` y sumamos `conteo`:
+
+```python
+print(df.groupby('sitio')['conteo'].sum())
+```
+
+```text
+sitio
+laguna_A    45
+laguna_B    55
+Name: conteo, dtype: int64
+```
+
+`laguna_B` acumula más (55 vs. 45). ¿Y el conteo **promedio** de cada especie? Agrupamos por `especie` y promediamos:
+
+```python
+print(df.groupby('especie')['conteo'].mean())
+```
+
+```text
+especie
+guppy      12.5
+molly       7.5
+tilapia    20.0
+Name: conteo, dtype: float64
+```
+
+`tilapia` tiene el promedio más alto (20.0). En una línea, `groupby` hizo el "para cada grupo, calcula..." que a mano sería un bucle con un `dict`. Se puede agregar con `.sum()`, `.mean()` o `.count()` (cuántas filas por grupo), entre otros:
+
+| Agregado | Qué calcula por grupo |
+|---|---|
+| `.count()` | cuántas filas tiene el grupo |
+| `.sum()` | la suma de la columna |
+| `.mean()` | el promedio de la columna |
+
+## value_counts vs. groupby
+
+Ambos resumen por categoría, pero responden preguntas distintas y **ordenan distinto**:
+
+| | `df['col'].value_counts()` | `df.groupby('col')['otra'].agg()` |
+|---|---|---|
+| pregunta | ¿cuántas filas hay de cada valor? | ¿qué agregado da `otra` por cada grupo? |
+| usa | una sola columna | una columna para agrupar + otra para agregar |
+| ordena por | la **frecuencia** (de mayor a menor) | la **clave del grupo** (p. ej. alfabética) |
+
+Cuando solo quieres **contar ocurrencias** de una columna, `value_counts`. Cuando quieres **calcular algo de otra columna por cada categoría** (un promedio, una suma), `groupby`.
+
+## Preguntas frecuentes
+
+**"¿`value_counts` o `groupby`?"** — `value_counts` **cuenta** cuántas filas hay de cada valor en **una** columna. `groupby` toma **dos**: una para formar los grupos y otra para **agregar** (promedio, suma, conteo). Si la pregunta es "¿cuántos de cada uno?", `value_counts`; si es "¿qué promedio/suma de *otra* columna por cada categoría?", `groupby`.
+
+**"¿Por qué el índice salta después de filtrar?"** — Porque `df[...]` **conserva las etiquetas de fila originales**. Las filas que pasaron el filtro mantienen su número de la tabla completa (`0, 2, 4`). Para renumerar desde 0, `reset_index(drop=True)`.
+
+**"¿Y si escribo mal el nombre de la columna en `groupby`?"** — Pandas lanza un `KeyError`, igual que al seleccionar una columna en la L21. Los nombres de columna distinguen mayúsculas de minúsculas y deben coincidir exactamente.
+
+**"¿La columna calculada cambia el archivo CSV?"** — No. `df['proporcion'] = ...` agrega la columna al DataFrame **en memoria**; el `biodiversidad.csv` en disco no se toca. (Guardar los cambios sería otro paso, `to_csv`, fuera del alcance de hoy.)
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué pregunta responde `value_counts` que no responde `groupby`, y al revés?
+2. ¿Por qué `df['conteo'] / df['conteo'].sum()` no necesita un `for`? (Pista: ¿qué es una columna por dentro?)
+3. Después de `df[df['sitio'] == 'laguna_B']`, ¿qué índice tendrían las filas? ¿Cómo lo renumerarías?
+4. Escribe (en papel o en Colab) cómo calcularías el conteo **total** por especie con `groupby`.
+5. `df.groupby('especie')['conteo'].mean()` da `tilapia 20.0`. ¿Qué pregunta sobre los datos responde ese número?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Valores únicos / conteos | `df['col'].unique()` y `df['col'].value_counts()` (ordena por frecuencia) -- el conteo de la L19, ahora un método |
+| Columna calculada | `df['nueva'] = expresión` opera la columna entera (vectorizado, L20); no cambia el CSV |
+| Subconjunto | `df[df['col'] == valor]` recorta filas; `reset_index(drop=True)` renumera el índice |
+| Agrupación | `df.groupby('col')['otra'].mean()` (o `.sum()`, `.count()`) -- un agregado por cada grupo |
+| `value_counts` vs. `groupby` | uno cuenta ocurrencias de una columna; el otro agrega otra columna por grupo |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC).
+- **Documentación oficial:** *10 minutes to pandas* en `pandas.pydata.org` (`value_counts`, `groupby`, columnas calculadas).
+- **Más allá de esta lección:** en la **S23** **graficarás** estos conteos y promedios con matplotlib (líneas, barras, dispersión, histograma). También se puede agrupar por **varias** columnas (`groupby(['sitio', 'especie'])`), ordenar resultados (`sort_values`) y guardar la tabla analizada (`to_csv`). La idea de hoy -- *contar, calcular, recortar y agrupar* -- es el núcleo de todo análisis de datos tabulares.

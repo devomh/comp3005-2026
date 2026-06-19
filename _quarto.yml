@@ -42,9 +42,30 @@ website:
           - u02_data_structures_files/l12_lab_strings.md
           - u02_data_structures_files/l13_concept_lists.qmd
           - u02_data_structures_files/l13_lab_lists.md
-      # - section: "Módulo 3 — Cómputo científico con Python"
-      #   contents:
-      #     - u03_scientific_computing/...
+          - u02_data_structures_files/l14_concept_dictionaries.qmd
+          - u02_data_structures_files/l14_lab_dictionaries.md
+          - u02_data_structures_files/l15_concept_functions.qmd
+          - u02_data_structures_files/l15_lab_functions.md
+          - u02_data_structures_files/l16_concept_text_files.qmd
+          - u02_data_structures_files/l16_lab_text_files.md
+      - section: "Módulo 3 — Cómputo científico con Python"
+        contents:
+          - u03_scientific_computing/l19_concept_csv_files.qmd
+          - u03_scientific_computing/l19_lab_csv_files.md
+          - u03_scientific_computing/l20_concept_numpy.qmd
+          - u03_scientific_computing/l20_lab_numpy.md
+          - u03_scientific_computing/l21_concept_pandas.qmd
+          - u03_scientific_computing/l21_lab_pandas.md
+          - u03_scientific_computing/l22_concept_pandas_analysis.qmd
+          - u03_scientific_computing/l22_lab_pandas_analysis.md
+          - u03_scientific_computing/l23_concept_visualization.qmd
+          - u03_scientific_computing/l23_lab_visualization.md
+          - u03_scientific_computing/l24_concept_scientific_images.qmd
+          - u03_scientific_computing/l24_lab_scientific_images.md
+          - u03_scientific_computing/l25_concept_biopython.qmd
+          - u03_scientific_computing/l25_lab_biopython.md
+          - u03_scientific_computing/l26_concept_chemistry_mendeleev.qmd
+          - u03_scientific_computing/l26_lab_chemistry_mendeleev.md
 
 format:
   html:

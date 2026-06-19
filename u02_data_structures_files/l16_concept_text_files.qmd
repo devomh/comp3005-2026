@@ -1,0 +1,246 @@
+---
+title: "Archivos de texto: leer, escribir y funciones que los procesan"
+unit: "2"
+lesson: 16
+type: concept
+tags: [python, archivos, open, with, lectura, escritura, lineas, fasta, conteo]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Abrir** un archivo con `with open(nombre, modo) as f:` y distinguir los modos `'r'` (leer), `'w'` (escribir) y `'a'` (agregar), sabiendo que `with` lo **cierra solo**. *(Comprender / Aplicar)*
+- **Escribir** texto en un archivo con `f.write(...)`, incluyendo tú el salto de línea `\n`; recordar que `'w'` **crea o sobreescribe**. *(Aplicar)*
+- **Leer** un archivo de tres formas (`f.read()`, iterar `for linea in f:`, `f.readlines()`) y **limpiar** el `\n` de cada línea con `.strip()`. *(Aplicar)*
+- **Procesar** un archivo línea por línea: contar líneas y palabras, buscar las líneas que contienen una cadena y contar ocurrencias. *(Aplicar)*
+- **Escribir** una **función que procesa un archivo** -- que integra `def`, `for`, cadenas y listas en una sola herramienta reutilizable. *(Aplicar / Analizar)*
+- **Aplicar** todo a un archivo científico de texto: parsear un **FASTA** a mano (encabezado `>` vs. secuencia) y calcular el contenido GC desde el archivo. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L15 (*Funciones*) · cierra el contenido del **Módulo 2** (sigue el laboratorio calificado y el Parcial 2) · antes del **Módulo 3**, donde leerás datos tabulares con archivos **CSV**. Aquí se juntan `for`, cadenas, listas y funciones sobre datos reales.
+
+## Por qué importa
+
+Hasta ahora, todo lo que calculaste vivía en **variables** que desaparecen al cerrar el notebook. Pero los datos de la ciencia no viven en variables: viven en **archivos**. Una secuencia de ADN se guarda en un archivo FASTA; las lecturas de un instrumento, en un registro de texto; los resultados de un experimento, en un archivo que mañana volverás a abrir. Saber **leer y escribir archivos** es lo que conecta tus programas con datos que persisten.
+
+Esta lección **cose** todo el Módulo 2: para procesar un archivo recorres sus líneas con un `for` (L11), las limpias y buscas con métodos de **cadena** (L12), las acumulas en **listas** (L13) o las cuentas en **diccionarios** (L14), y empaquetas el proceso en una **función** (L15) que puedes reutilizar. De hecho, la función `gc(adn)` de la L15 calculaba el contenido GC de una secuencia escrita a mano; hoy **leerás esa secuencia desde un archivo** y le aplicarás la misma función. Es el salto de *"los datos están en el código"* a *"los datos están en un archivo"*.
+
+> **Práctica (hands-on):** [Lab — Archivos de texto](l16_lab_text_files.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u02_data_structures_files/l16_lab_text_files.ipynb)
+
+## Abrir y cerrar un archivo
+
+Para trabajar con un archivo se usa la función `open(nombre, modo)`, que devuelve un **manejador** (un objeto con métodos para leer o escribir). El `nombre` es el del archivo; el `modo` dice **para qué** lo abres:
+
+| Modo | Para qué | ¿Crea el archivo? | ¿Borra lo anterior? |
+|---|---|---|---|
+| `'r'` | **leer** (es el modo por defecto) | no -- da error si no existe | no |
+| `'w'` | **escribir** | sí | **sí** -- sobreescribe lo que hubiera |
+| `'a'` | **agregar** al final | sí | no -- añade sin borrar |
+
+Todo archivo que se abre **debe cerrarse** al terminar (para que los cambios se guarden y se libere el recurso). En vez de acordarte de llamar `f.close()` a mano, Python ofrece el bloque `with`, que **abre el archivo y lo cierra solo** al salir del bloque indentado:
+
+```python
+with open('secuencias.fasta', 'r') as f:
+    for linea in f:
+        print(linea.strip())
+```
+
+Dentro del `with`, `f` es el manejador. Al terminar el bloque, el archivo se cierra automáticamente -- aunque ocurra un error. Por eso `with` es la forma **recomendada**: nunca se te olvida cerrar. (Verás en otro código la forma antigua `f = open(...)` ... `f.close()`; hacen lo mismo, pero `with` es más seguro.) Cuando lees un archivo así, el control sigue este flujo:
+
+```{mermaid}
+flowchart TD
+    A["<b>with open(nombre, 'r') as f:</b><br/>abre el archivo en modo lectura"] --> B{"<b>for linea in f:</b><br/>¿queda otra línea?"}
+    B -->|sí| C["procesa la línea<br/>(imprimir, contar, buscar)"]
+    C --> B
+    B -->|no| D["sale del bloque <b>with</b>:<br/>el archivo se <b>cierra solo</b>"]
+```
+
+## Escribir un archivo
+
+Abrir en modo `'w'` crea el archivo (o **borra** su contenido si ya existía) y te deja escribir con `f.write(texto)`. A diferencia de `print`, **`write` no agrega un salto de línea**: lo pones tú con `\n` (el carácter de escape de la L12). Una forma cómoda de escribir varias líneas es una cadena de triple comilla:
+
+```python
+fasta = """>seq1 muestra_A
+ATGCATGCAT
+>seq2 muestra_B
+GCGCGCGCGC
+"""
+
+with open('secuencias.fasta', 'w') as f:
+    f.write(fasta)
+```
+
+También puedes escribir línea por línea dentro de un `for`, añadiendo el `\n` cada vez:
+
+```python
+bases = ['A', 'T', 'G', 'C']
+with open('bases.txt', 'w') as f:
+    for b in bases:
+        f.write(b + '\n')
+```
+
+Si abrieras ese mismo archivo con `'a'` en vez de `'w'`, las nuevas líneas se **añadirían** al final en lugar de borrar lo anterior.
+
+## Leer un archivo
+
+Hay tres formas de leer, según lo que necesites:
+
+| Forma | Devuelve | Cuándo usarla |
+|---|---|---|
+| `f.read()` | todo el archivo en **una sola cadena** | archivos pequeños; ver el contenido completo |
+| `for linea in f:` | cada **línea**, una por una | procesar línea por línea (lo más común) |
+| `f.readlines()` | una **lista** con todas las líneas | cuando quieres la lista completa de una vez |
+
+La forma natural para **procesar** un archivo es iterarlo con un `for`: en cada vuelta, `linea` es una línea del archivo. Hay un detalle: cada línea conserva su salto de línea final (`\n`). Se ve claro con `.readlines()`:
+
+```python
+with open('secuencias.fasta', 'r') as f:
+    lineas = f.readlines()
+
+print(lineas)
+```
+
+```
+['>seq1 muestra_A\n', 'ATGCATGCAT\n', '>seq2 muestra_B\n', 'GCGCGCGCGC\n']
+```
+
+Ese `\n` al final de cada línea suele estorbar, así que se quita con `.strip()` (de la L12), que elimina los espacios y saltos de línea de los extremos:
+
+```python
+with open('secuencias.fasta', 'r') as f:
+    for linea in f:
+        print(linea.strip())
+```
+
+```
+>seq1 muestra_A
+ATGCATGCAT
+>seq2 muestra_B
+GCGCGCGCGC
+```
+
+## Procesar un archivo línea por línea
+
+Con el `for` y lo que ya sabes de cadenas, condicionales y contadores, puedes **analizar** un archivo. Por ejemplo, contar cuántas líneas tiene y cuántas son encabezados (las que **empiezan** con `>`). Para chequear el inicio de una línea hay un método nuevo y muy útil, `.startswith(prefijo)`, que devuelve `True` o `False`:
+
+```python
+with open('secuencias.fasta', 'r') as f:
+    total = 0
+    secuencias = 0
+    for linea in f:
+        total += 1
+        if linea.startswith('>'):
+            secuencias += 1
+
+print('Lineas:', total)
+print('Secuencias:', secuencias)
+```
+
+```
+Lineas: 4
+Secuencias: 2
+```
+
+También puedes **buscar** todas las líneas que contienen una cadena con el operador `in` (de la L12), e imprimir solo esas:
+
+```python
+with open('secuencias.fasta', 'r') as f:
+    for linea in f:
+        if 'GC' in linea:
+            print(linea.strip())
+```
+
+```
+ATGCATGCAT
+GCGCGCGCGC
+```
+
+Las dos líneas de secuencia contienen `'GC'`; los encabezados, no. Variando la condición (`startswith`, `in`, `.count`, comparar `len(linea.split())`...) cuentas palabras, filtras líneas o buscas patrones -- todo recorriendo el archivo una sola vez.
+
+## Una función que procesa un archivo
+
+El verdadero salto del Módulo 2 es **empaquetar** ese proceso en una **función** (L15), para llamarla con el nombre de **cualquier** archivo. Encapsulemos el conteo de secuencias:
+
+```python
+def contar_secuencias(nombre):
+    conteo = 0
+    with open(nombre, 'r') as f:
+        for linea in f:
+            if linea.startswith('>'):
+                conteo += 1
+    return conteo
+
+print(contar_secuencias('secuencias.fasta'))
+```
+
+```
+2
+```
+
+Fíjate en lo que se juntó en seis líneas: un `def` con un **parámetro** (`nombre`), un bloque `with` que abre el archivo, un `for` que lo recorre, un `if` con `.startswith`, un **acumulador** y un `return`. Esa es la idea integradora: una función que **procesa un archivo** combina casi todo el módulo en una herramienta con nombre.
+
+## Un archivo científico: FASTA
+
+El formato **FASTA** guarda secuencias biológicas como texto: cada secuencia empieza con una línea de **encabezado** que comienza con `>` (el nombre y una descripción), seguida de una o más líneas con la secuencia. Parsearlo "a mano" es justo lo que acabas de aprender: recorrer líneas y distinguir las que empiezan con `>` de las que no. Reutilicemos la función `gc` de la L15, pero leyendo la secuencia **desde el archivo**:
+
+```python
+def gc(adn):
+    return (adn.count('G') + adn.count('C')) / len(adn) * 100
+
+def gc_de_archivo(nombre):
+    with open(nombre, 'r') as f:
+        for linea in f:
+            if not linea.startswith('>'):
+                return gc(linea.strip())
+
+print(gc_de_archivo('secuencias.fasta'))
+```
+
+```
+40.0
+```
+
+`gc_de_archivo` recorre el archivo, se salta los encabezados (`not linea.startswith('>')`) y, en la primera línea de secuencia, devuelve su contenido GC con la función `gc`. Para `'ATGCATGCAT'` da `40.0`: las 2 `G` y 2 `C` de 10 bases que contaste a mano en la L14, encapsuladas en `gc(...)` en la L15, ahora **leídas desde un archivo**. Ese es el arco completo: una cadena (L12) -> una función (L15) -> un archivo (L16).
+
+> **Espiral.** Aquí parseas FASTA **a mano** como destreza de fundamentos. En el Módulo 3 (S25) volverás al mismo formato con **Biopython**, una biblioteca de dominio que hace el parseo por ti. Verlo primero a mano te deja entender qué hace la herramienta por dentro.
+
+## Preguntas frecuentes
+
+**"¿`'w'` borra lo que ya había en el archivo?"** — Sí. Abrir en modo `'w'` **sobreescribe**: si el archivo existía, su contenido se pierde. Si lo que quieres es **añadir** sin borrar, abre en modo `'a'` (agregar).
+
+**"¿Por qué cada línea trae un `\n` de más al leer?"** — Porque el salto de línea es parte del texto del archivo: marca dónde termina cada línea. Al iterar `for linea in f:`, ese `\n` viene incluido. Quítalo con `linea.strip()` cuando estorbe.
+
+**"¿Qué pasa si el archivo no existe?"** — Si lo abres en modo `'r'` (leer), Python lanza un `FileNotFoundError`: no puede leer algo que no está. En cambio, `'w'` y `'a'` **crean** el archivo si no existe.
+
+**"¿Tengo que cerrar el archivo?"** — Si usas `with open(...) as f:`, **no**: se cierra solo al salir del bloque. Esa es justo la ventaja de `with` sobre `open`/`close` a mano.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué diferencia hay entre abrir un archivo en modo `'w'` y en modo `'a'`? ¿Cuándo usarías cada uno?
+2. Al iterar `for linea in archivo:`, ¿qué es `linea` en cada vuelta? ¿Por qué conviene usar `.strip()`?
+3. ¿Por qué `with open(...) as f:` es más seguro que `f = open(...)` seguido de `f.close()`?
+4. Escribe (en papel o en Colab) una función `contar_lineas(nombre)` que devuelva cuántas líneas tiene un archivo.
+5. En un FASTA, ¿cómo distingues una línea de **encabezado** de una línea de **secuencia**? ¿Qué método de cadena usarías?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Abrir | `open(nombre, modo)` devuelve un manejador; modos `'r'` leer, `'w'` crear/sobreescribir, `'a'` agregar |
+| `with` | `with open(...) as f:` abre y **cierra solo** el archivo al terminar el bloque |
+| Escribir | `f.write(texto)` no agrega `\n` (lo pones tú); `'w'` borra lo anterior |
+| Leer | `f.read()` (una cadena), iterar `for linea in f:` (línea a línea), `f.readlines()` (una lista) |
+| Limpiar | cada línea trae su `\n`; se quita con `.strip()` |
+| Procesar | recorrer con `for` + cadenas/condicionales: contar, buscar (`in`, `.startswith`), `.count` |
+| Función de archivo | empaquetar abrir+recorrer+procesar en un `def ... return` reutilizable |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre archivos.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección "Leer y escribir archivos" (`open`, `with`, métodos del manejador).
+- **Más allá de esta lección:** cuando un archivo puede **no existir**, se maneja el error con `try`/`except` (en vez de dejar que el programa se detenga). Los datos en **tablas** (filas y columnas separadas por comas) tienen su propio formato, **CSV**, que abre el **Módulo 3** (S19): empezarás parseándolo a mano -- como hoy -- y luego con la función `read_csv` de **Pandas**. Y el FASTA que parseaste a mano vuelve en S25 con **Biopython**. La idea de hoy -- *un archivo se recorre línea por línea y se procesa con una función* -- es la base de todo eso.

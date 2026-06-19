@@ -1,0 +1,193 @@
+---
+title: "Funciones y subprogramas: def, declarar vs. llamar, parámetros y return"
+unit: "2"
+lesson: 15
+type: concept
+tags: [python, funciones, def, return, parametros, argumentos, reutilizacion, alcance-local]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Definir** una función con `def nombre(parametros):` y un bloque indentado, declarándola una sola vez. *(Comprender / Aplicar)*
+- **Distinguir** *declarar* una función (la definición no ejecuta el cuerpo) de *llamarla* (`nombre(argumentos)` ejecuta el cuerpo), y **llamarla** cuantas veces haga falta. *(Comprender / Aplicar)*
+- **Usar** parámetros (los nombres en la definición) y argumentos (los valores en la llamada), pasados por **posición**. *(Aplicar)*
+- **Devolver** un valor con `return`, y reconocer que una función **sin** `return` devuelve `None`. *(Aplicar)*
+- **Reconocer** que una variable creada dentro de una función es **local**: no existe fuera de ella. *(Comprender)*
+- **Escribir** y **reutilizar** una función científica (molaridad, contenido GC, dilución) llamándola con distintos argumentos. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L14 (*Diccionarios*) · antes de la L16 (*Archivos de texto*). Cierra el Módulo 2: empaqueta en una **función** los cálculos que venías escribiendo a mano.
+
+## Por qué importa
+
+En la L14 calculaste el contenido GC de una secuencia de ADN contando sus bases. ¿Y si necesitas ese mismo cálculo para **diez** secuencias? ¿Copias y pegas el bloque diez veces? Si después encuentras un error, ¿lo arreglas en los diez sitios?
+
+La respuesta es una **función**: escribes el cálculo **una sola vez**, le pones un nombre, y lo **reutilizas** con cualquier dato llamándolo `gc(otra_secuencia)`. Una función es un **subprograma** con nombre: recibe datos (sus **parámetros**), ejecuta un bloque de instrucciones y, normalmente, **devuelve** un resultado. Es la herramienta para no repetir código y para darle estructura a un programa: en vez de un muro de instrucciones, piezas con nombre que se combinan. Los cálculos que un científico repite -- molaridad (`moles / litros`), GC% (`(G + C) / largo`), dilución (`conc / factor`) -- son justo lo que una función existe para empaquetar.
+
+> **Práctica (hands-on):** [Lab — Funciones](l15_lab_functions.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u02_data_structures_files/l15_lab_functions.ipynb)
+
+## Definir y llamar una función
+
+Una función se **declara** con la instrucción `def`, seguida del nombre, los **parámetros** entre paréntesis, dos puntos, y un **bloque indentado** (el cuerpo). Dentro, `return` devuelve un valor:
+
+```python
+def molaridad(moles, litros):
+    return moles / litros
+```
+
+Definir la función **no ejecuta** su cuerpo: solo la crea y le da nombre, lista para usarse. El cuerpo corre cuando la **llamas**, escribiendo su nombre con los **argumentos** (los valores concretos) entre paréntesis:
+
+```python
+print(molaridad(0.5, 2))
+print(molaridad(3, 4))
+print(molaridad(1, 8))
+```
+
+```
+0.25
+0.75
+0.125
+```
+
+La misma función se **reutilizó** tres veces con argumentos distintos. Este es el eje de la lección: **declarar** (una vez, con `def`) es distinto de **llamar** (cuantas veces quieras). Si solo defines la función y nunca la llamas, no pasa nada visible -- el cuerpo no se ejecutó.
+
+Cuando llamas `molaridad(3, 4)`, el control sigue este flujo:
+
+```{mermaid}
+flowchart TD
+    A["llamada: <b>molaridad(3, 4)</b>"] --> B["entra a la función<br/>con <b>moles=3</b>, <b>litros=4</b>"]
+    B --> C["ejecuta el cuerpo:<br/><b>return</b> moles / litros"]
+    C --> D["<b>devuelve 0.75</b><br/>y termina la función"]
+    D --> E["vuelve a quien la llamó<br/>(el <b>print</b> recibe 0.75)"]
+```
+
+## Parámetros y argumentos
+
+Conviene separar dos palabras. Un **parámetro** es el nombre que aparece en la **definición** (`moles`, `litros`); un **argumento** es el **valor** concreto que pasas en la **llamada** (`0.5`, `2`). Los argumentos se asignan a los parámetros **por posición**: el primer argumento va al primer parámetro, el segundo al segundo, y así.
+
+| En la definición | En la llamada |
+|---|---|
+| `def molaridad(moles, litros):` | `molaridad(3, 4)` |
+| `moles` y `litros` son **parámetros** | `3` y `4` son **argumentos** |
+| nombres (cajas vacías) | valores que llenan las cajas, en orden |
+
+Así, en `molaridad(3, 4)`, `moles` vale `3` y `litros` vale `4`. El orden importa: `molaridad(4, 3)` calcularía `4 / 3`, otra cosa.
+
+Una función puede tener un cuerpo con varias instrucciones -- incluso un `for`. Aquí encapsulamos el patrón **acumulador** de la L13 dentro de una función `promedio`:
+
+```python
+def promedio(notas):
+    suma = 0
+    for x in notas:
+        suma += x
+    return suma / len(notas)
+
+print(promedio([80, 90, 100]))
+```
+
+```
+90.0
+```
+
+El cuerpo recorre la lista `notas`, acumula la suma y devuelve el promedio: `(80 + 90 + 100) / 3 = 90.0`. Lo que antes era un bloque suelto ahora es una herramienta con nombre que sirve para **cualquier** lista de notas.
+
+## `return` y `None`
+
+`return` hace dos cosas: **devuelve** un valor a quien llamó la función y **termina** la función de inmediato (lo que esté después del `return` no se ejecuta). El valor devuelto se puede guardar en una variable o usar directo.
+
+No toda función devuelve algo. Una función puede **hacer un efecto** (como imprimir) sin `return`. En ese caso, Python hace que devuelva `None`:
+
+```python
+def encabezado(texto):
+    print('===', texto, '===')
+
+r = encabezado('Reporte')
+print(r)
+```
+
+```
+=== Reporte ===
+None
+```
+
+`encabezado` **imprimió** su línea, pero no tiene `return`, así que devolvió `None`. Por eso `r` quedó en `None`. Es una distinción importante: **imprimir** (mostrar algo en pantalla, un efecto) no es lo mismo que **devolver** (entregar un valor que el programa puede seguir usando). Si quieres usar el resultado de una función en otro cálculo, la función debe **devolverlo** con `return`.
+
+## Variables locales
+
+Las variables que creas **dentro** de una función son **locales**: existen solo mientras la función corre, y no se ven afuera. Es lo que hace a una función una pieza independiente y predecible:
+
+```python
+def cuadrado(n):
+    resultado = n * n
+    return resultado
+
+print(cuadrado(5))
+# print(resultado)   # NameError: 'resultado' solo existe dentro de cuadrado
+```
+
+```
+25
+```
+
+`cuadrado(5)` devuelve `25`. Pero la variable `resultado` vive **dentro** de la función; intentar imprimirla afuera (la línea comentada) daría `NameError`, porque ese nombre no existe en el programa principal. Para sacar un valor de una función, la vía es `return` -- no una variable local. Esto es bueno: cada función maneja sus propios nombres sin pisar los de afuera.
+
+## Reutilizar: una función científica
+
+El verdadero valor de una función aparece al **reutilizarla**. Encapsulemos el contenido GC de la L14 -- el porcentaje de bases que son `G` o `C` -- en una función, y llamémosla con distintas secuencias:
+
+```python
+def gc(adn):
+    return (adn.count('G') + adn.count('C')) / len(adn) * 100
+
+print(gc('ATGCATGCAT'))
+print(gc('GCGCGC'))
+```
+
+```
+40.0
+100.0
+```
+
+`gc` cuenta las `G` y las `C` (con `.count` de la L12), las divide entre el largo y multiplica por 100. En la L14 contaste a mano que `'ATGCATGCAT'` tenía 2 `G` y 2 `C` de 10 bases; ahora una función te da ese `40.0` -- y, de regalo, el `100.0` de `'GCGCGC'` con la misma línea. Ese es el salto: de *"lo calculé una vez"* a *"tengo una herramienta que lo calcula para cualquier secuencia"*.
+
+## Preguntas frecuentes
+
+**"¿Cuándo uso `return` y cuándo `print`?"** — `print` **muestra** algo en pantalla (un efecto para el humano); `return` **entrega** un valor al programa para seguir usándolo. Si el resultado de la función alimenta otro cálculo, usa `return`. Si solo quieres mostrar un mensaje, `print` basta (y la función devolverá `None`).
+
+**"Definí mi función y no pasó nada. ¿Por qué?"** — Porque **definir** (`def`) solo crea la función; no ejecuta su cuerpo. El cuerpo corre cuando la **llamas**: `nombre(argumentos)`. Declarar y llamar son pasos distintos.
+
+**"¿Qué pasa si olvido el `return`?"** — La función igual corre, pero **devuelve `None`**. Si esperabas un número y obtienes `None` (o un `TypeError` al usarlo), revisa si te faltó el `return`.
+
+**"¿La variable que creé dentro de la función sirve afuera?"** — No. Es **local**: existe solo dentro de la función. Para que el programa principal vea un valor, la función debe **devolverlo** con `return`.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué diferencia hay entre **declarar** una función y **llamarla**? ¿Qué pasa si solo la declaras?
+2. En `def area(base, altura): return base * altura`, ¿cuáles son los parámetros? Al llamar `area(4, 5)`, ¿cuáles son los argumentos y qué devuelve?
+3. ¿Qué devuelve una función que solo hace `print(...)` y no tiene `return`? ¿En qué se diferencia de una que sí devuelve?
+4. Si dentro de una función escribes `x = 10`, ¿puedes imprimir `x` fuera de la función? ¿Por qué?
+5. Escribe (en papel o en Colab) una función `celsius_a_fahrenheit(c)` que devuelva `c * 9 / 5 + 32`, y llámala con `37`.
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Definir | `def nombre(parametros):` + bloque indentado declara la función (no la ejecuta) |
+| Llamar | `nombre(argumentos)` ejecuta el cuerpo; se puede llamar muchas veces |
+| Parámetro vs. argumento | el **nombre** en la definición vs. el **valor** en la llamada (por posición) |
+| `return` | devuelve un valor y termina la función; **sin** `return` -> `None` |
+| Imprimir vs. devolver | `print` muestra (efecto); `return` entrega un valor reutilizable |
+| Variable local | lo creado dentro de la función no existe afuera |
+| Reutilizar | una función con nombre se llama con distintos argumentos -- no repites código |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre funciones.
+- **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección sobre la definición de funciones (`def`) y el valor de retorno.
+- **Más allá de esta lección:** una función puede tener **argumentos por defecto** (`def f(x, paso=1)`), **devolver varios valores** a la vez (`return a, b`), y agruparse en **módulos** que se traen con `import`. En la **L16** llegan los **archivos de texto**, donde escribirás funciones que **procesan archivos** (integrando `for`, cadenas, listas y `def`); y en el **Módulo 3** usarás funciones de **bibliotecas** científicas (Pandas, Biopython) -- las mismas ideas de "llamar con argumentos y recibir un resultado", pero escritas por otros.

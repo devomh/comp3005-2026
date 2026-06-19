@@ -1,0 +1,155 @@
+---
+title: "Biopython: secuencias de ADN, contenido GC y traducción a proteína"
+unit: "3"
+lesson: 25
+type: concept
+tags: [python, biopython, bioinformatica, adn, secuencias, fasta, gc, transcripcion, traduccion]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Explicar** qué es Biopython (una librería de dominio para biología) e importarla, y entender que una secuencia de ADN es texto con superpoderes. *(Comprender)*
+- **Crear** un objeto `Seq` y operarlo como una cadena (`len`, indexar, rebanar, `count`). *(Aplicar)*
+- **Obtener** la hebra complementaria con `complement()` y `reverse_complement()`. *(Aplicar)*
+- **Transcribir** (`transcribe()`, ADN a ARN) y **traducir** (`translate()`, codones a proteína; `to_stop`). *(Aplicar)*
+- **Calcular** el contenido GC con `gc_fraction` y expresarlo en porcentaje. *(Comprender / Aplicar)*
+- **Leer** un FASTA con `SeqIO.parse` y recorrer sus registros (`.id`, `.seq`, `len`). *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L24 (*Análisis de imágenes científicas*) · dentro del Módulo 3 · antes de la L26 (*Química: mendeleev y RDKit*). Hoy empieza el tramo de **librerías de dominio**: herramientas hechas para una ciencia concreta. Esta es la de **biología**.
+
+## Por qué importa
+
+Una tabla, una imagen... y ahora un tercer tipo de dato científico: una **secuencia de ADN**. Es **texto** -- `ATGGCC...` --, así que ya sabes manipularla con lo de la L12 (`len`, indexar, `count`). Pero la biología pregunta cosas que una cadena cualquiera no sabe responder: ¿cuál es la hebra complementaria? ¿qué proteína codifica? ¿cuánto GC tiene? Para eso existe **Biopython**, la caja de herramientas de la bioinformática.
+
+Y cierra algo que empezaste en la L16: allí parseaste un FASTA **a mano** (líneas `>` de encabezado frente a líneas de secuencia); hoy `SeqIO.parse` lo hace en una línea. Es el mismo salto de **"a mano" a "herramienta"** que viste con el CSV manual (L19) y `read_csv` (L21). Una librería de dominio no te enseña biología nueva: te ahorra reescribir lo que la comunidad ya empaquetó.
+
+> **Práctica (hands-on):** [Lab — Biopython: secuencias de ADN](l25_lab_biopython.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l25_lab_biopython.ipynb)
+
+## Una secuencia es texto (con superpoderes)
+
+Biopython se instala con `%pip install -q biopython` y se importa por partes. Una secuencia se crea con `Seq(...)`:
+
+```python
+from Bio.Seq import Seq
+adn = Seq("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG")
+print(len(adn), adn[0:3], adn.count("G"))   # 39 ATG 14
+```
+
+Un objeto `Seq` **es como una cadena** (lo de la L12): tiene `len`, se indexa (`adn[0:3]`), se rebana y se cuenta con `.count`. La diferencia es que además trae **métodos de biología**:
+
+| Método | Qué hace |
+|---|---|
+| `seq.complement()` | la hebra complementaria (base por base) |
+| `seq.reverse_complement()` | la hebra complementaria, leída al revés (antiparalela) |
+| `seq.transcribe()` | ADN a ARN (cada `T` se vuelve `U`) |
+| `seq.translate()` | codones (3 bases) a proteína (aminoácidos) |
+| `gc_fraction(seq)` | fracción de bases `G` o `C` (el contenido GC) |
+
+## Las dos hebras
+
+El ADN es de **doble hebra**: frente a cada base está su complementaria (`A` con `T`, `C` con `G`). `complement()` da esa hebra; `reverse_complement()` además la lee al revés, que es como corre la hebra opuesta:
+
+```python
+print(adn.complement())          # TACCGGTAACATTACCCGGCGACTTTCCCACGGGCTATC
+print(adn.reverse_complement())  # CTATCGGGCACCCTTTCAGCGGCCCATTACAATGGCCAT
+```
+
+Donde el original tiene `A`, el complemento tiene `T`; donde tiene `G`, tiene `C`. Una cadena de texto cualquiera no sabe aparear bases; `Seq` sí, porque conoce de biología.
+
+## El dogma central: de ADN a proteína
+
+El **dogma central** de la biología molecular describe cómo la información del ADN se convierte en proteína:
+
+```{mermaid}
+flowchart LR
+    A["<b>ADN</b>"] -->|"transcribe()"| B["<b>ARN</b>"]
+    B -->|"translate()"| C["<b>proteína</b>"]
+```
+
+`transcribe()` pasa de ADN a ARN (cada `T` se vuelve `U`). `translate()` lee el ARN en **codones** (grupos de 3 bases) y los convierte en **aminoácidos** según el **código genético**:
+
+```python
+print(adn.transcribe())             # AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG
+print(adn.translate())              # MAIVMGR*KGAR*
+print(adn.translate(to_stop=True))  # MAIVMGR
+```
+
+Cada letra de la proteína es un aminoácido. Hay dos casos especiales en el código:
+
+| Codón | Significa |
+|---|---|
+| `ATG` (`AUG`) | metionina (`M`) -- además marca el **inicio** de la traducción |
+| `TAA`, `TAG`, `TGA` (`UAA`, `UAG`, `UGA`) | **stop** (no es un aminoácido; se muestra como `*`) |
+
+Por eso `translate()` da `MAIVMGR*KGAR*` (con los stops) y `translate(to_stop=True)` corta en el primero: `MAIVMGR`.
+
+## Contenido GC
+
+El **contenido GC** es el porcentaje de bases que son `G` o `C`. Importa en biología: un ADN con más GC es más estable y se comporta distinto en una PCR. `gc_fraction` da la fracción (de 0 a 1); por 100, el porcentaje:
+
+```python
+from Bio.SeqUtils import gc_fraction
+print(round(gc_fraction(adn) * 100, 1))   # 56.4
+```
+
+El 56.4 % de las bases de esta secuencia son `G` o `C`. (Se usa `round` porque la fracción cruda tiene muchos decimales, igual que la desviación estándar de la L20.)
+
+## Leer un FASTA con Biopython
+
+En la **L16** parseaste un FASTA a mano, distinguiendo las líneas de encabezado (`>`) de las de secuencia. `SeqIO.parse` lo hace en **una llamada** y entrega un **registro** por secuencia, con su `id` y su `seq`:
+
+```python
+from Bio import SeqIO
+for registro in SeqIO.parse('genes.fasta', 'fasta'):
+    print(registro.id, len(registro.seq), round(gc_fraction(registro.seq) * 100, 1))
+```
+
+| FASTA en la L16 (a mano) | FASTA en la L25 (Biopython) |
+|---|---|
+| abrir el archivo, recorrer líneas | `SeqIO.parse('genes.fasta', 'fasta')` |
+| `if linea.startswith('>')` separar encabezado | cada `registro` ya viene separado |
+| juntar las líneas de secuencia | `registro.seq` (un objeto `Seq`, listo) |
+
+Es el mismo salto que CSV manual (L19) -> `read_csv` (L21): la herramienta de dominio automatiza la receta.
+
+## Preguntas frecuentes
+
+**"¿`Seq` o una cadena normal?"** — Para guardar texto cualquiera, una cadena. Para una **secuencia biológica** que vas a complementar, transcribir o traducir, un `Seq`: trae esos métodos. Un `Seq` se comporta como una cadena para `len`, indexar y `count`.
+
+**"¿`translate()` o `translate(to_stop=True)`?"** — `translate()` traduce toda la secuencia y muestra los stops como `*`. `translate(to_stop=True)` se detiene en el **primer** stop y no lo incluye -- útil cuando quieres solo la proteína que se produce desde el inicio.
+
+**"¿Por qué el GC sale con tantos decimales?"** — `gc_fraction` devuelve una **fracción** (por ejemplo `0.5641...`). Es honesto mostrarla con `round(..., 1)` como porcentaje, igual que hiciste con la desviación estándar en la L20.
+
+**"¿De dónde saco secuencias reales?"** — De un archivo **FASTA** con `SeqIO.parse` (como aquí), o de bases de datos como NCBI con `Bio.Entrez`, que las descarga **por internet**. Eso ya depende de la red y queda fuera de esta lección.
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Por qué `reverse_complement()` no es lo mismo que `complement()`? ¿Cuándo importaría la diferencia?
+2. Una secuencia tiene 40 bases. ¿Cuántos codones completos tiene? ¿Cuántos aminoácidos esperarías de `translate()`?
+3. ¿Qué pasa con el contenido GC de una secuencia y el de su hebra complementaria? ¿Por qué?
+4. ¿En qué se parece `SeqIO.parse` a `read_csv` de la L21? ¿Y al parseo manual de la L16?
+5. Si una secuencia no empieza por `ATG`, ¿qué crees que pasaría al traducirla?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Biopython | librería de dominio para biología; `%pip install -q biopython` |
+| `Seq` | una secuencia es texto (`len`, indexar, `count`) con métodos de biología |
+| Dos hebras | `complement()` / `reverse_complement()` (apareamiento `A-T`, `C-G`) |
+| Dogma central | `transcribe()` (ADN->ARN) y `translate()` (codones->proteína; `*` = stop; `to_stop`) |
+| Contenido GC | `gc_fraction(seq) * 100` -- el porcentaje de `G`/`C` |
+| Leer FASTA | `SeqIO.parse('archivo.fasta', 'fasta')` -- un registro por secuencia (el espiral de la L16) |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC).
+- **Documentación oficial:** el *Biopython Tutorial and Cookbook* (`biopython.org`).
+- **Más allá de esta lección:** un archivo **GenBank** (`.gb`) trae además **anotaciones** (el nombre del gen, el organismo, las regiones), y `SeqIO` también lo lee; para bajar secuencias de NCBI se usa `Bio.Entrez` (por internet). Biopython hace mucho más -- alineamiento de secuencias, BLAST, filogenia --, pero todo parte de la misma idea de hoy: *una secuencia es un dato, y la librería de dominio le da sus operaciones*. En la **S26** verás la librería de dominio de **química** (mendeleev y RDKit): la tabla periódica como datos.

@@ -1,0 +1,218 @@
+---
+title: "NumPy: arreglos y operaciones vectorizadas sobre mediciones"
+unit: "3"
+lesson: 20
+type: concept
+tags: [python, numpy, arreglos, vectorizado, media, desviacion, import, mediciones]
+difficulty: introductory
+duration: "75 mins"
+---
+
+## Objetivos de aprendizaje
+
+Al terminar esta lección podrás:
+
+- **Importar** un módulo con `import numpy as np` y explicar qué es un **alias** y para qué sirve un módulo. *(Comprender)*
+- **Crear** un **arreglo** de NumPy desde una lista de mediciones (`np.array([...])`) y distinguirlo de una lista. *(Comprender / Aplicar)*
+- **Aplicar** operaciones **vectorizadas** (suma, resta y producto elemento a elemento; por un escalar) y contrastar `lista * 2` con `arreglo * 2`. *(Aplicar)*
+- **Calcular** agregados de un arreglo de mediciones (`np.mean`, `np.std`, `np.sum`, `np.max`, `np.min`) en una sola llamada, sin un `for`. *(Aplicar)*
+- **Indexar** y **rebanar** un arreglo y manejar un arreglo **2D** (una matriz): `M[i, j]`, `M[:, j]`, `.shape`. *(Aplicar)*
+- **Filtrar** un arreglo con una **máscara booleana** (`a[a > umbral]`) y contar cuántos cumplen una condición. *(Aplicar / Analizar)*
+
+> **Dónde encaja:** después de la L19 (*Archivos CSV*) · antes de la L21 (*Pandas*). En la L19 leíste una columna de un CSV a una **lista** y la promediaste con un `for`; hoy ese mismo trabajo se hace en una llamada con un **arreglo** de NumPy.
+
+## Por qué importa
+
+En la L19 leíste la columna de temperaturas de un CSV a una **lista** y sacaste su promedio con un `for` (acumular en una suma y dividir entre `len`). Funcionó, pero fueron varias líneas para algo tan común en la ciencia. Hoy conoces la herramienta que se usa de verdad para esto: **NumPy** y su **arreglo** (*array*).
+
+Pones las mediciones en un arreglo y entonces todo se vuelve corto y directo: `np.mean(temperaturas)` da el promedio en **una** llamada; `temperaturas * 1.8 + 32` convierte **todas** las temperaturas a Fahrenheit de golpe, sin un `for`; y `temperaturas[temperaturas > 19]` te deja solo las altas, sin escribir un `if` dentro de un bucle. Es el **mismo dato** de la L19, pero ahora calculas sobre **todo el arreglo a la vez**. A esa forma de operar -- una sola expresión que actúa sobre todos los elementos -- se le llama **vectorización**, y es la idea central de esta lección.
+
+> **Práctica (hands-on):** [Lab — NumPy](l20_lab_numpy.md) ·
+> [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l20_lab_numpy.ipynb)
+
+## Importar un módulo
+
+Python trae muchas herramientas en **módulos** separados que no se cargan solas: para usarlas hay que **importarlas**. Ya viste un `import` de pasada en la L19 (para leer una URL); aquí lo usamos de verdad. La sintaxis tiene dos formas:
+
+| Forma | Qué hace | Ejemplo de uso |
+|---|---|---|
+| `import <modulo> as <alias>` | trae el módulo entero bajo un nombre corto (**alias**) | `import numpy as np` -> `np.mean(a)` |
+| `from <modulo> import <nombre>` | trae solo una función o un nombre del módulo | `from math import sqrt` -> `sqrt(9)` |
+
+**NumPy** (*Numerical Python*) es el módulo estándar para cálculo numérico sobre **arreglos** de números. La convención universal es importarlo con el alias `np`:
+
+```python
+import numpy as np
+```
+
+A partir de aquí, todas las herramientas de NumPy se escriben `np.algo`: `np.array`, `np.mean`, etc. El alias `np` es solo un nombre corto; podrías escribir `import numpy` y luego `numpy.mean`, pero `np` es lo que usa todo el mundo.
+
+## Un arreglo de mediciones
+
+Un **arreglo** de NumPy es una secuencia de números **del mismo tipo**, pensada para el cálculo. Se crea con `np.array(...)` a partir de una lista. Pongamos las temperaturas de la L19 en un arreglo:
+
+```python
+temperaturas = np.array([18.0, 21.0, 17.0, 22.0, 19.0, 20.0])
+print(temperaturas)
+print(type(temperaturas))
+```
+
+```text
+[18. 21. 17. 22. 19. 20.]
+<class 'numpy.ndarray'>
+```
+
+Fíjate en cómo se imprime: `[18. 21. 17. ...]`, con espacios en vez de comas y un punto decimal (son `float`). El tipo es `numpy.ndarray` (*n-dimensional array*). Por fuera se parece a una lista, pero por dentro está optimizado para operar sobre **todos** sus números a la vez, como veremos enseguida.
+
+## Operaciones vectorizadas
+
+Aquí está la diferencia que lo cambia todo. Con una **lista**, multiplicar por 2 **repite** la lista; con un **arreglo**, multiplicar por 2 **duplica cada número**:
+
+| Expresión | Resultado |
+|---|---|
+| `[18.0, 21.0] * 2` (lista) | `[18.0, 21.0, 18.0, 21.0]` (repite la lista) |
+| `np.array([18.0, 21.0]) * 2` (arreglo) | `[36. 42.]` (duplica cada elemento) |
+
+Un arreglo aplica la operación **elemento a elemento**, sobre todos a la vez y sin un `for`. Eso se llama **vectorización**:
+
+```python
+print(temperaturas + 2)
+print(temperaturas * 1.8 + 32)
+```
+
+```text
+[20. 23. 19. 24. 21. 22.]
+[64.4 69.8 62.6 71.6 66.2 68. ]
+```
+
+`temperaturas + 2` le suma 2 a cada medición; `temperaturas * 1.8 + 32` convierte **cada** temperatura de Celsius a Fahrenheit. Lo que en la L19 habría sido un `for` con un `.append` por cada elemento, aquí es **una sola expresión**.
+
+También puedes operar **dos arreglos del mismo tamaño** elemento a elemento. Por ejemplo, para promediar dos réplicas de una medición, sumas los dos arreglos y divides entre 2:
+
+```python
+replica1 = np.array([18.0, 20.0, 19.0])
+replica2 = np.array([20.0, 22.0, 21.0])
+print((replica1 + replica2) / 2)
+```
+
+```text
+[19. 21. 20.]
+```
+
+Cada posición se promedia con la misma posición del otro arreglo (`(18+20)/2 = 19`, etc.). Eso sí: los dos arreglos deben tener la **misma cantidad** de números.
+
+## Media, desviación y otros agregados
+
+Los cálculos resumen más comunes de la ciencia -- promedio, desviación estándar, suma, máximo, mínimo -- son **una llamada** en NumPy, en vez del `for` de la L19:
+
+| Función | Qué calcula |
+|---|---|
+| `np.mean(a)` | la **media** (promedio) |
+| `np.std(a)` | la **desviación estándar** |
+| `np.sum(a)` | la suma de todos los elementos |
+| `np.max(a)` / `np.min(a)` | el mayor / el menor |
+| `len(a)` | cuántos elementos hay |
+
+```python
+print(np.mean(temperaturas))
+print(round(np.std(temperaturas), 2))
+print(np.max(temperaturas))
+print(np.min(temperaturas))
+```
+
+```text
+19.5
+1.71
+22.0
+17.0
+```
+
+La media es `19.5` -- el mismo promedio que en la L19 calculaste con un `for`, ahora en una línea. La desviación estándar (`np.std`) suele ser un decimal largo (`1.7078...`), así que la mostramos con `round(np.std(...), 2)` -> `1.71`, como hiciste con los promedios en la L19. (También puedes escribir `temperaturas.mean()`: NumPy ofrece estas operaciones como función `np.mean(a)` y como método `a.mean()`; hacen lo mismo.)
+
+## Indexar, rebanar y matrices
+
+Un arreglo se **indexa** y se **rebana** igual que una lista (L12-L13):
+
+```python
+print(temperaturas[0])
+print(temperaturas[:3])
+```
+
+```text
+18.0
+[18. 21. 17.]
+```
+
+Cuando los datos son una **tabla** de números -- filas y columnas -- se usa un arreglo **2D**, una **matriz**. Se crea con una lista de listas, y `.shape` dice sus dimensiones (filas, columnas):
+
+```python
+M = np.array([[1, 2, 3],
+              [4, 5, 6]])
+print(M.shape)
+print(M[0, 2])
+print(M[:, 1])
+print(np.mean(M))
+```
+
+```text
+(2, 3)
+3
+[2 5]
+3.5
+```
+
+`M.shape` es `(2, 3)`: 2 filas, 3 columnas. Para un elemento se dan **fila y columna**: `M[0, 2]` es el de la fila 0, columna 2 (`3`). `M[:, 1]` toma **toda la columna 1** (`[2 5]`) -- los dos puntos significan "todas las filas". Y `np.mean(M)` promedia **todos** los números de la matriz (`3.5`). (Esto es justo lo que en la S21 hará una columna de un `DataFrame` de Pandas.)
+
+## Filtrar con una máscara booleana
+
+En la L19, para quedarte con las mediciones que cumplían una condición usabas un `if` dentro de un `for`. Con un arreglo, una **máscara booleana** lo hace de una sola vez. La idea: una comparación sobre un arreglo devuelve un arreglo de `True`/`False`, y al usarlo como índice te quedas solo con los elementos `True`:
+
+```python
+print(temperaturas[temperaturas > 19])
+print(np.sum(temperaturas > 19))
+```
+
+```text
+[21. 22. 20.]
+3
+```
+
+`temperaturas > 19` marca cada medición como `True` o `False`; `temperaturas[temperaturas > 19]` devuelve solo las que pasan (`[21. 22. 20.]`). Y como `True` cuenta como 1, `np.sum(temperaturas > 19)` te dice **cuántas** cumplen: `3`. Es el filtro de la L19 -- pero sin `for` y sin `if`.
+
+## Preguntas frecuentes
+
+**"¿Cuándo uso una lista y cuándo un arreglo?"** — La **lista** es de uso general (puede mezclar tipos, crece con `.append`). El **arreglo** es para **cálculo numérico**: muchos números del mismo tipo sobre los que quieres operar a la vez (sumar, promediar, filtrar). Para datos científicos, casi siempre un arreglo.
+
+**"¿Por qué `import numpy as np`?"** — `np` es solo un **alias**, un nombre corto. Podrías usar `import numpy` y escribir `numpy.mean`, pero `np` es la convención universal: todo el código de NumPy que veas usa `np`.
+
+**"¿Por qué `np.std` da un número con tantos decimales?"** — La desviación estándar suele ser un decimal largo (`1.7078...`). No está mal; solo se ve incómodo. Muéstralo con `round(np.std(a), 2)` cuando quieras pocos decimales, igual que hiciste con los promedios en la L19.
+
+**"¿Qué pasa si sumo dos arreglos de tamaños distintos?"** — NumPy no sabe cómo emparejar los elementos y lanza un `ValueError: operands could not be broadcast together`. Las operaciones elemento a elemento necesitan arreglos de la **misma** forma (o un escalar).
+
+## Para reflexionar
+
+Practica y discute (en clase o por escrito):
+
+1. ¿Qué diferencia hay entre `[2, 4] * 3` (lista) y `np.array([2, 4]) * 3` (arreglo)? ¿Por qué?
+2. En la L19 promediaste una columna con un `for`. ¿Cómo lo harías ahora con NumPy en una línea?
+3. ¿Qué devuelve `temperaturas > 19`? ¿Y `temperaturas[temperaturas > 19]`? ¿Y `np.sum(temperaturas > 19)`?
+4. En una matriz `M`, ¿qué significan `M[1, 0]` y `M[:, 0]`? ¿En qué se diferencian?
+5. ¿Por qué conviene mostrar `np.std(a)` con `round(..., 2)`?
+
+## Resumen
+
+| Idea clave | En una frase |
+|------------|--------------|
+| Importar | `import numpy as np` trae el módulo bajo el alias `np`; un módulo agrupa herramientas |
+| Arreglo | `np.array([...])` crea un arreglo de números del mismo tipo, optimizado para cálculo |
+| Vectorizado | una operación (`+`, `*`, ...) actúa sobre **todos** los elementos a la vez, sin `for` |
+| Lista vs. arreglo | `lista * 2` repite; `arreglo * 2` duplica cada elemento |
+| Agregados | `np.mean`, `np.std` (con `round`), `np.sum`, `np.max`, `np.min` en una llamada |
+| Matriz 2D | `np.array([[...]])`; `.shape` da (filas, columnas); `M[i, j]`, `M[:, j]` (una columna) |
+| Máscara booleana | `a[a > umbral]` filtra sin `for`; `np.sum(a > umbral)` cuenta los que cumplen |
+
+## Para profundizar
+
+- **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre módulos.
+- **Documentación oficial:** *NumPy — the absolute basics for beginners* en `numpy.org` (arreglos, operaciones, agregados).
+- **Más allá de esta lección:** NumPy tiene mucho más -- crear arreglos con `np.arange`/`np.zeros`, cambiar su forma con `reshape`, agregar por filas o columnas con `axis=` -- que irás viendo según lo necesites. Lo importante llega en la **S21**: una columna de un `DataFrame` de **Pandas** es, por dentro, un arreglo de NumPy, así que `df['ph'].mean()` usa exactamente el `mean` de hoy. Y en la **S23** graficarás estos arreglos. La idea de hoy -- *poner las mediciones en un arreglo y operar sobre todas a la vez* -- es la base del resto del módulo.
