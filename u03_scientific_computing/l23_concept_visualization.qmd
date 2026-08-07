@@ -52,7 +52,7 @@ df.plot(x='hora', y=['cultivo_A', 'cultivo_B'],
 plt.show()
 ```
 
-![Dos líneas ascendentes de población contra tiempo, con leyenda para cultivo_A y cultivo_B](assets/l23_linea.png)
+![Dos líneas ascendentes de población contra tiempo, con leyenda para cultivo_A y cultivo_B](assets/l23_linea.png){fig-alt="Gráfica de líneas donde cultivo A y cultivo B aumentan con el tiempo; cultivo A crece más rápido."}
 
 Las dos poblaciones crecen, pero `cultivo_A` despega mucho más rápido (llega a 550 a las 10 h; `cultivo_B`, a 240). La **leyenda** dice qué línea es cuál, y los ejes rotulados con sus **unidades** (`Tiempo (h)`, `Poblacion (celulas)`) dejan claro qué se midió.
 
@@ -67,7 +67,7 @@ totales.plot.bar(title='Conteo total por especie',
 plt.show()
 ```
 
-![Tres barras de conteo total por especie; tilapia es la más alta](assets/l23_barra.png)
+![Tres barras de conteo total por especie; tilapia es la más alta](assets/l23_barra.png){fig-alt="Gráfica de tres barras con el conteo total por especie; tilapia tiene la barra más alta."}
 
 El resumen que en la L22 leíste como números (`guppy 25`, `molly 15`, `tilapia 60`) ahora se ve de un vistazo: la `tilapia` domina. *En la L22 lo calculaste; hoy lo visualizas.* Es la misma operación, con ojos.
 
@@ -82,7 +82,7 @@ df.plot.scatter(x='concentracion', y='absorbancia',
 plt.show()
 ```
 
-![Puntos de absorbancia contra concentración que suben casi en línea recta](assets/l23_dispersion.png)
+![Puntos de absorbancia contra concentración que suben casi en línea recta](assets/l23_dispersion.png){fig-alt="Gráfica de dispersión donde la absorbancia aumenta casi linealmente con la concentración."}
 
 Los puntos suben casi en línea recta: a más concentración, más absorbancia. Esa relación lineal es justo lo que predice la ley de Beer-Lambert, y una dispersión la hace evidente. Si los puntos estuvieran dispersos sin patrón, veríamos que **no** hay relación.
 
@@ -96,7 +96,7 @@ df['ph'].plot.hist(bins=8, title='Distribucion de lecturas de pH',
 plt.show()
 ```
 
-![Histograma de lecturas de pH, con la mayoría de los valores cerca de 7.0](assets/l23_histograma.png)
+![Histograma de lecturas de pH, con la mayoría de los valores cerca de 7.0](assets/l23_histograma.png){fig-alt="Histograma de pH con la mayor frecuencia de lecturas agrupada alrededor de siete."}
 
 La mayoría de las lecturas se concentran cerca de pH 7.0, con pocas en los extremos (6.6 y 7.4). El histograma responde "¿cómo se reparten mis mediciones?" -- algo que una tabla de 20 números no muestra de un vistazo.
 
@@ -104,7 +104,7 @@ La mayoría de las lecturas se concentran cerca de pH 7.0, con pocas en los extr
 
 Aquí está la regla de oro. Mira la **misma** curva de crecimiento, primero **sin** rótulos:
 
-![Dos líneas sin título, sin rótulos de eje y sin leyenda](assets/l23_linea_sin_rotulos.png)
+![Dos líneas sin título, sin rótulos de eje y sin leyenda](assets/l23_linea_sin_rotulos.png){fig-alt="Dos líneas ascendentes mostradas sin título, unidades, rótulos de eje ni leyenda."}
 
 ¿Qué muestra? Imposible saberlo: ¿qué es el eje horizontal? ¿el vertical, en qué unidades? ¿qué es cada línea? Una gráfica así no comunica. Ahora compárala con la versión rotulada de más arriba: título, ejes con **unidades** y **leyenda**. La diferencia no es estética -- es la que separa una figura científica útil de una inservible.
 

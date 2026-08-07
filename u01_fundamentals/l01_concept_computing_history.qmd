@@ -40,7 +40,7 @@ flowchart LR
     C --> D["<b>Personal</b><br/>transistor<br/>circuito integrado<br/>IBM-PC y hoy"]
 ```
 
-![Un ábaco, uno de los primeros aparatos de cómputo. Foto: HB, vía Wikimedia Commons, dominio público.](assets/abaco.jpg){width=45%}
+![Un ábaco, uno de los primeros aparatos de cómputo. Foto: HB, vía Wikimedia Commons, dominio público.](assets/abaco.jpg){width=45% fig-alt="Ábaco de madera con hileras de cuentas móviles para realizar cálculos."}
 
 | Época | Hito | Año aprox. | Qué aportó |
 |-------|------|-----------|------------|
@@ -65,7 +65,7 @@ El **telar de Jacquard** (1801) tejía patrones complejos leyendo **tarjetas per
 
 Charles **Babbage** llevó esa idea al cálculo. Su **motor analítico** (1834) iba a ser una máquina mecánica de **propósito general**: usaría tarjetas perforadas como un programa para hacer operaciones aritméticas y lógicas. **Ada Lovelace** escribió para esa máquina lo que se considera el **primer programa** de la historia.
 
-![Ada Lovelace, autora del primer programa. Retrato de Alfred Edward Chalon, vía Wikimedia Commons, dominio público.](assets/ada_lovelace.jpg){width=40%}
+![Ada Lovelace, autora del primer programa. Retrato de Alfred Edward Chalon, vía Wikimedia Commons, dominio público.](assets/ada_lovelace.jpg){width=40% fig-alt="Retrato de Ada Lovelace sentada y vestida con un traje formal del siglo diecinueve."}
 
 ::: {.callout-note}
 ## ¿Qué es un *programa*?
@@ -80,7 +80,7 @@ Aquí está el giro sorprendente. Durante siglos, una **"computadora" era una pe
 - Las **200 mujeres** de la Moore School que, durante la Segunda Guerra Mundial, calculaban tablas de artillería a mano; varias de ellas **programaron luego el ENIAC**, una de las primeras computadoras electrónicas.
 - Las computistas de la **NASA** que calcularon trayectorias para los vuelos espaciales (la historia de *Hidden Figures*).
 
-![Glen Beck y Betty Snyder programan el ENIAC en el Ballistic Research Laboratory. Foto del U.S. Army, vía Wikimedia Commons, dominio público.](assets/eniac_mujeres.jpg){width=70%}
+![Glen Beck y Betty Snyder programan el ENIAC en el Ballistic Research Laboratory. Foto del U.S. Army, vía Wikimedia Commons, dominio público.](assets/eniac_mujeres.jpg){width=70% fig-alt="Dos programadoras trabajan frente a los paneles, cables e interruptores de la computadora ENIAC."}
 
 ¿Cómo se pasó de personas a máquinas? Esa es justo la pregunta que se hizo **Alan Turing**.
 

@@ -48,7 +48,7 @@ flowchart LR
 | Dispositivos de entrada | Por donde entran datos | Llevan información **hacia** la computadora | Teclado, ratón, sensor |
 | Dispositivos de salida | Por donde salen | Muestran o entregan los **resultados** | Monitor, bocinas |
 
-![Un módulo de memoria RAM. La memoria principal guarda los datos e instrucciones del programa en ejecución. Foto: Martyn M (Martyx), vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Generic_DDR_Memory_%28Xytram%29.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/ram_module.jpg){width=75%}
+![Un módulo de memoria RAM. La memoria principal guarda los datos e instrucciones del programa en ejecución. Foto: Martyn M (Martyx), vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Generic_DDR_Memory_%28Xytram%29.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/ram_module.jpg){width=75% fig-alt="Módulo rectangular de memoria RAM con varios circuitos integrados sobre una tarjeta verde."}
 
 La idea clave de von Neumann es que **los datos y las instrucciones viven juntos en la memoria**: el procesador va a la memoria, trae la próxima instrucción, la ejecuta, y repite. Ese ciclo, millones de veces por segundo, es "el funcionamiento de una computadora".
 

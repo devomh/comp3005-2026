@@ -70,7 +70,7 @@ Los tres hacen exactamente lo mismo, pero su legibilidad no podría ser más dis
 | **Bajo nivel** | de la **máquina** (bits, direcciones) | lenguaje de máquina, ensamblador |
 | **Alto nivel** | de la **persona** (palabras, fórmulas) | Python, y casi todo lo que usarás |
 
-![Una "baraja" de tarjetas perforadas: un programa completo guardado físicamente, donde la presencia o ausencia de un hueco codifica la información en forma binaria que lee la máquina. Foto: ArnoldReinhold, vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Punched_card_program_deck.agr.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/punched_card_deck.jpg){width=60%}
+![Una "baraja" de tarjetas perforadas: un programa completo guardado físicamente, donde la presencia o ausencia de un hueco codifica la información en forma binaria que lee la máquina. Foto: ArnoldReinhold, vía [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Punched_card_program_deck.agr.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).](assets/punched_card_deck.jpg){width=60% fig-alt="Mazo de tarjetas perforadas numeradas que almacena físicamente un programa de computadora."}
 
 Cuanto más alto el nivel, más fácil para la persona y más trabajo hace el traductor por debajo. Por eso en ciencia se usan lenguajes de alto nivel: te concentras en *qué* calcular, no en mover bits.
 

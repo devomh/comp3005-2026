@@ -45,7 +45,7 @@ print(arr.shape, arr.dtype)        # (80, 100) uint8
 
 El `shape` es `(alto, ancho)` -- aquí 80 filas por 100 columnas -- y el `dtype` es `uint8` (enteros 0-255). Cada número es un píxel. Para **ver** el arreglo como imagen se usa `plt.imshow` con el mapa de grises:
 
-![Campo de microscopía simulado: fondo oscuro con siete células brillantes, con barra de intensidad](assets/l24_microscopia.png)
+![Campo de microscopía simulado: fondo oscuro con siete células brillantes, con barra de intensidad](assets/l24_microscopia.png){fig-alt="Campo de microscopía simulado con siete células circulares brillantes sobre un fondo oscuro."}
 
 El fondo es oscuro (intensidad 40) y las células son brillantes (180-220). La **barra de color** traduce número a tono de gris. Como es un arreglo de NumPy, `arr.mean()` da la intensidad promedio y `arr[8:12, 12:16]` rebana una región de píxeles -- exactamente las operaciones de la L20, ahora sobre una imagen.
 
@@ -60,7 +60,7 @@ El fondo es oscuro (intensidad 40) y las células son brillantes (180-220). La *
 
 En qué formato se guarda una imagen **cambia los datos**. **PNG** y **TIFF** son *sin pérdida*: preservan los valores de píxel exactos. **JPEG** es *con pérdida*: comprime alterando los valores. Guardar el mismo campo como PNG y como JPEG y reabrirlos lo demuestra:
 
-![Acercamiento a una célula: el PNG conserva el cuadro uniforme; el JPEG lo deja con bordes y manchas](assets/l24_formatos.png)
+![Acercamiento a una célula: el PNG conserva el cuadro uniforme; el JPEG lo deja con bordes y manchas](assets/l24_formatos.png){fig-alt="Comparación ampliada: PNG conserva una región uniforme y JPEG introduce bordes y manchas de compresión."}
 
 El PNG devuelve el arreglo **idéntico** (`np.array_equal` da `True`, diferencia máxima 0); el JPEG no (`False`, algunos píxeles cambian hasta en 15) y se ven artefactos cerca de los bordes. Por eso una micrografía o un gel se guardan en **PNG/TIFF**: con JPEG medirías valores que la compresión inventó.
 
@@ -77,7 +77,7 @@ La operación central es la **umbralización**. `arr > umbral` produce un arregl
 mascara = arr > 120
 ```
 
-![A la izquierda el campo original; a la derecha la máscara: las células en blanco sobre fondo negro](assets/l24_umbral.png)
+![A la izquierda el campo original; a la derecha la máscara: las células en blanco sobre fondo negro](assets/l24_umbral.png){fig-alt="Comparación del campo de microscopía original con una máscara binaria de células blancas sobre fondo negro."}
 
 A la izquierda, la imagen original (tonos de gris); a la derecha, la máscara: solo señal (blanco) y fondo (negro). El umbral 120 cae entre el fondo (40) y las células (180-220), así que las separa limpiamente. **El umbral es una decisión:** muy alto pierde células tenues; muy bajo cuenta ruido del fondo.
 
@@ -103,7 +103,7 @@ Eso responde "¿qué fracción del campo está ocupada por células?" -- una med
 
 El área no cuenta **objetos separados**. Para eso reducimos la imagen a un **perfil 1D**: tomar **una columna** (`arr[:, c]`, rebanar de la L20) da la intensidad fila por fila. En un gel, las bandas aparecen como **picos** del perfil.
 
-![A la izquierda un gel con tres bandas; a la derecha su perfil de intensidad con la línea de umbral, cruzándola tres veces](assets/l24_gel.png)
+![A la izquierda un gel con tres bandas; a la derecha su perfil de intensidad con la línea de umbral, cruzándola tres veces](assets/l24_gel.png){fig-alt="Gel con tres bandas y su perfil de intensidad, que cruza una línea de umbral tres veces."}
 
 El perfil sube sobre el umbral tres veces -- una por banda. Para **contar** esos cruces de fondo a señal usamos una función que recorre el perfil con un `for`, un `if` y un contador (lo de la L08-L11), recordando con un centinela si ya estamos sobre una banda:
 

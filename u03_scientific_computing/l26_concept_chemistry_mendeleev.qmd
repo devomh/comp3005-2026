@@ -90,7 +90,7 @@ primeros.plot(x='atomic_number', y='atomic_radius',
               marker='o', legend=False)
 ```
 
-![Curva en diente de sierra del radio atómico contra el número atómico para los primeros 20 elementos: el radio baja dentro de cada periodo y vuelve a subir en los metales alcalinos Li, Na y K, que crecen al bajar por el grupo; los gases nobles He, Ne y Ar quedan como puntos atípicos](assets/l26_tendencia.png)
+![Curva en diente de sierra del radio atómico contra el número atómico para los primeros 20 elementos: el radio baja dentro de cada periodo y vuelve a subir en los metales alcalinos Li, Na y K, que crecen al bajar por el grupo; los gases nobles He, Ne y Ar quedan como puntos atípicos](assets/l26_tendencia.png){fig-alt="Radio atómico frente a número atómico para los primeros veinte elementos, con un patrón periódico de diente de sierra y gases nobles atípicos."}
 
 La gráfica muestra un **diente de sierra** que se **repite**: por eso la tabla es "periódica". Hay dos tendencias clásicas en ese patrón:
 
@@ -115,7 +115,7 @@ print(round(Descriptors.MolWt(etanol), 2))       # 46.07
 
 Y también **dibuja** la estructura. Aquí, la cafeína (`'CN1C=NC2=C1C(=O)N(C(=O)N2C)C'`):
 
-![Estructura química de la cafeína: dos anillos unidos, con átomos de nitrógeno en azul y de oxígeno en rojo](assets/l26_estructura.png)
+![Estructura química de la cafeína: dos anillos unidos, con átomos de nitrógeno en azul y de oxígeno en rojo](assets/l26_estructura.png){fig-alt="Estructura molecular bidimensional de la cafeína, con nitrógenos en azul y oxígenos en rojo."}
 
 > **Esto es una demo, no entra en el examen.** RDKit es enorme (estructuras, reacciones, similitud entre moléculas); lo muestra el instructor para que veas la otra cara de la química con Python. Lo examinable de esta lección es **mendeleev**.
 
