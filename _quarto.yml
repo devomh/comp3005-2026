@@ -10,16 +10,26 @@ lang: es                  # Spanish-authored course: screen readers / SEO treat 
 website:
   title: "COMP 3005 — Introducción al Uso de la Computadora"
   site-url: https://devomh.github.io/comp3005-2026/
+  favicon: assets/cdat-owl.svg
   page-navigation: true
   sidebar:
     style: docked
     search: true
+    # PLACEHOLDER mark (decision 0021): the owl is the CDAT program's and COMP 3005 is not a
+    # CDAT-program course. It stands in, by the course owner's call, until COMP 3005 has a
+    # mark of its own -- replace assets/cdat-owl.svg + these two paths when it does.
+    logo: assets/cdat-owl.svg
+    logo-alt: "Logotipo del curso"
+    title: "COMP 3005"    # el encabezado nombra el curso
+    alignment: center     # centra solo el encabezado (logo + titulo); la navegacion queda a la izquierda
+    collapse-level: 1     # los modulos inician colapsados; el de la pagina actual se abre solo
     contents:
-      - index.qmd
+      - text: "Inicio"    # renombrado: el titulo del encabezado ya nombra el curso
+        href: index.qmd
       # Los módulos se añaden aquí a medida que las lecciones se publican.
       # Orden y mapa de sesiones: _syllabus/lesson-schedule.md (S1-S28; S29-S30 reservadas).
       # Las carpetas/slugs son inglés+ASCII (convención del repo); los rótulos son español.
-      - section: "Módulo 1 — Fundamentos y programación básica"
+      - section: "Módulo 1 — Fundamentos y programación básica (L01–L08)"
         contents:
           - u01_fundamentals/l01_concept_computing_history.qmd
           - u01_fundamentals/l02_concept_data_representation.qmd
@@ -34,7 +44,7 @@ website:
           - u01_fundamentals/l07_lab_conditionals.md
           - u01_fundamentals/l08_concept_while_loops.qmd
           - u01_fundamentals/l08_lab_while_loops.md
-      - section: "Módulo 2 — Estructuras de datos, funciones y archivos"
+      - section: "Módulo 2 — Estructuras de datos, funciones y archivos (L11–L16)"
         contents:
           - u02_data_structures_files/l11_concept_for_loops.qmd
           - u02_data_structures_files/l11_lab_for_loops.md
@@ -48,7 +58,7 @@ website:
           - u02_data_structures_files/l15_lab_functions.md
           - u02_data_structures_files/l16_concept_text_files.qmd
           - u02_data_structures_files/l16_lab_text_files.md
-      - section: "Módulo 3 — Cómputo científico con Python"
+      - section: "Módulo 3 — Cómputo científico con Python (L19–L26)"
         contents:
           - u03_scientific_computing/l19_concept_csv_files.qmd
           - u03_scientific_computing/l19_lab_csv_files.md
@@ -70,6 +80,7 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
     mermaid:
       theme: neutral      # default theme gives dark subgraph fills (unreadable in light mode)
     toc: true
@@ -77,6 +88,7 @@ format:
     code-copy: true
     code-overflow: wrap
     html-math-method: katex
+    include-after-body: assets/diagram-zoom.html   # click any diagram/figure to enlarge (decision 0023)
 
 execute:
   freeze: auto

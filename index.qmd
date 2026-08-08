@@ -1,18 +1,100 @@
 ---
 title: "COMP 3005 — Introducción al Uso de la Computadora"
+subtitle: "Universidad de Puerto Rico en Humacao · Departamento de Matemáticas"
+toc: false
 ---
 
-Bienvenidos a COMP 3005. Este curso introduce el uso de la computadora y la
-**programación en Python** como herramientas para resolver problemas de
-**biología y química**.
+Este curso enseña a usar la computadora y a **programar en Python** como herramientas para
+resolver problemas de **biología y química**. Empieza por lo básico — qué hay dentro de una
+computadora y cómo representa la información — y termina con programas que leen datos de
+laboratorio, los analizan, los grafican y trabajan con secuencias de ADN y con la tabla
+periódica.
 
-Usa la barra lateral para recorrer las notas de concepto, los ejemplos y los
-laboratorios prácticos de cada módulo.
+No hace falta experiencia previa en programación. Se empieza desde cero.
+
+Todo lo que ves aquí se ejecuta: cada número, tabla y figura de estas páginas salió de
+correr el código que aparece a su lado.
+
+::: {.callout-tip}
+## Empieza aquí
+
+¿Primera vez en el curso? Lee [Historia de la computación](u01_fundamentals/l01_concept_computing_history.qmd)
+y luego trabaja el [Lab: Introducción a Python I](u01_fundamentals/l04_lab_python_intro_1.md)
+— te pone a escribir tus primeros programas en el navegador, sin instalar nada.
+:::
+
+## Cómo funciona el curso
+
+Cada lección tiene una o dos partes:
+
+- **Notas de concepto** presentan la idea con ejemplos resueltos y explican por qué las
+  cosas funcionan como funcionan. Empieza por aquí en cada lección.
+- **Laboratorios** son cuadernos (*notebooks*) que se ejecutan. Los abres en Google Colab y
+  corres el código tú mismo. Cada laboratorio está emparejado con su nota de concepto.
+
+Dentro de los laboratorios verás dos tipos de bloque: **Predice**, donde piensas primero
+qué haría una línea antes de correrla, y **Tu turno**, donde completas el código que falta.
+Ambos son la parte que enseña; no los saltes.
+
+Además de las lecciones, el calendario incluye **laboratorios calificados en clase** (S9 y
+S17), los **exámenes parciales** (S10 y S18) y el **proyecto en persona** del Módulo 3
+(S27–S28). Por eso la numeración de las lecciones salta esos números.
 
 ## Contenido del curso
 
-| Módulo | Lecciones | Estado |
-|--------|-----------|--------|
-| 1 — Fundamentos y programación básica | L01–L08 | Completo |
-| 2 — Estructuras de datos, funciones y archivos | L11–L16 | Completo |
-| 3 — Cómputo científico con Python | L19–L26 | Completo |
+| Módulo | Lecciones | Qué vas a hacer |
+|--------|-----------|-----------------|
+| [1 — Fundamentos y programación básica](u01_fundamentals/l01_concept_computing_history.qmd) | L01–L08 | Historia de la computación, código abierto y ética; componentes de la computadora y representación binaria; sistemas operativos y lenguajes; tus primeros programas en Python; lógica booleana, condicionales y el ciclo `while` |
+| [2 — Estructuras de datos, funciones y archivos](u02_data_structures_files/l11_concept_for_loops.qmd) | L11–L16 | El ciclo `for` y `range`; cadenas de caracteres; listas y diccionarios; funciones propias con `def` y `return`; leer y escribir archivos de texto |
+| [3 — Cómputo científico con Python](u03_scientific_computing/l19_concept_csv_files.qmd) | L19–L26 | Archivos CSV; arreglos con NumPy; tablas y análisis con Pandas; visualización científica; análisis de imágenes; secuencias de ADN con Biopython; la tabla periódica con mendeleev — y el proyecto final de análisis de datos |
+
+Las sesiones aplicadas usan datos reales de biología y de química, y el proyecto del
+Módulo 3 se hace en la **pista** que elijas: biología o química.
+
+## Cómo ejecutar los laboratorios
+
+Los laboratorios son cuadernos de Jupyter hechos para correr en **Google Colab**: gratis,
+en el navegador, sin instalar nada.
+
+En cada **nota de concepto**, justo donde se menciona la práctica, hay un botón
+*Open in Colab* que abre el cuaderno de esa lección listo para ejecutar.
+
+Cosas que conviene saber:
+
+- **Corre primero las celdas de preparación.** Cada laboratorio empieza con dos: una
+  instala las librerías y la otra las importa y carga los datos. Colab se reinicia entre
+  sesiones, así que hay que correrlas cada vez que abres el cuaderno.
+- **Guarda tu propia copia.** El botón abre el cuaderno del curso en modo de lectura. Usa
+  *Archivo · Guardar una copia en Drive* antes de empezar a trabajar, o perderás tus
+  cambios al cerrar la pestaña.
+- **Ejecuta cada celda con `Shift + Enter`**, en orden, de arriba hacia abajo.
+- **Las páginas de laboratorio de este sitio son solo de lectura.** Muestran el código con
+  la salida que realmente produjo, lo cual sirve para repasar — pero esto se aprende
+  corriéndolo.
+
+## Qué podrás hacer
+
+Al terminar el curso podrás:
+
+1. Explicar, en términos generales, cómo está construida una computadora y cómo representa
+   internamente la información.
+2. Distinguir un sistema operativo de una aplicación, y contrastar el software de código
+   abierto con el propietario, incluyendo sus implicaciones éticas.
+3. Contrastar lenguajes de alto y bajo nivel, y explicar la diferencia entre un lenguaje
+   compilado y uno interpretado.
+4. Escribir programas en Python usando condicionales, ciclos y funciones propias.
+5. Trabajar con cadenas, listas y diccionarios para organizar datos.
+6. Leer y escribir archivos de texto y CSV desde un programa.
+7. Analizar y visualizar datos científicos con NumPy, Pandas y matplotlib.
+8. Usar librerías de dominio para procesar imágenes científicas, secuencias biológicas y
+   datos químicos.
+9. Desarrollar un programa que recolecte datos científicos y haga un análisis descriptivo
+   elemental.
+
+## Evaluación
+
+| | |
+|---|---|
+| **Exámenes parciales** (dos, 25% cada uno) | **50%** — en clase, en las sesiones S10 y S18 |
+| **Asignaciones y laboratorios** | **25%** — laboratorios calificados en clase y el proyecto en persona del Módulo 3 (S27–S28) |
+| **Examen final** (acumulativo) | **25%** — cubre todo el curso, en la semana de finales |
