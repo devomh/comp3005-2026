@@ -95,6 +95,6 @@ Al terminar el curso podrás:
 
 | | |
 |---|---|
-| **Exámenes parciales** (dos, 25% cada uno) | **50%** — en clase, en las sesiones S10 y S18 |
-| **Asignaciones y laboratorios** | **25%** — laboratorios calificados en clase y el proyecto en persona del Módulo 3 (S27–S28) |
-| **Examen final** (acumulativo) | **25%** — cubre todo el curso, en la semana de finales |
+| **Exámenes parciales** (dos, 30% cada uno) | **60%** — en clase |
+| **Trabajos y Asignaciones** | **10%** — Trabajos y asignaciones calificados en clase y el proyecto en persona del Módulo 3 |
+| **Examen final** (comprensivo) | **30%** — cubre todo el curso, en la semana de finales |
