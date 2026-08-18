@@ -31,7 +31,7 @@ La respuesta es de lo que trata esta lección. Entre tu intención y los `0` y `
 
 ## Del 0 y 1 a un lenguaje: los niveles
 
-Un **programa** es un conjunto de instrucciones que la máquina sigue para hacer algo (lo vimos en la L01). El problema es que las primeras programadoras y programadores escribían directamente en **lenguaje de máquina**: cadenas de `0` y `1`. Era tremendamente tedioso y fácil de equivocar. Con el tiempo se inventaron lenguajes cada vez más cercanos a las personas.
+Un **programa** es un conjunto de instrucciones que la máquina sigue para hacer algo (lo vimos en la L01). El problema es que las primeras programadoras y programadores escribían directamente en **lenguaje de máquina**: cadenas de `0` y `1`. Era tremendamente tedioso y propenso a errores. Con el tiempo se inventaron lenguajes cada vez más cercanos a las personas.
 
 Mira el **mismo programa** —sumar 15 + 1— escrito en tres niveles distintos.
 
@@ -112,7 +112,7 @@ El SO reparte recursos que ya conoces de la L02:
 - el **espacio de memoria**: le da a cada programa su parte de la RAM;
 - los **dispositivos de entrada y salida**: coordina el teclado, la pantalla, el disco, la red.
 
-Gracias a eso, tus aplicaciones no tienen que pelearse con el hardware: le piden el servicio al SO. Ejemplos de sistemas operativos: **Windows, macOS y Linux**. En la ciencia, **Linux** es muy común porque es estable, gratuito, de código abierto y fácil de automatizar con guiones (*scripts*), lo que ayuda a que los análisis sean **reproducibles**.
+Gracias a eso, tus aplicaciones no tienen que pelearse con el hardware: le piden el servicio al SO. Ejemplos de sistemas operativos: **Windows, macOS y Linux**. En la ciencia, **Linux** es muy común porque es estable, gratuito, de código abierto y fácil de automatizar con secuencias de comandos (*scripts*), lo que ayuda a que los análisis sean **reproducibles**.
 
 ## El sistema de archivos
 
