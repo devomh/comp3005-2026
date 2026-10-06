@@ -15,7 +15,7 @@ Al terminar esta lección podrás:
 - **Abrir** un archivo con `with open(nombre, modo) as f:` y distinguir los modos `'r'` (leer), `'w'` (escribir) y `'a'` (agregar), sabiendo que `with` lo **cierra solo**. *(Comprender / Aplicar)*
 - **Escribir** texto en un archivo con `f.write(...)`, incluyendo tú el salto de línea `\n`; recordar que `'w'` **crea o sobreescribe**. *(Aplicar)*
 - **Leer** un archivo de tres formas (`f.read()`, iterar `for linea in f:`, `f.readlines()`) y **limpiar** el `\n` de cada línea con `.strip()`. *(Aplicar)*
-- **Procesar** un archivo línea por línea: contar líneas y palabras, buscar las líneas que contienen una cadena y contar ocurrencias. *(Aplicar)*
+- **Procesar** un archivo línea por línea: contar líneas y palabras, buscar las líneas que contienen una cadena, contar ocurrencias y separar una línea con varios valores (`.split(',')`) en una lista de números. *(Aplicar)*
 - **Escribir** una **función que procesa un archivo** -- que integra `def`, `for`, cadenas y listas en una sola herramienta reutilizable. *(Aplicar / Analizar)*
 - **Aplicar** todo a un archivo científico de texto: parsear un **FASTA** a mano (encabezado `>` vs. secuencia) y calcular el contenido GC desde el archivo. *(Aplicar / Analizar)*
 
@@ -160,6 +160,22 @@ GCGCGCGCGC
 
 Las dos líneas de secuencia contienen `'GC'`; los encabezados, no. Variando la condición (`startswith`, `in`, `.count`, comparar `len(linea.split())`...) cuentas palabras, filtras líneas o buscas patrones -- todo recorriendo el archivo una sola vez.
 
+**Una línea con varios valores.** A veces cada línea guarda un registro completo: un nombre y varios números separados por comas, como `Ana,75,90,45,100` (una estudiante y sus cuatro notas). Para trabajar con esos números combinas lo de la L13 con lo de hoy: `.strip()` quita el `\n`, `.split(',')` parte la línea en una lista de campos y una comprensión los convierte a número. El nombre queda en la posición `0`; las notas, en la porción `[1:]` (las listas se cortan igual que las cadenas de la L12: `partes[1:]` va desde la posición 1 hasta el final):
+
+```python
+linea = 'Ana,75,90,45,100\n'
+partes = linea.strip().split(',')
+print(partes)
+print([int(x) for x in partes[1:]])
+```
+
+```
+['Ana', '75', '90', '45', '100']
+[75, 90, 45, 100]
+```
+
+Ojo: `.split(',')` devuelve **cadenas** (`'75'`); hay que convertirlas con `int()` antes de calcular. Con la lista ya puedes aplicarle las funciones de promedio, máximo y mínimo que escribiste en clase, línea por línea. El lab lo hace con un archivo de notas de diez estudiantes. Un archivo así es casi un **CSV**, el formato de tablas del Módulo 3.
+
 ## Una función que procesa un archivo
 
 El verdadero salto del Módulo 2 es **empaquetar** ese proceso en una **función** (L15), para llamarla con el nombre de **cualquier** archivo. Encapsulemos el conteo de secuencias:
@@ -237,10 +253,11 @@ Practica y discute (en clase o por escrito):
 | Leer | `f.read()` (una cadena), iterar `for linea in f:` (línea a línea), `f.readlines()` (una lista) |
 | Limpiar | cada línea trae su `\n`; se quita con `.strip()` |
 | Procesar | recorrer con `for` + cadenas/condicionales: contar, buscar (`in`, `.startswith`), `.count` |
+| Varios valores por línea | `partes = linea.strip().split(',')`; números con `[int(x) for x in partes[1:]]` |
 | Función de archivo | empaquetar abrir+recorrer+procesar en un `def ... return` reutilizable |
 
 ## Para profundizar
 
 - **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC) — el capítulo sobre archivos.
 - **Documentación oficial:** el *Tutorial de Python* en `docs.python.org/es/3/tutorial/` — la sección "Leer y escribir archivos" (`open`, `with`, métodos del manejador).
-- **Más allá de esta lección:** cuando un archivo puede **no existir**, se maneja el error con `try`/`except` (en vez de dejar que el programa se detenga). Los datos en **tablas** (filas y columnas separadas por comas) tienen su propio formato, **CSV**, que abre el **Módulo 3** (S19): empezarás parseándolo a mano -- como hoy -- y luego con la función `read_csv` de **Pandas**. Y el FASTA que parseaste a mano vuelve en S25 con **Biopython**. La idea de hoy -- *un archivo se recorre línea por línea y se procesa con una función* -- es la base de todo eso.
+- **Más allá de esta lección:** cuando un archivo puede **no existir**, se maneja el error con `try`/`except` (en vez de dejar que el programa se detenga). Los datos en **tablas** (filas y columnas separadas por comas) tienen su propio formato, **CSV**, que abre el **Módulo 3** (S19): es como el archivo de notas del lab, pero con un encabezado y nombres de columna; empezarás parseándolo a mano -- como hoy -- y luego con la función `read_csv` de **Pandas**. Y el FASTA que parseaste a mano vuelve en S25 con **Biopython**. La idea de hoy -- *un archivo se recorre línea por línea y se procesa con una función* -- es la base de todo eso.

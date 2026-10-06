@@ -280,7 +280,7 @@ Hiciste a mano lo que Pandas automatiza. Por eso, cuando uses `read_csv`, sabrá
 ## Resumen
 
 - Un CSV es un archivo de **texto**: cada línea es una fila; los campos van separados por comas; la primera línea suele ser el encabezado.
-- Se lee con lo de la L16 (`with open(...)`, iterar `for linea in f:`) más dos piezas: **`next(f)`** salta el encabezado y `linea.strip().split(',')` separa los campos, que se reparten con una **asignación múltiple** `a, b, c = ...`.
+- Se lee con lo de la L16 (`with open(...)`, iterar `for linea in f:` y separar los campos con `linea.strip().split(',')`, como en el archivo de notas de la L16) más dos piezas: **`next(f)`** salta el encabezado y una **asignación múltiple** `a, b, c = ...` reparte los campos en variables con nombre.
 - Todo campo sale como **texto**: hay que **convertirlo** con `float()`/`int()` antes de calcular.
 - La **receta tabular**: abrir, saltar, por línea separar + convertir + (filtrar con `if`) + acumular en una lista, y calcular (promedio, máximo sin `max()`, conteo).
 - **Filtrar** por una columna categórica y **agregar** una numérica da resultados por grupo; un diccionario cuenta registros por categoría (el germen de `value_counts`).
