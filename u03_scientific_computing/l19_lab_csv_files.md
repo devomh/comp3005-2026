@@ -10,7 +10,7 @@ duration: "60 mins"
 
 # Lab: Archivos CSV
 
-**Meta:** leer un archivo **CSV** a mano: abrirlo con `with open(...)`, saltar el encabezado con `next(f)`, separar cada línea en campos con `.split(',')` y desempaquetarla en variables, convertir los campos a número y aplicar la **receta tabular** (contar, promediar, máximo, filtrar por grupo, contar por categoría). Abre el Módulo 3 y conecta con todo el Módulo 2. Acompaña a la nota de concepto [Archivos CSV](l19_concept_csv_files.qmd).
+**Meta:** leer un archivo **CSV** a mano: abrirlo con `with open(...)`, saltar el encabezado con `next(f)`, separar cada línea en campos con `.split(',')` y desempaquetarla en variables, convertir los campos a número y aplicar la **receta tabular** (contar, promediar, máximo, filtrar por grupo, contar por categoría), primero sobre un archivo local y luego sobre un CSV remoto (Iris). Abre el Módulo 3 y conecta con todo el Módulo 2. Acompaña a la nota de concepto [Archivos CSV](l19_concept_csv_files.qmd).
 
 > **Cómo usar este lab:** ejecuta cada celda con `Shift + Enter`. Donde diga **Predice**, hay líneas comentadas con `#`: piensa primero qué pasaría (la del Paso 4 daría un error a propósito -- déjala comentada). Donde diga **Tu turno**, hay un bloque comentado con una parte marcada con `____` que debes **completar** al quitar los `#`. Compara con la respuesta esperada de cada bloque desplegable.
 >
@@ -18,7 +18,7 @@ duration: "60 mins"
 
 ## Preparación
 
-Solo Python estándar: no hay que instalar nada. El archivo CSV que vas a leer lo crea este mismo lab al escribirlo. Corre esta celda primero.
+Solo Python estándar: no hay que instalar nada. El archivo CSV local lo crea este mismo lab al escribirlo; el del Paso 5 se lee desde la web (Colab tiene acceso a internet). Corre esta celda primero.
 
 ```python
 print("Listo para trabajar con archivos CSV")
@@ -225,6 +225,74 @@ ValueError: could not convert string to float: 'temperatura'
 Por eso siempre se salta el encabezado con `next(f)` antes de procesar: los nombres de las columnas son texto, no números. (La dejamos comentada porque un error vivo detendría el resto del notebook.)
 </details>
 
+## Paso 5: un CSV remoto (Iris)
+
+Un CSV no tiene que estar en tu computadora: también puede vivir en una **URL**. El conjunto de datos **Iris** -- 150 flores de tres especies (`setosa`, `versicolor` y `virginica`), con el largo y el ancho de sus sépalos y pétalos en centímetros -- está publicado en la web. Las medidas las tomó el botánico Edgar Anderson y las dio a conocer el estadístico Ronald Fisher en 1936; hoy las distribuye el UCI Machine Learning Repository (licencia CC BY 4.0), y esta copia viene de los datos de ejemplo de la biblioteca seaborn. Sus columnas son `sepal_length,sepal_width,petal_length,petal_width,species`; en el código las llamaremos `largo_s, ancho_s, largo_p, ancho_p, especie` (`_s` = sépalo, `_p` = pétalo).
+
+Para leer una URL usamos `urllib.request`, una herramienta de Python para leer desde la web (la línea `import` la verás en la L20). La receta es **la misma** que con `muestras.csv`, con dos diferencias: el archivo se abre con `urllib.request.urlopen(url)` en lugar de `open(...)` (con `with` también se cierra solo), y las líneas remotas llegan como *bytes*, así que cada una se convierte a texto con `.decode()` antes de `.strip().split(',')`.
+
+Primero, el **promedio de `petal_length` de la especie `setosa`**: filtrar y agregar, igual que con el `rio_Norte` del Paso 4.
+
+```python
+import urllib.request
+url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv'
+
+with urllib.request.urlopen(url) as f:
+    next(f)                            # salta el encabezado, igual que en local
+    largos = []
+    for linea_bytes in f:
+        linea = linea_bytes.decode()   # los datos remotos llegan como bytes
+        # _s = sepalo, _p = petalo: largo_p es la columna petal_length
+        largo_s, ancho_s, largo_p, ancho_p, especie = linea.strip().split(',')
+        if especie == 'setosa':
+            largos.append(float(largo_p))
+
+print('Promedio petal_length setosa:', sum(largos) / len(largos))
+```
+
+~~~text
+Promedio petal_length setosa: 1.462
+~~~
+
+**Prueba:** cambia `'setosa'` por `'versicolor'` en el `if` (y en el mensaje del `print`) y vuelve a ejecutar la celda. ¿Esperas un promedio mayor o menor que el de `setosa`?
+
+<details><summary>Respuesta esperada</summary>
+
+~~~text
+Promedio petal_length versicolor: 4.26
+~~~
+
+Casi el triple: los pétalos de `versicolor` son mucho más largos que los de `setosa`. Solo cambió el valor del filtro; la receta es la misma. (Si cambias solo el `if`, el promedio sale bien pero el mensaje sigue diciendo `setosa`: el texto del `print` no sabe qué filtraste.)
+</details>
+
+Ahora, **¿cuántas flores tienen `petal_length` mayor que 1.5?** Esta vez contamos sobre las **tres** especies, sin filtrar por especie:
+
+```python
+with urllib.request.urlopen(url) as f:
+    next(f)
+    n = 0
+    total = 0
+    for linea_bytes in f:
+        linea = linea_bytes.decode()
+        largo_s, ancho_s, largo_p, ancho_p, especie = linea.strip().split(',')
+        total += 1
+        if float(largo_p) > 1.5:
+            n += 1
+
+print('Flores con petal_length > 1.5:', n, 'de', total)
+```
+
+~~~text
+Flores con petal_length > 1.5: 113 de 150
+~~~
+
+**Piensa:** ¿por qué pasan casi todas las flores, si el promedio de `setosa` es apenas 1.462?
+
+<details><summary>Respuesta esperada</summary>
+
+Porque los pétalos de `versicolor` y `virginica` son mucho más largos: el más corto de `versicolor` mide 3.0 cm y el más corto de `virginica` 4.5 cm, así que **las 100 flores** de esas dos especies pasan el umbral. Los pétalos de `setosa` miden entre 1.0 y 1.9 cm, y el umbral de 1.5 cae dentro de ese rango: solo 13 de sus 50 flores pasan. Por eso 113 = 100 + 13. Fíjate además en que el pétalo más largo de `setosa` (1.9 cm) es más corto que el más corto de `versicolor` (3.0 cm): con un umbral como 2.5, el conteo daría exactamente 100 y separaría a `setosa` por completo de las otras dos especies.
+</details>
+
 ## Tu turno (programa completo)
 
 ### Ejercicio: total de individuos en un conteo de especies
@@ -284,4 +352,5 @@ Hiciste a mano lo que Pandas automatiza. Por eso, cuando uses `read_csv`, sabrá
 - Todo campo sale como **texto**: hay que **convertirlo** con `float()`/`int()` antes de calcular.
 - La **receta tabular**: abrir, saltar, por línea separar + convertir + (filtrar con `if`) + acumular en una lista, y calcular (promedio, máximo sin `max()`, conteo).
 - **Filtrar** por una columna categórica y **agregar** una numérica da resultados por grupo; un diccionario cuenta registros por categoría (el germen de `value_counts`).
+- Un CSV puede ser **local o remoto**: desde una URL (como Iris) la receta es la misma, solo que el archivo se abre con `urllib.request.urlopen(url)` y cada línea llega como *bytes* y se convierte con `.decode()`.
 - **Sigue el Módulo 3** con **NumPy** (L20) para operar sobre arreglos de mediciones y **Pandas** (L21), que leerá el CSV con `read_csv` en una sola línea -- la receta que hoy hiciste a mano.

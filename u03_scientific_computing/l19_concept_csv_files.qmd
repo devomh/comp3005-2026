@@ -176,15 +176,35 @@ Esa tabla de frecuencias por categoría es exactamente lo que Pandas llamará `v
 
 ## Un CSV puede ser local o remoto
 
-El archivo no tiene por qué estar en tu computadora: un CSV puede vivir en una **URL** (por ejemplo, datos públicos de un laboratorio o de una agencia ambiental). La buena noticia es que **el procesamiento no cambia**: una vez que tienes las líneas, las recorres con el mismo `for linea in f:` y la misma receta. Solo cambia *de dónde* vienen las líneas. En Colab se vería así (esto es solo una **demostración**; lo veremos a fondo en la S20, cuando aprendas a importar módulos):
+El archivo no tiene por qué estar en tu computadora: un CSV puede vivir en una **URL** (por ejemplo, datos públicos de un laboratorio o de un repositorio científico). La buena noticia es que **el procesamiento no cambia**: una vez que tienes las líneas, las recorres con el mismo `for linea in f:` y la misma receta. Solo cambia *de dónde* vienen las líneas.
+
+Un ejemplo real es el clásico conjunto de datos **Iris**: 150 flores de tres especies (`setosa`, `versicolor` y `virginica`), con el largo y el ancho de sus sépalos y pétalos en centímetros. Las medidas las tomó el botánico Edgar Anderson y las dio a conocer el estadístico Ronald Fisher en 1936; hoy las distribuye el UCI Machine Learning Repository (licencia CC BY 4.0). Esta copia, de los datos de ejemplo de la biblioteca seaborn, está publicada como CSV en esta dirección:
+
+```text
+https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv
+```
+
+Sus columnas son `sepal_length,sepal_width,petal_length,petal_width,species`; en el código las llamamos `largo_s, ancho_s, largo_p, ancho_p, especie` (`_s` = sépalo, `_p` = pétalo). Para leer una URL se usa `urllib.request`, una herramienta de Python para leer desde la web (la línea `import` la verás a fondo en la S20, cuando aprendas a importar módulos). La receta es la misma, con dos diferencias: el archivo se abre con `urllib.request.urlopen(url)` en lugar de `open(...)` (con `with` también se cierra solo), y las líneas remotas llegan como *bytes*, así que cada una se convierte a texto con `.decode()` antes de separarla. Así se calcula el promedio de `petal_length` de la especie `setosa` (lo practicarás en el lab):
 
 ```python
-# Demostracion (no se ejecuta aqui): leer un CSV desde una URL en Colab
 import urllib.request
-url = 'https://ejemplo.org/datos/muestras.csv'
-for linea_bytes in urllib.request.urlopen(url):
-    linea = linea_bytes.decode()   # los datos remotos llegan como bytes
-    # ... la MISMA receta: next/split/convertir/acumular ...
+url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv'
+
+with urllib.request.urlopen(url) as f:
+    next(f)                            # salta el encabezado, igual que en local
+    largos = []
+    for linea_bytes in f:
+        linea = linea_bytes.decode()   # los datos remotos llegan como bytes
+        # _s = sepalo, _p = petalo: largo_p es la columna petal_length
+        largo_s, ancho_s, largo_p, ancho_p, especie = linea.strip().split(',')
+        if especie == 'setosa':
+            largos.append(float(largo_p))
+
+print('Promedio petal_length setosa:', sum(largos) / len(largos))
+```
+
+```text
+Promedio petal_length setosa: 1.462
 ```
 
 La idea para recordar: **local o remoto, un CSV se procesa línea por línea igual.**
@@ -232,6 +252,7 @@ Practica y discute (en clase o por escrito):
 | Convertir | todo sale como texto; `float()`/`int()` antes de calcular |
 | La receta | abrir, saltar, por línea: separar + convertir + (filtrar) + acumular, y calcular sobre la lista |
 | Filtrar y agregar | `if columna == valor` para un grupo; promedio/máximo/conteo del grupo; conteo por categoría con un dict |
+| Local o remoto | la misma receta sobre una URL: se abre con `urllib.request.urlopen(url)` y cada línea llega como *bytes* (`.decode()`) |
 | Puente a Pandas | `pandas.read_csv('archivo.csv')` hace toda la receta en una línea (S21); a mano primero para entenderla |
 
 ## Para profundizar
