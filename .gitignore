@@ -14,6 +14,11 @@ u02_data_structures_files/mediciones.txt
 u03_scientific_computing/muestras.csv
 u03_scientific_computing/especies.csv
 
+# L21 v2 (Pandas) lab writes these at runtime (to_csv copies) -- student-run
+# artifacts, never source.
+u03_scientific_computing/pinguinos.csv
+u03_scientific_computing/vinos_top.csv
+
 # L22 (Pandas analisis) lab writes these at runtime -- setup-cell-regenerated
 # artifacts, never source. Colab/local users regenerate them by running the lab.
 u03_scientific_computing/biodiversidad.csv

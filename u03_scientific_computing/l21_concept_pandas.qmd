@@ -3,7 +3,7 @@ title: "Pandas: DataFrames, read_csv y selección de columnas y filas"
 unit: "3"
 lesson: 21
 type: concept
-tags: [python, pandas, dataframe, read_csv, columnas, filas, seleccion, tabular]
+tags: [python, pandas, dataframe, read_csv, url, indice, to_csv, read_json, read_html, datos-reales]
 difficulty: introductory
 duration: "75 mins"
 ---
@@ -12,20 +12,20 @@ duration: "75 mins"
 
 Al terminar esta lección podrás:
 
-- **Importar** Pandas (`import pandas as pd`) y explicar qué es un **DataFrame**: una tabla con filas y columnas etiquetadas. *(Comprender)*
-- **Cargar** un CSV con `pd.read_csv('archivo.csv')` y reconocer que hace en **una línea** toda la receta manual de la L19. *(Comprender / Aplicar)*
-- **Inspeccionar** un DataFrame con `.shape`, `.columns`, `.head(n)` y `.describe()`. *(Aplicar)*
-- **Seleccionar** una columna (`df['ph']`) y aplicarle un agregado (`df['ph'].mean()`, el `mean` de la L20). *(Aplicar)*
-- **Seleccionar** varias columnas con una lista de nombres (`df[['sitio', 'ph']]`). *(Aplicar)*
-- **Filtrar** filas por una condición (`df[df['ph'] > 7.0]`) -- la máscara booleana de la L20, ahora sobre la tabla. *(Aplicar / Analizar)*
+- **Importar** Pandas (`import pandas as pd`) y explicar qué es un **DataFrame**: una tabla con columnas con nombre y un **índice** de filas, que es una **etiqueta** y no una posición. *(Comprender)*
+- **Cargar** un CSV con `pd.read_csv(...)` desde un archivo **o una URL** (con `sep=';'` cuando el separador no es la coma) y reconocer que hace en **una línea** la receta manual de la L19. *(Aplicar)*
+- **Inspeccionar** un DataFrame con `.shape`, `.columns`, `.head()` / `.tail()`, `.dtypes` y `.describe()`, y **detectar** los datos que faltan (`NaN`, `df.isna().sum()`). *(Aplicar / Analizar)*
+- **Seleccionar** columnas (`df['col']` da una Series; `df[['a', 'b']]` un DataFrame) y **filtrar** filas por una condición numérica (`df[df['col'] > valor]`), explicando por qué el índice queda con huecos. *(Aplicar / Analizar)*
+- **Guardar** una copia local con `df.to_csv('archivo.csv', index=False)` y explicar de dónde sale la columna `Unnamed: 0`. *(Aplicar)*
+- **Reconocer** otros lectores de Pandas (`pd.read_json`, `pd.read_html`) y que una URL puede ser una **consulta** a una base de datos (PubChem). *(Comprender)*
 
-> **Dónde encaja:** después de la L20 (*NumPy*) · **cierra la apertura del Módulo 3** · antes de la L22 (*Pandas: análisis*). Hoy se juntan las tres últimas lecciones: leer un CSV a mano (L19), los arreglos (L20) y, ahora, la tabla cómoda que lo une todo.
+> **Dónde encaja:** después de la L20 (*NumPy*) · **cierra la apertura del Módulo 3** · antes de la L22 (*Pandas: análisis*). Hoy se juntan las tres últimas lecciones: leer un CSV a mano (L19), los arreglos (L20) y, ahora, la tabla cómoda que lo une todo -- y con ella, los **datos reales** de internet.
 
 ## Por qué importa
 
-Sigamos la **misma** `muestras.csv` por tres lecciones. En la **L19** la leíste **a mano**: abrir el archivo, recorrerlo `for linea in f:`, saltar el encabezado con `next(f)`, separar con `.split(',')`, convertir cada campo -- varias líneas para una tarea muy común. En la **L20** pusiste una columna de mediciones en un **arreglo** de NumPy para calcular sobre todas a la vez. Hoy llega la herramienta que une las dos ideas: **Pandas**.
+Sigamos la **misma** `muestras.csv` por tres lecciones. En la **L19** la leíste **a mano**: abrir el archivo, recorrerlo `for linea in f:`, saltar el encabezado con `next(f)`, separar con `.split(',')`, convertir cada campo -- varias líneas para una tarea muy común. En la **L20** pusiste una columna de mediciones en un **arreglo** de NumPy para calcular sobre todas a la vez. Hoy llega la herramienta que une las dos ideas: **Pandas**. Con **una sola línea**, `pd.read_csv('muestras.csv')` lee toda la tabla a un **DataFrame** y hace por dentro **toda la receta de la L19**; el promedio de pH vuelve a dar `6.95`.
 
-Con **una sola línea**, `pd.read_csv('muestras.csv')` lee toda la tabla a un **DataFrame** -- y hace por dentro **toda la receta de la L19**. ¿El promedio de pH? `df['ph'].mean()` da `6.95`, **el mismo número** que en la L19 sacaste con un `for`, porque la columna `df['ph']` es, por dentro, un **arreglo de NumPy** (L20). Filtrar filas (`df[df['ph'] > 7.0]`) es la **máscara booleana** de la L20 aplicada a la tabla. El mensaje de hoy: *Pandas no es magia nueva; es la receta de la L19 y los arreglos de la L20, empaquetados en una tabla cómoda.* Por eso valió la pena hacerlo a mano primero: ahora entiendes qué automatiza.
+Pero seis filas escritas a mano no son lo que encontrarás en un laboratorio. Los datos científicos de verdad viven en **internet** -- en repositorios, en bases de datos públicas, en páginas web --, son **más grandes** (cientos o miles de filas) y vienen **sucios**: con datos que faltan, separadores distintos, nombres de columna raros. Por eso esta lección es, sobre todo, sobre **conseguir** los datos, **cargarlos** y darles un **primer vistazo** honesto antes de analizarlos: ¿cuántas filas hay?, ¿de qué tipo es cada columna?, ¿falta algo? El análisis de fondo llega en la L22 y los gráficos en la L23.
 
 > **Práctica (hands-on):** [Lab — Pandas](l21_lab_pandas.md) ·
 > [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l21_lab_pandas.ipynb)
@@ -38,7 +38,7 @@ Con **una sola línea**, `pd.read_csv('muestras.csv')` lee toda la tabla a un **
 import pandas as pd
 ```
 
-Su estructura central es el **DataFrame**: una **tabla** con filas y columnas **etiquetadas** -- cada columna tiene un nombre y cada fila un número de índice (`0, 1, 2, ...`). Es, en esencia, lo que abriste a mano en la L19, pero como un objeto que sabe operar sobre sí mismo.
+Su estructura central es el **DataFrame**: una **tabla** con columnas **con nombre** y, a la izquierda, un **índice** que le pone una etiqueta a cada fila (`0, 1, 2, ...`). Es, en esencia, lo que abriste a mano en la L19, pero como un objeto que sabe operar sobre sí mismo.
 
 ## Leer un CSV: read_csv
 
@@ -52,8 +52,9 @@ Aquí está el salto. Toda la receta de la L19 -- abrir, recorrer, separar por c
 | `float(campo)` en cada valor | convierte los tipos por ti |
 
 ```python
-df = pd.read_csv('muestras.csv')
-print(df)
+agua = pd.read_csv('muestras.csv')
+print(agua)
+print(round(agua['ph'].mean(), 2))
 ```
 
 ```text
@@ -64,155 +65,388 @@ print(df)
 3        4    rio_Sur  6.5         22.0
 4        5  rio_Norte  7.0         19.0
 5        6    rio_Sur  6.8         20.0
+6.95
 ```
 
-El DataFrame `df` tiene las cuatro columnas con sus nombres (`muestra`, `sitio`, `ph`, `temperatura`) y un índice de filas a la izquierda (`0` a `5`). Una línea reemplazó todo el bucle de la L19.
+El DataFrame `agua` tiene las cuatro columnas con sus nombres y el índice de filas a la izquierda (`0` a `5`). `agua['ph'].mean()` da `6.95`: **el mismo número** que en la L19 sacaste con un `for` (lo mostramos con `round` porque el valor crudo trae muchos decimales). Una línea reemplazó todo el bucle.
 
-## Información del DataFrame
+## Datos reales desde una URL
 
-Pandas trae métodos para ver de qué se trata la tabla sin imprimirla entera:
+En la L19 también leíste un CSV **remoto** (`iris.csv`) con `urllib.request.urlopen(url)`, convirtiendo cada línea con `.decode()` antes de aplicar la receta. Con Pandas, la URL va **directo** a `read_csv`:
 
-| Método | Qué da |
+| Leer un CSV remoto en la L19 | Con Pandas (hoy) |
 |---|---|
-| `df.shape` | una tupla `(filas, columnas)` |
-| `df.columns` | los nombres de las columnas |
-| `df.head(n)` | las primeras `n` filas (5 por defecto) |
-| `df.describe()` | un resumen estadístico por columna numérica |
+| `import urllib.request` | -- |
+| `with urllib.request.urlopen(url) as f:` | `pd.read_csv(url)` |
+| `linea.decode()` en cada línea | automático |
+| la receta de siempre (`split`, convertir, ...) | automático |
+
+Usaremos *Palmer Penguins*: mediciones de 344 pingüinos de tres especies (Adelie, Chinstrap y Gentoo) en tres islas de la Antártida -- largo y alto del pico, largo de la aleta, masa corporal y sexo. Vive en el **mismo** repositorio que el `iris.csv` de la L19:
 
 ```python
+url = ('https://raw.githubusercontent.com/mwaskom/'
+       'seaborn-data/master/penguins.csv')
+df = pd.read_csv(url)
 print(df.shape)
-print(df.columns.tolist())
-print(df.head(3))
 ```
 
 ```text
-(6, 4)
-['muestra', 'sitio', 'ph', 'temperatura']
-   muestra      sitio   ph  temperatura
-0        1  rio_Norte  7.2         18.0
-1        2    rio_Sur  6.8         21.0
-2        3  rio_Norte  7.4         17.0
+(344, 7)
 ```
 
-`df.describe()` da, de un vistazo, el conteo, la media, la desviación, el mínimo, el máximo y los cuartiles de **cada columna numérica**:
+344 filas y 7 columnas, descargadas y convertidas en una línea. *(Fuente: Gorman, Williams y Fraser, 2014; paquete palmerpenguins de A. Horst et al., licencia CC0.)*
+
+**Otro separador.** No todos los "CSV" usan comas. Muchos archivos -- sobre todo los generados en países donde la coma es el separador decimal -- usan **punto y coma**. Si `read_csv` no encuentra comas, deja cada línea entera en **una sola columna**. La solución es decirle el separador: `pd.read_csv(url, sep=';')`. Lo practicarás en el lab con datos químicos de vino tinto, cuyo archivo usa `;`.
+
+## Primer vistazo
+
+Con 344 filas ya no conviene imprimir la tabla entera. Pandas trae herramientas para ver de qué se trata sin leerla toda:
+
+| Herramienta | Qué da |
+|---|---|
+| `df.shape` | una tupla `(filas, columnas)` |
+| `df.columns` | los nombres de las columnas |
+| `df.head(n)` / `df.tail(n)` | las primeras / últimas `n` filas (5 por defecto) |
+| `df.dtypes` | el **tipo** de cada columna (números o texto) |
+| `df.describe()` | un resumen estadístico de cada columna numérica |
+
+```python
+print(df.head())
+```
+
+```text
+  species     island  bill_length_mm  bill_depth_mm  flipper_length_mm  \
+0  Adelie  Torgersen            39.1           18.7              181.0
+1  Adelie  Torgersen            39.5           17.4              186.0
+2  Adelie  Torgersen            40.3           18.0              195.0
+3  Adelie  Torgersen             NaN            NaN                NaN
+4  Adelie  Torgersen            36.7           19.3              193.0
+
+   body_mass_g     sex
+0       3750.0    MALE
+1       3800.0  FEMALE
+2       3250.0  FEMALE
+3          NaN     NaN
+4       3450.0  FEMALE
+```
+
+La tabla no cabe a lo ancho, así que Pandas la parte en **dos bloques**: la `\` al final de una línea indica que **sigue** abajo con las columnas restantes. `.dtypes` dice de qué tipo es cada columna -- y, de paso, cómo se llaman:
+
+```python
+print(df.dtypes)
+```
+
+```text
+species               object
+island                object
+bill_length_mm       float64
+bill_depth_mm        float64
+flipper_length_mm    float64
+body_mass_g          float64
+sex                   object
+dtype: object
+```
+
+`float64` son números con decimales; `object` es **texto**. (Con `df.columns.tolist()` obtienes solo los nombres, como una lista.) `.describe()` resume las columnas numéricas -- el conteo, la media, la desviación, el mínimo, los cuartiles y el máximo:
 
 ```python
 print(df.describe())
 ```
 
 ```text
-        muestra        ph  temperatura
-count  6.000000  6.000000     6.000000
-mean   3.500000  6.950000    19.500000
-std    1.870829  0.320936     1.870829
-min    1.000000  6.500000    17.000000
-25%    2.250000  6.800000    18.250000
-50%    3.500000  6.900000    19.500000
-75%    4.750000  7.150000    20.750000
-max    6.000000  7.400000    22.000000
+       bill_length_mm  bill_depth_mm  flipper_length_mm  body_mass_g
+count      342.000000     342.000000         342.000000   342.000000
+mean        43.921930      17.151170         200.915205  4201.754386
+std          5.459584       1.974793          14.061714   801.954536
+min         32.100000      13.100000         172.000000  2700.000000
+25%         39.225000      15.600000         190.000000  3550.000000
+50%         44.450000      17.300000         197.000000  4050.000000
+75%         48.500000      18.700000         213.000000  4750.000000
+max         59.600000      21.500000         231.000000  6300.000000
 ```
 
-Fíjate en la fila `mean` de la columna `ph`: `6.95`, otra vez el mismo promedio. (La columna `muestra` es un identificador, así que su resumen -- promediar números de muestra -- no tiene sentido real; describe resume todas las columnas numéricas por igual.)
+### Los datos que faltan: NaN
 
-## Seleccionar una columna
-
-Para tomar **una** columna se usa su nombre entre corchetes. El resultado es una **Series** (una columna con su índice):
+Fíjate en la fila `count`: dice **342**, no 344. Y en `.head()`, la fila `3` dice `NaN` en casi todo. `NaN` (*Not a Number*) es como Pandas marca un **dato que falta** -- una celda vacía en el CSV. `df.isna()` marca cada celda con `True` si falta, y `.sum()` cuenta los `True` de cada columna:
 
 ```python
-print(df['ph'])
+print(df.isna().sum())
 ```
 
 ```text
-0    7.2
-1    6.8
-2    7.4
-3    6.5
-4    7.0
-5    6.8
-Name: ph, dtype: float64
+species               0
+island                0
+bill_length_mm        2
+bill_depth_mm         2
+flipper_length_mm     2
+body_mass_g           2
+sex                  11
+dtype: int64
 ```
 
-Y aquí está la conexión con la L20: **una columna de un DataFrame es, por dentro, un arreglo de NumPy.** Por eso le puedes aplicar los agregados de la L20 directamente:
+A 2 pingüinos les faltan todas las mediciones y a 11 les falta el sexo. `describe` y `mean` **ignoran** los `NaN`: por eso cuentan 342. Los datos reales casi siempre tienen huecos, y lo primero es **saber que están**; qué hacer con ellos (quitarlos, rellenarlos) es una decisión de análisis que no tomaremos hoy.
+
+## El índice: etiquetas, no posiciones
+
+Los números de la izquierda son el **índice**: una **etiqueta** pegada a cada fila. En una tabla recién leída coincide con la posición (`0` a `343`), como se ve con `.tail()`:
 
 ```python
-print(round(df['ph'].mean(), 2))
+print(df.tail(3))
 ```
 
 ```text
-6.95
+    species  island  bill_length_mm  bill_depth_mm  flipper_length_mm  \
+341  Gentoo  Biscoe            50.4           15.7              222.0
+342  Gentoo  Biscoe            45.2           14.8              212.0
+343  Gentoo  Biscoe            49.9           16.1              213.0
+
+     body_mass_g     sex
+341       5750.0    MALE
+342       5200.0  FEMALE
+343       5400.0    MALE
 ```
 
-`df['ph'].mean()` usa el mismo `mean` de la L20 (lo mostramos con `round` porque el valor crudo trae muchos decimales). Es `6.95`: el promedio que en la L19 calculaste con un `for`, en la L20 habrías sacado con `np.mean`, y hoy es un método de la columna.
+Pero la etiqueta **viaja con la fila**: si filtras la tabla, las filas que quedan **conservan su etiqueta original**, aunque ahora estén en otra posición. Lo verás en la sección de filtrar, y otra vez al guardar con `to_csv`.
 
-## Seleccionar varias columnas
+## Seleccionar columnas
 
-Para tomar **varias** columnas se le pasa una **lista** de nombres. El resultado es un DataFrame más pequeño:
+Para tomar **una** columna se usa su nombre entre corchetes. El resultado es una **Series** (una columna con su índice). Sus valores se guardan en un **arreglo de NumPy** (L20), así que trae los agregados de la L20:
 
 ```python
-print(df[['sitio', 'ph']])
+print(df['body_mass_g'].head(3))
+print(round(df['body_mass_g'].mean(), 2))
+print(df['body_mass_g'].min(), df['body_mass_g'].max())
 ```
 
 ```text
-       sitio   ph
-0  rio_Norte  7.2
-1    rio_Sur  6.8
-2  rio_Norte  7.4
-3    rio_Sur  6.5
-4  rio_Norte  7.0
-5    rio_Sur  6.8
+0    3750.0
+1    3800.0
+2    3250.0
+Name: body_mass_g, dtype: float64
+4201.75
+2700.0 6300.0
 ```
 
-Ojo a la diferencia: `df['ph']` (un nombre) da **una** columna (Series); `df[['sitio', 'ph']]` (una **lista** de nombres) da un **DataFrame** con esas columnas.
+La masa promedio es `4201.75` g (de los 342 pingüinos con dato: el `NaN` no cuenta) -- el mismo número que `describe` mostró en la fila `mean` (`4201.754386`), ahora redondeado; el mínimo y el máximo son las filas `min` y `max`. Para tomar **varias** columnas se le pasa una **lista** de nombres -- de ahí los corchetes dobles -- y el resultado es un DataFrame más pequeño:
+
+```python
+print(df[['species', 'body_mass_g']].head(3))
+```
+
+```text
+  species  body_mass_g
+0  Adelie       3750.0
+1  Adelie       3800.0
+2  Adelie       3250.0
+```
+
+Ojo a la diferencia: `df['body_mass_g']` (un nombre) da **una** columna (Series); `df[['species', 'body_mass_g']]` (una **lista** de nombres) da un **DataFrame** con esas columnas.
 
 ## Filtrar filas por condición
 
-Para quedarte con las **filas** que cumplen una condición, se usa exactamente la **máscara booleana** de la L20, ahora sobre el DataFrame. `df['ph'] > 7.0` marca cada fila como `True`/`False`, y `df[...]` se queda con las `True`:
+Para quedarte con las **filas** que cumplen una condición se usa exactamente la **máscara booleana** de la L20, ahora sobre el DataFrame. `df['body_mass_g'] > 6000` marca cada fila como `True`/`False`, y `df[...]` se queda con las `True`:
 
 ```python
-print(df[df['ph'] > 7.0])
+pesados = df[df['body_mass_g'] > 6000]
+print(pesados.shape)
+print(pesados[['species', 'island', 'body_mass_g']])
 ```
 
 ```text
-   muestra      sitio   ph  temperatura
-0        1  rio_Norte  7.2         18.0
-2        3  rio_Norte  7.4         17.0
+(2, 7)
+    species  island  body_mass_g
+237  Gentoo  Biscoe       6300.0
+253  Gentoo  Biscoe       6050.0
 ```
 
-Quedan solo las filas con `ph` mayor que 7.0: la `muestra` 1 (`7.2`) y la `muestra` 3 (`7.4`) -- exactamente el mismo filtro que en la L19 hiciste con un `if` dentro de un `for`, ahora en una línea. (Fíjate que el índice conserva los números originales, `0` y `2`.)
+Solo 2 pingüinos pesan más de 6000 g, y los dos son Gentoo de la isla Biscoe. Es el filtro que en la L19 hacías con un `if` dentro de un `for`, ahora en una línea. Y mira el **índice**: `237` y `253`. Las filas son la primera y la segunda de `pesados`, pero **conservan su etiqueta** de la tabla completa. Por eso el índice es una etiqueta y no una posición. (En la L22 verás cómo renumerarlo.)
+
+## Guardar una copia: to_csv
+
+Los datos de internet pueden cambiar o desaparecer, y no siempre hay conexión. Conviene guardar una **copia local** con `df.to_csv('archivo.csv')`. Pero hay una trampa, y tiene que ver con el índice:
+
+```python
+df.to_csv('pinguinos.csv')
+copia = pd.read_csv('pinguinos.csv')
+print(copia.shape)
+print(copia.columns.tolist()[:3])
+```
+
+```text
+(344, 8)
+['Unnamed: 0', 'species', 'island']
+```
+
+¡Una columna de más! Por defecto, `to_csv` guarda **también el índice**, como una primera columna sin nombre. Al leer el archivo, Pandas no sabe que era el índice: la trata como una columna de datos más y la llama `Unnamed: 0` ("sin nombre"). La solución es pedir que **no** guarde el índice:
+
+```python
+df.to_csv('pinguinos.csv', index=False)
+copia = pd.read_csv('pinguinos.csv')
+print(copia.shape)
+print(copia.columns.tolist()[:3])
+```
+
+```text
+(344, 7)
+['species', 'island', 'bill_length_mm']
+```
+
+Ahora la copia es idéntica a la original. Regla práctica: guarda con `index=False` salvo que el índice tenga información propia.
+
+## Otros formatos
+
+`read_csv` es solo uno de los lectores de Pandas. Todos devuelven un **DataFrame**, así que todo lo anterior (`shape`, `head`, seleccionar, filtrar) sirve igual:
+
+| Lector | Lee | Ejemplo en el lab |
+|---|---|---|
+| `pd.read_csv(...)` | texto separado por comas (o por otro `sep`) | pingüinos, vino tinto, PubChem |
+| `pd.read_json(...)` | JSON, el formato de muchos servicios web | los mismos pingüinos, en JSON |
+| `pd.read_html(...)` | las **tablas** de una página web (devuelve una **lista**) | los municipios de Puerto Rico en Wikipedia |
+
+**JSON.** Los mismos 344 pingüinos, publicados por otro proyecto (*vega-datasets*) con otros nombres de columna:
+
+```python
+url_json = ('https://cdn.jsdelivr.net/npm/'
+            'vega-datasets@2.8.0/data/penguins.json')
+pj = pd.read_json(url_json)
+print(pj.shape)
+for nombre in pj.columns:
+    print(nombre)
+```
+
+```text
+(344, 7)
+Species
+Island
+Beak Length (mm)
+Beak Depth (mm)
+Flipper Length (mm)
+Body Mass (g)
+Sex
+```
+
+Mismos datos, distintos nombres: aquí es `pj['Species']`, con mayúscula, y en `df` es `df['species']`. Antes de seleccionar, revisa cómo se llaman las columnas **de esa tabla**. (Casi los mismos: en esta versión, a un pingüino el sexo que falta está escrito como un punto, `'.'`, en vez de quedar vacío; Pandas no reconoce `'.'` como dato que falta, así que `pj.isna().sum()` cuenta 10 en `Sex`, no 11. Así de sucios pueden ser los datos reales.) *(Fuente: vega-datasets 2.8.0, con los mismos datos Palmer Penguins, CC0.)*
+
+**HTML.** `pd.read_html` lee **todas** las tablas de una página. Leemos el anexo de Wikipedia con los 78 municipios de Puerto Rico (la URL apunta a una versión fija de la página, para que el resultado no cambie si alguien la edita):
+
+```python
+url_wiki = ('https://es.wikipedia.org/w/index.php'
+            '?title=Anexo:Municipios_de_Puerto_Rico'
+            '&oldid=174878338')
+navegador = {'User-Agent': 'Mozilla/5.0'}
+tablas = pd.read_html(url_wiki, storage_options=navegador)
+print(len(tablas))
+m = tablas[1]
+print(m.shape)
+for nombre in m.columns:
+    print(nombre)
+```
+
+```text
+3
+(78, 7)
+Municipio
+Localización
+Bandera
+Escudo
+Código FIPS[2]
+Población (2020)[3]
+Superficie (km²)[4]
+```
+
+Tres detalles típicos de los datos de la web:
+
+- **El `User-Agent`.** Wikipedia rechaza los programas que no se identifican (`HTTP Error 403: Forbidden`); `storage_options=navegador` envía el nombre con que un navegador se presenta.
+- **Una lista de tablas.** `read_html` devuelve una **lista** con todas las tablas de la página; la de los municipios está en la posición `1`.
+- **Nombres sucios.** Los nombres traen las notas al pie de Wikipedia (`[2]`, `[3]`) y acentos, y las columnas de imágenes llegan vacías (`NaN`). Se pueden **reemplazar** asignando una lista de nombres cortos a `m.columns`, en el mismo orden:
+
+```python
+m.columns = ['municipio', 'mapa', 'bandera', 'escudo',
+             'fips', 'poblacion', 'superficie']
+print(m[['municipio', 'poblacion', 'superficie']].head(3))
+grandes = m[m['poblacion'] > 100000]
+print(grandes[['municipio', 'poblacion']])
+```
+
+```text
+   municipio  poblacion  superficie
+0   Adjuntas      18020      172.73
+1     Aguada      38136       79.90
+2  Aguadilla      55101       94.61
+   municipio  poblacion
+10   Bayamón     185187
+12    Caguas     127244
+15  Carolina     154815
+57     Ponce     137491
+64  San Juan     342259
+```
+
+Con nombres limpios, el filtro es el de siempre: cinco municipios superaban los 100,000 habitantes en el censo de 2020. *(Fuente: Wikipedia en español, licencia CC BY-SA 4.0.)*
+
+**Una URL que es una consulta (PubChem).** Una URL no tiene que ser un archivo guardado: puede ser una **pregunta** a una base de datos. PubChem, la base de datos química pública de los NIH, arma un CSV en el momento con las propiedades que le pidas -- aquí, de la cafeína, la aspirina, la glucosa y el etanol, por su número de compuesto (CID):
+
+```python
+url_pc = ('https://pubchem.ncbi.nlm.nih.gov/rest/pug/'
+          'compound/cid/2519,2244,5793,702/property/'
+          'Title,MolecularFormula,MolecularWeight,XLogP/CSV')
+compuestos = pd.read_csv(url_pc)
+print(compuestos)
+```
+
+```text
+    CID      Title MolecularFormula  MolecularWeight  XLogP
+0  2519   Caffeine        C8H10N4O2           194.19   -0.1
+1  2244    Aspirin           C9H8O4           180.16    1.2
+2  5793  D-Glucose          C6H12O6           180.16   -2.6
+3   702    Ethanol            C2H6O            46.07   -0.1
+```
+
+La URL dice **qué** compuestos, **qué** propiedades y en **qué formato**; `read_csv` hace el resto. `MolecularWeight` es la masa molar (g/mol) y `XLogP` estima si la molécula prefiere el agua (negativo) o la grasa (positivo). *(Fuente: PubChem, NCBI/NIH, dominio público.)*
 
 ## Preguntas frecuentes
 
-**"¿`df['ph']` o `df[['ph']]`?"** — `df['ph']` (un nombre suelto) da **una** columna como **Series**. `df[['sitio', 'ph']]` (una **lista** de nombres entre corchetes dobles) da un **DataFrame** con esas columnas. Un nombre: Series; una lista de nombres: DataFrame.
+**"¿`df['species']` o `df[['species']]`?"** — `df['species']` (un nombre suelto) da **una** columna como **Series**. `df[['species', 'body_mass_g']]` (una **lista** de nombres entre corchetes dobles) da un **DataFrame** con esas columnas. Un nombre: Series; una lista de nombres: DataFrame.
 
-**"¿`read_csv` da lo mismo que el parseo manual de la L19?"** — Sí. `read_csv` hace la **misma** receta -- separar por comas, tomar el encabezado, convertir los números -- solo que en una línea. Por eso `df['ph'].mean()` da el `6.95` de la L19.
+**"Leí un CSV y me salió una sola columna con un nombre larguísimo. ¿Qué pasó?"** — El archivo no separa con comas. Mira el nombre de esa columna: si ves `;` (o tabuladores), dile el separador a `read_csv`, por ejemplo `pd.read_csv(url, sep=';')`.
 
-**"¿Por qué `df['ph'].mean()` y no un `for`?"** — Porque la columna `df['ph']` es, por dentro, un **arreglo de NumPy** (L20), y los arreglos saben calcular su media en una llamada. No hace falta el `for` de la L19.
+**"¿Qué es `NaN` y por qué `describe` cuenta menos filas?"** — `NaN` marca un **dato que falta**. `describe`, `mean` y los demás agregados lo **ignoran**, así que cuentan solo los valores presentes. `df.isna().sum()` te dice cuántos faltan en cada columna.
 
-**"¿Y si escribo mal el nombre de una columna?"** — Pandas lanza un `KeyError`. Por ejemplo, `df['PH']` (con mayúsculas) no existe -- la columna se llama `ph` -- y da `KeyError: 'PH'`. Los nombres de columna distinguen mayúsculas de minúsculas.
+**"¿Por qué el índice salta después de filtrar?"** — Porque el índice es una **etiqueta** de cada fila, no su posición: al filtrar, las filas que quedan **conservan** su etiqueta de la tabla completa. En la L22 verás cómo renumerarlas.
+
+**"Al releer mi CSV apareció una columna `Unnamed: 0`. ¿De dónde salió?"** — Es el índice: `to_csv` lo guarda por defecto como una primera columna sin nombre. Guarda con `index=False`.
+
+**"¿Y si escribo mal el nombre de una columna?"** — Pandas lanza un `KeyError`. Por ejemplo, `df['Species']` (con mayúscula) no existe en `df` -- la columna se llama `species` -- y da `KeyError: 'Species'`. Los nombres de columna distinguen mayúsculas de minúsculas.
+
+**"`read_html` de Wikipedia me da `HTTP Error 403: Forbidden`."** — Wikipedia rechaza los programas que no se identifican. Pasa un `User-Agent`: `pd.read_html(url, storage_options={'User-Agent': 'Mozilla/5.0'})`.
 
 ## Para reflexionar
 
 Practica y discute (en clase o por escrito):
 
-1. ¿Qué hace `pd.read_csv('muestras.csv')` que en la L19 te tomaba varias líneas?
-2. ¿Qué diferencia hay entre `df['ph']` y `df[['ph']]`? ¿Qué tipo devuelve cada uno?
-3. ¿Por qué `df['ph'].mean()` funciona sin escribir un `for`? (Pista: ¿qué es una columna por dentro?)
-4. Escribe (en papel o en Colab) cómo seleccionarías solo las filas con `temperatura` mayor que 19.
-5. La fila `mean` de `df.describe()` para `ph` da `6.95`. ¿Dónde viste ese mismo número antes?
+1. ¿Qué hace `pd.read_csv(url)` que en la L19 te tomaba `urllib`, `.decode()` y varias líneas más?
+2. La tabla de pingüinos tiene 344 filas, pero `describe` cuenta 342 en `body_mass_g`. ¿Por qué? ¿Cómo lo comprobarías?
+3. Después de `df[df['body_mass_g'] > 6000]`, el índice es `237, 253`. ¿Qué te dice eso sobre lo que es el índice?
+4. Escribe (en papel o en Colab) cómo seleccionarías solo los pingüinos con `flipper_length_mm` mayor que 220.
+5. Guardaste una tabla con `to_csv` y al releerla tiene una columna más. ¿Cuál es, y cómo lo evitas?
+6. ¿En qué se parecen y en qué se diferencian `read_csv`, `read_json` y `read_html`?
 
 ## Resumen
 
 | Idea clave | En una frase |
 |------------|--------------|
-| Importar | `import pandas as pd`; la estructura central es el **DataFrame** (una tabla etiquetada) |
-| `read_csv` | `pd.read_csv('archivo.csv')` lee un CSV a un DataFrame en una línea (la receta de la L19) |
-| Información | `df.shape` (filas, columnas), `df.columns`, `df.head(n)`, `df.describe()` (resumen) |
-| Una columna | `df['ph']` da una **Series** (un arreglo de NumPy); `df['ph'].mean()` usa el `mean` de la L20 |
-| Varias columnas | `df[['sitio', 'ph']]` (una **lista** de nombres) da un DataFrame |
-| Filtrar filas | `df[df['ph'] > 7.0]` -- la máscara booleana de la L20 sobre la tabla |
+| Importar | `import pandas as pd`; la estructura central es el **DataFrame** (columnas con nombre + un índice de filas) |
+| `read_csv` | `pd.read_csv(...)` lee un CSV en una línea, desde un archivo **o una URL**; `sep=';'` si no separa con comas |
+| Primer vistazo | `df.shape`, `df.columns`, `df.head()` / `df.tail()`, `df.dtypes`, `df.describe()` |
+| Datos que faltan | `NaN`; `df.isna().sum()` los cuenta; `describe` y `mean` los ignoran |
+| El índice | una **etiqueta** de fila, no una posición: al filtrar, las filas la conservan |
+| Columnas | `df['col']` da una **Series** (valores en un arreglo de NumPy); `df[['a', 'b']]` da un DataFrame |
+| Filtrar filas | `df[df['col'] > valor]` -- la máscara booleana de la L20 sobre la tabla |
+| Guardar | `df.to_csv('archivo.csv', index=False)` -- sin `index=False` aparece `Unnamed: 0` al releer |
+| Otros formatos | `pd.read_json(...)`, `pd.read_html(...)` (una lista de tablas); una URL puede ser una consulta (PubChem) |
 
 ## Para profundizar
 
 - **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC).
-- **Documentación oficial:** *10 minutes to pandas* en `pandas.pydata.org` (DataFrame, `read_csv`, selección).
-- **Más allá de esta lección:** en la **S22** harás más con esta tabla -- contar valores únicos (`value_counts`), crear columnas calculadas y **agrupar** por categoría (`groupby`) -- y en la **S23** la **graficarás** con matplotlib. También existen formas más finas de seleccionar filas (`.iloc`, `.loc`). La idea de hoy -- *un CSV se vuelve un DataFrame, y de ahí seleccionas columnas y filas* -- es la base de todo el análisis de datos que sigue.
+- **Documentación oficial:** *10 minutes to pandas* y la guía *IO tools* (todos los lectores y escritores: `read_csv`, `read_json`, `read_html`, `read_excel`, ...) en `pandas.pydata.org`.
+- **Fuentes de datos de esta lección:** Palmer Penguins (Gorman, Williams y Fraser, 2014; `allisonhorst.github.io/palmerpenguins`), Wine Quality (Cortez et al., 2009; UCI Machine Learning Repository), PubChem (`pubchem.ncbi.nlm.nih.gov`) y Wikipedia en español.
+- **Más allá de esta lección:** en la **S22** harás más con estas tablas -- contar valores únicos (`value_counts`), crear columnas calculadas, renumerar el índice y **agrupar** por categoría (`groupby`) -- y en la **S23** las **graficarás** con matplotlib. Qué hacer con los `NaN` (`dropna`, rellenarlos) y las formas más finas de seleccionar (`.loc`, `.iloc`) quedan para cuando las necesites. La idea de hoy -- *conseguir los datos, cargarlos a un DataFrame y mirarlos antes de analizarlos* -- es la base de todo lo que sigue.
