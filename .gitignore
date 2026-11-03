@@ -19,13 +19,13 @@ u03_scientific_computing/especies.csv
 u03_scientific_computing/pinguinos.csv
 u03_scientific_computing/vinos_top.csv
 
-# L22 (Pandas analisis) lab writes these at runtime -- setup-cell-regenerated
-# artifacts, never source. Colab/local users regenerate them by running the lab.
+# L22 v1 / L23 v1 wrote biodiversidad.csv; since L22 v2 / L23 v1.1 (2026-11-02)
+# both read Penguins from a URL and nothing writes it. Kept ignored so a leftover
+# local copy is never staged; drop this line once no copy remains on disk.
 u03_scientific_computing/biodiversidad.csv
-u03_scientific_computing/reacciones.csv
 
 # L23 (Visualizacion) lab writes these at runtime -- setup-cell-regenerated
-# artifacts, never source (biodiversidad.csv already ignored above). The PNGs in
+# artifacts, never source. The PNGs in
 # assets/ are author-generated figures, TRACKED (the website needs them).
 u03_scientific_computing/crecimiento.csv
 u03_scientific_computing/absorbancia.csv

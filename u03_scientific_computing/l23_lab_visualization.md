@@ -79,44 +79,33 @@ plt.show()
 
 ## Paso 2: gráfica de barra (comparar categorías)
 
-Una **barra** compara un valor entre categorías. Es la forma natural de **graficar un `groupby` de la L22**. Escribimos la misma `biodiversidad.csv` de la L22 y sumamos el conteo por especie:
+Una **barra** compara un valor entre categorías. Es la forma natural de **graficar un `groupby` de la L22**. Leemos la misma tabla de pingüinos de la L21 y la L22 (esta celda **necesita internet**; Colab ya lo tiene) y calculamos la masa promedio por especie:
 
 ```python
-biodiversidad = """sitio,especie,conteo
-laguna_A,tilapia,15
-laguna_B,molly,5
-laguna_A,guppy,10
-laguna_B,tilapia,25
-laguna_A,tilapia,20
-laguna_B,guppy,15
-laguna_B,molly,10
-"""
-
-with open('biodiversidad.csv', 'w') as f:
-    f.write(biodiversidad)
-
-df = pd.read_csv('biodiversidad.csv')
-totales = df.groupby('especie')['conteo'].sum()
-print(totales)
+url = ('https://raw.githubusercontent.com/mwaskom/'
+       'seaborn-data/master/penguins.csv')
+df = pd.read_csv(url)
+masa = df.groupby('species')['body_mass_g'].mean().round(1)
+print(masa)
 ```
 
 ~~~text
-especie
-guppy      25
-molly      15
-tilapia    60
-Name: conteo, dtype: int64
+species
+Adelie       3700.7
+Chinstrap    3733.1
+Gentoo       5076.0
+Name: body_mass_g, dtype: float64
 ~~~
 
 Ese resumen por grupo (lo que calculaste en la L22) se grafica con `.plot.bar()`:
 
 ```python
-totales.plot.bar(title='Conteo total por especie',
-                 xlabel='Especie', ylabel='Conteo total', rot=0)
+masa.plot.bar(title='Masa promedio por especie',
+              xlabel='Especie', ylabel='Masa promedio (g)', rot=0)
 plt.show()
 ```
 
-*(Al ejecutar se abre la figura: tres barras, la de `tilapia` (60) mucho más alta que `guppy` (25) y `molly` (15). De un vistazo se ve cuál domina.)*
+*(Al ejecutar se abre la figura: tres barras; la de Gentoo (unos 5076 g) es claramente la más alta, y las de Adelie y Chinstrap (unos 3700 g) casi iguales. De un vistazo se ve cuál pesa más.)*
 
 ## Paso 3: gráfica de dispersión (relación entre dos variables)
 

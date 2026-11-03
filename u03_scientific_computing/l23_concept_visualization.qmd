@@ -23,7 +23,7 @@ Al terminar esta lección podrás:
 
 ## Por qué importa
 
-La L22 te dio conteos y promedios -- `tilapia 60`, `guppy 25`. Pero una columna de números cuesta interpretar de un vistazo. Una **gráfica** lo dice en un segundo. Hoy le damos ojos a la tabla con **matplotlib**, la librería de gráficas de Python, a través del cómodo `df.plot` de Pandas.
+La L22 te dio conteos y promedios de los pingüinos -- `Gentoo 5076.0`, `Adelie 3700.7`. Pero una columna de números cuesta interpretar de un vistazo. Una **gráfica** lo dice en un segundo. Hoy le damos ojos a la tabla con **matplotlib**, la librería de gráficas de Python, a través del cómodo `df.plot` de Pandas.
 
 El mensaje no es solo *cómo* se dibuja, sino **qué gráfica para qué pregunta**: una **línea** para algo que cambia en el tiempo (una curva de crecimiento), una **barra** para comparar categorías (el `groupby` de la L22), una **dispersión** para ver si dos variables se mueven juntas (absorbancia vs. concentración), un **histograma** para ver la forma de una medición. Y una regla de oro de la ciencia: **una gráfica sin rótulos de eje, unidades y leyenda no comunica nada** -- nadie sabe qué está mirando. Esa disciplina es la mitad de la lección.
 
@@ -58,18 +58,18 @@ Las dos poblaciones crecen, pero `cultivo_A` despega mucho más rápido (llega a
 
 ## Gráfica de barra
 
-Una **barra** compara un valor entre categorías. Es la forma natural de **graficar un `groupby` de la L22**. Sobre la misma `biodiversidad.csv`, sumamos el conteo por especie y lo graficamos:
+Una **barra** compara un valor entre categorías. Es la forma natural de **graficar un `groupby` de la L22**. Sobre la misma tabla de pingüinos de la L21 y la L22 (`df`, leída desde su URL), calculamos la masa promedio por especie y la graficamos:
 
 ```python
-totales = df.groupby('especie')['conteo'].sum()
-totales.plot.bar(title='Conteo total por especie',
-                 xlabel='Especie', ylabel='Conteo total', rot=0)
+masa = df.groupby('species')['body_mass_g'].mean().round(1)
+masa.plot.bar(title='Masa promedio por especie',
+              xlabel='Especie', ylabel='Masa promedio (g)', rot=0)
 plt.show()
 ```
 
-![Tres barras de conteo total por especie; tilapia es la más alta](assets/l23_barra.png){fig-alt="Gráfica de tres barras con el conteo total por especie; tilapia tiene la barra más alta."}
+![Tres barras de masa promedio por especie de pingüino; Gentoo es la más alta](assets/l23_barra.png){fig-alt="Gráfica de tres barras con la masa promedio por especie; Adelie y Chinstrap cerca de 3700 g, Gentoo cerca de 5100 g."}
 
-El resumen que en la L22 leíste como números (`guppy 25`, `molly 15`, `tilapia 60`) ahora se ve de un vistazo: la `tilapia` domina. *En la L22 lo calculaste; hoy lo visualizas.* Es la misma operación, con ojos.
+El resumen que en la L22 leíste como números (`Adelie 3700.7`, `Chinstrap 3733.1`, `Gentoo 5076.0`) ahora se ve de un vistazo: los Gentoo pesan bastante más, y Adelie y Chinstrap casi lo mismo. *En la L22 lo calculaste; hoy lo visualizas.* Es la misma operación, con ojos.
 
 ## Gráfica de dispersión
 
@@ -119,7 +119,7 @@ Aquí está la regla de oro. Mira la **misma** curva de crecimiento, primero **s
 
 **"¿Qué gráfica para qué pregunta?"** — **Línea**: algo que cambia a lo largo de una variable (el tiempo). **Barra**: comparar un valor entre categorías. **Dispersión**: la relación entre dos variables numéricas. **Histograma**: la distribución (la forma) de una sola columna. La pregunta decide el tipo.
 
-**"¿Por qué insistir tanto en los rótulos y las unidades?"** — Porque una gráfica científica se lee sola. Sin título, rótulos de eje y unidades, nadie -- ni tú dentro de un mes -- sabe qué representa. Unas barras "de 60" no dicen nada; "60 individuos de tilapia" sí.
+**"¿Por qué insistir tanto en los rótulos y las unidades?"** — Porque una gráfica científica se lee sola. Sin título, rótulos de eje y unidades, nadie -- ni tú dentro de un mes -- sabe qué representa. Unas barras "de 5076" no dicen nada; "5076 g de masa promedio de los Gentoo" sí.
 
 **"¿`df.plot()` o `df.plot.bar()`?"** — `df.plot(...)` hace una **línea** por defecto. Para los otros tipos se usa la variante: `.plot.bar()`, `.plot.scatter(x=, y=)`, `.plot.hist(bins=)`.
 
@@ -133,7 +133,7 @@ Practica y discute (en clase o por escrito):
 2. ¿Qué le falta a una gráfica cuyo eje y solo dice "0, 100, 200" sin más?
 3. ¿Cuándo una **dispersión** comunica mejor que una **línea**? (Pista: ¿hay un orden en el eje x?)
 4. ¿Qué pregunta responde un histograma que una gráfica de barras no?
-5. La barra de `tilapia` mide 60. ¿De dónde salió ese número en la L22?
+5. La barra de Gentoo llega a unos 5076 g. ¿Con qué línea de la L22 se calcula ese número?
 
 ## Resumen
 

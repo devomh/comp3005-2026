@@ -3,7 +3,7 @@ title: "Pandas: análisis de datos -- valores únicos, columnas calculadas, subc
 unit: "3"
 lesson: 22
 type: concept
-tags: [python, pandas, dataframe, value_counts, groupby, columnas_calculadas, subconjuntos, analisis, tabular]
+tags: [python, pandas, dataframe, info, value_counts, groupby, sort_values, crosstab, pivot_table, loc, analisis, penguins]
 difficulty: introductory
 duration: "75 mins"
 ---
@@ -12,209 +12,400 @@ duration: "75 mins"
 
 Al terminar esta lección podrás:
 
-- **Listar** los valores distintos de una columna (`df['col'].unique()`) y **contar** cuántas veces aparece cada uno (`df['col'].value_counts()`). *(Comprender / Aplicar)*
-- **Crear** una columna calculada a partir de otras (`df['nueva'] = ...`), operando la columna entera. *(Aplicar)*
-- **Extraer** un subconjunto de filas por condición (`df[df['col'] == valor]`) y **renumerar** el índice con `.reset_index(drop=True)`. *(Aplicar)*
-- **Agrupar** por una columna y aplicar un agregado (`df.groupby('col')['otra'].mean()`). *(Aplicar / Analizar)*
-- **Interpretar** un resultado por grupo o un `value_counts` para responder una pregunta sobre los datos. *(Analizar)*
-- **Distinguir** `value_counts` (ordena por frecuencia) de `groupby` (ordena por la clave del grupo). *(Comprender)*
+- **Describir** una tabla nueva con `df.info()` y **clasificar** sus columnas por tipo de variable (categórica, numérica, ordinal), sin confundir el tipo de variable con el `Dtype`. *(Comprender)*
+- **Listar** los valores distintos de una columna (`unique`) y **contar** cuántas veces aparece cada uno (`value_counts`, con `normalize=True` para proporciones y `dropna=False` para ver los `NaN`). *(Aplicar)*
+- **Crear** una columna calculada a partir de otra (`df['nueva'] = ...`), operando la columna entera. *(Aplicar)*
+- **Filtrar** filas con texto y con condiciones compuestas (`&`, `|`, cada una entre paréntesis), **renumerar** el índice con `reset_index(drop=True)` y **seleccionar** filas y columnas en un paso con `df.loc[filas, columnas]`. *(Aplicar)*
+- **Ordenar** filas y resultados con `sort_values`. *(Aplicar)*
+- **Agrupar** por una o por varias columnas y aplicar un agregado (`groupby` + `mean`/`sum`/`count`/`size`), y **leer** un valor del resultado por su etiqueta con `.loc`. *(Aplicar / Analizar)*
+- **Construir** tablas de dos entradas (`pd.crosstab` para conteos, `pivot_table` para agregados) y **elegir** entre `value_counts`, `groupby`, `crosstab` y `pivot_table` según la pregunta. *(Comprender / Aplicar)*
+- **Usar** estas herramientas para responder una pregunta abierta sobre los datos y **justificar** la conclusión con una tabla. *(Analizar / Evaluar)*
 
-> **Dónde encaja:** después de la L21 (*Pandas: DataFrames y read_csv*) · dentro del Módulo 3 · antes de la L23 (*Visualización científica*). La L21 te dio la tabla y dos acciones (ver una columna, filtrar filas); hoy llegan los **verbos de análisis** que la convierten en respuestas.
+> **Dónde encaja:** después de la L21 (*Pandas: DataFrames y read_csv*) · dentro del Módulo 3 · antes de la L23 (*Visualización científica*). La L21 te dio los datos reales: leer la tabla de pingüinos desde una URL, darle un primer vistazo, notar los `NaN`, entender el índice como etiqueta y guardar una copia. Hoy le haces **preguntas**.
 
 ## Por qué importa
 
-En la **L19** contaste por categoría **a mano**, con un `dict`. En la **L21** filtraste filas de un DataFrame con una máscara booleana. Esos dos gestos -- contar y recortar -- son el corazón del análisis de datos, y hoy se vuelven **una línea cada uno**. Además llega el verbo que falta: **agrupar**.
+En la **L21** cargaste 344 pingüinos y los miraste: cuántas filas, de qué tipo es cada columna, qué falta. Mirar no es lo mismo que **responder**. Un biólogo quiere saber, por ejemplo: ¿qué especie es la más común?, ¿cuál pesa más?, ¿pesan igual en todas las islas? Y una pregunta más interesante: **¿se observa dimorfismo sexual en alguna de las especies?** Es decir, ¿los machos y las hembras difieren en tamaño?
 
-`df['especie'].value_counts()` cuenta cuántas veces aparece cada valor. `df.groupby('sitio')['conteo'].mean()` calcula el promedio **por cada sitio** de una sola vez. Ese `groupby` -- "para cada categoría, calcula algo" -- es lo que convierte una tabla en un análisis: en lugar de un bucle con un `dict` por cada pregunta, una línea. Vamos a tomar una tabla de **biodiversidad** (conteos de peces por laguna) y preguntarle: ¿qué especie es la más abundante? ¿qué laguna acumula más individuos?
+Para contestar hacen falta los **verbos del análisis**: **contar** (lo que en la L19 hacías a mano con un `dict`), **calcular** columnas nuevas, **filtrar** con varias condiciones, **ordenar**, **agrupar** ("para cada especie, calcula...") y armar **tablas de dos entradas** (especie por isla, especie por sexo). Cada uno es una línea de Pandas. Al final de la lección tendrás todo lo necesario para responder la pregunta del dimorfismo tú mismo -- y la responderás en el Lab.
 
 > **Práctica (hands-on):** [Lab — Pandas: análisis de datos](l22_lab_pandas_analysis.md) ·
 > [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/{{< var repo.org >}}/{{< var repo.name >}}/blob/{{< var repo.branch >}}/u03_scientific_computing/l22_lab_pandas_analysis.ipynb)
 
-## La tabla de hoy
+## Los datos: los pingüinos de Palmer
 
-Leemos `biodiversidad.csv` a un DataFrame, igual que en la L21. Son siete muestreos de peces en dos lagunas (el Lab escribe este archivo y corre todo el código; aquí solo mostramos los resultados):
+Leemos la misma tabla de la L21, desde la misma URL (el Lab corre todo el código; aquí mostramos los resultados):
 
 ```python
 import pandas as pd
 
-df = pd.read_csv('biodiversidad.csv')
-print(df)
+url = ('https://raw.githubusercontent.com/mwaskom/'
+       'seaborn-data/master/penguins.csv')
+df = pd.read_csv(url)
+print("Pandas listo; tabla de pinguinos:", df.shape)
 ```
 
 ```text
-      sitio  especie  conteo
-0  laguna_A  tilapia      15
-1  laguna_B    molly       5
-2  laguna_A    guppy      10
-3  laguna_B  tilapia      25
-4  laguna_A  tilapia      20
-5  laguna_B    guppy      15
-6  laguna_B    molly      10
+Pandas listo; tabla de pinguinos: (344, 7)
 ```
 
-Hay tres columnas (`sitio`, `especie`, `conteo`) y un índice de filas de `0` a `6`. Sobre esta tabla aplicaremos los cuatro verbos de análisis.
+*Palmer Penguins* son mediciones de 344 pingüinos de tres especies, tomadas entre 2007 y 2009 en tres islas del archipiélago de Palmer, en la Antártida. *(Fuente: Gorman, Williams y Fraser, 2014; paquete palmerpenguins de A. Horst et al., licencia CC0.)*
 
-| Verbo | Qué hace | Método |
-|---|---|---|
-| valores únicos / conteos | qué valores hay y cuántos de cada uno | `df['col'].unique()` / `df['col'].value_counts()` |
-| columna calculada | una columna nueva a partir de otras | `df['nueva'] = expresión` |
-| subconjunto | recortar las filas que cumplen una condición | `df[df['col'] == valor]` |
-| agrupación | calcular un agregado por cada categoría | `df.groupby('col')['otra'].mean()` |
+### Un resumen en una llamada: info()
 
-## Valores únicos y conteos
-
-Para saber qué **valores distintos** tiene una columna, `.unique()`; para saber **cuántas veces** aparece cada uno, `.value_counts()` (que ya viene ordenado de mayor a menor):
+En la L21 usaste `.shape`, `.dtypes` y `df.isna().sum()`. `df.info()` lo reúne todo: el número de filas, cada columna con sus valores **no nulos** (los que no son `NaN`) y su tipo. Imprime por sí mismo, sin `print`:
 
 ```python
-print(df['especie'].unique())
-print(df['especie'].value_counts())
+df.info()
 ```
 
 ```text
-['tilapia' 'molly' 'guppy']
-especie
-tilapia    3
-molly      2
-guppy      2
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 344 entries, 0 to 343
+Data columns (total 7 columns):
+ #   Column             Non-Null Count  Dtype
+---  ------             --------------  -----
+ 0   species            344 non-null    object
+ 1   island             344 non-null    object
+ 2   bill_length_mm     342 non-null    float64
+ 3   bill_depth_mm      342 non-null    float64
+ 4   flipper_length_mm  342 non-null    float64
+ 5   body_mass_g        342 non-null    float64
+ 6   sex                333 non-null    object
+dtypes: float64(4), object(3)
+memory usage: 18.9+ KB
+```
+
+Las cuatro mediciones tienen 342 valores (faltan 2) y `sex` tiene 333 (faltan 11): los `NaN` de la L21, de un vistazo. Esto es lo que mide cada columna:
+
+| Columna | Qué mide | Unidad | Tipo de variable |
+|---|---|---|---|
+| `species` | la especie: Adelie, Chinstrap o Gentoo | -- | categórica |
+| `island` | la isla donde se midió: Biscoe, Dream o Torgersen | -- | categórica |
+| `bill_length_mm` | el largo del pico | mm | numérica |
+| `bill_depth_mm` | el alto (la profundidad) del pico | mm | numérica |
+| `flipper_length_mm` | el largo de la aleta | mm | numérica |
+| `body_mass_g` | la masa corporal | g | numérica |
+| `sex` | el sexo: `MALE` (macho) o `FEMALE` (hembra) | -- | categórica |
+
+### Tipos de variable
+
+Antes de analizar una columna conviene preguntarse **qué clase de dato** guarda, porque eso decide qué tiene sentido hacer con ella:
+
+| Tipo | Qué es | Ejemplos | Qué se hace con ella |
+|---|---|---|---|
+| categórica | dice a qué **grupo** pertenece cada fila | `species`, `island`, `sex` | contar cuántos hay de cada valor; agrupar por ella; filtrar con `==` |
+| ordinal | categorías con un **orden** natural | la `quality` del vino de la L21 (una nota de 0 a 10); tallas S, M, L | lo mismo que una categórica, y además ordenarla tiene sentido |
+| numérica | una **cantidad** medida o contada | las cuatro mediciones | promedios, mínimos y máximos; ordenar; filtrar con `>` o `<` |
+
+En los pingüinos no hay ninguna columna ordinal. Y ojo: el tipo de variable **no es** el `Dtype`. El `Dtype` dice **cómo se guarda** una columna; el tipo de variable, **qué significa**. Dos ejemplos. Todas las masas son gramos enteros (`3750`, `3800`, ...), pero `body_mass_g` es `float64`: como tiene `NaN`, y para Pandas `NaN` es un valor decimal, la columna entera se guarda con decimales. Y la `quality` del vino se guarda como entero (`int64`), pero es ordinal: un vino de nota 6 no es "el doble de bueno" que uno de nota 3, así que su promedio hay que leerlo con cuidado.
+
+## Contar: valores únicos y conteos
+
+Para una columna **categórica**, las primeras preguntas son: ¿qué valores **distintos** tiene? (`.unique()`) y ¿**cuántas veces** aparece cada uno? (`.value_counts()`, ordenado de mayor a menor):
+
+```python
+print(df['species'].unique())
+print(df['species'].value_counts())
+```
+
+```text
+['Adelie' 'Chinstrap' 'Gentoo']
+species
+Adelie       152
+Gentoo       124
+Chinstrap     68
 Name: count, dtype: int64
 ```
 
-Hay tres especies, y `tilapia` es la más frecuente (3 muestreos). Esto es exactamente lo que en la L19 hiciste a mano con un `dict` de conteo: recorrer y sumar uno por categoría. Aquí es un método, y además queda ordenado por frecuencia.
+Tres especies; la más común es Adelie. Es lo que en la L19 hacías a mano con un `dict` de conteo, ahora en un método (y además ordenado). Si en vez de **cuántos** quieres **qué parte del total**, `normalize=True` da la **proporción**:
+
+```python
+print(df['species'].value_counts(normalize=True).round(3))
+```
+
+```text
+species
+Adelie       0.442
+Gentoo       0.360
+Chinstrap    0.198
+Name: proportion, dtype: float64
+```
+
+El 44.2 % de los pingüinos son Adelie. Un detalle con los datos que faltan: `value_counts()` **no cuenta los `NaN`**. En `sex`, `unique()` muestra un `nan`, y los conteos de machos y hembras suman 333, no 344. Para verlos, `dropna=False`:
+
+```python
+print(df['sex'].value_counts(dropna=False))
+```
+
+```text
+sex
+MALE      168
+FEMALE    165
+NaN        11
+Name: count, dtype: int64
+```
 
 ## Columnas calculadas
 
-Una **columna nueva** se crea a partir de las que ya hay: la operación se aplica a la columna **entera** de una vez (vectorizada, como los arreglos de NumPy de la L20). Calculemos la **proporción** de cada conteo sobre el total (`df['conteo'].sum()` es 100):
+Una **columna nueva** se calcula a partir de otras, sobre la columna **entera** de una vez (vectorizado, como los arreglos de NumPy de la L20). Pasemos la masa a **libras** (1 lb = 453.592 g):
 
 ```python
-df['proporcion'] = df['conteo'] / df['conteo'].sum()
-print(df)
+df['masa_lb'] = df['body_mass_g'] / 453.592
+print(df[['species', 'body_mass_g', 'masa_lb']].head().round(2))
 ```
 
 ```text
-      sitio  especie  conteo  proporcion
-0  laguna_A  tilapia      15        0.15
-1  laguna_B    molly       5        0.05
-2  laguna_A    guppy      10        0.10
-3  laguna_B  tilapia      25        0.25
-4  laguna_A  tilapia      20        0.20
-5  laguna_B    guppy      15        0.15
-6  laguna_B    molly      10        0.10
+  species  body_mass_g  masa_lb
+0  Adelie       3750.0     8.27
+1  Adelie       3800.0     8.38
+2  Adelie       3250.0     7.17
+3  Adelie          NaN      NaN
+4  Adelie       3450.0     7.61
 ```
 
-La columna `proporcion` se agregó al DataFrame (las proporciones suman 1.0). No hubo que recorrer fila por fila: `df['conteo'] / df['conteo'].sum()` es una operación vectorizada, la idea de la L20 sobre una columna de la tabla.
+No hubo que recorrer fila por fila. Donde falta la masa (fila `3`), falta también la masa en libras: un `NaN` dividido entre un número sigue siendo `NaN`. La columna vive en el DataFrame **en memoria**; el CSV de internet no cambia.
 
-## Subconjuntos
+## Filtrar con varias condiciones
 
-Para quedarte con un **subconjunto** de filas se usa la máscara booleana de la L21. Tomemos solo `laguna_A`:
+En la L21 filtraste por una condición numérica. Con **texto** es igual: `df[df['species'] == 'Adelie']` deja las 152 filas de Adelie. Para pedir **varias condiciones a la vez** se combinan con `&` ("y": deben cumplirse todas) o con `|` ("o": basta con una), y **cada condición va entre paréntesis**:
 
 ```python
-dfA = df[df['sitio'] == 'laguna_A']
-print(dfA)
+adelie_dream = df[(df['species'] == 'Adelie') &
+                  (df['island'] == 'Dream')]
+print(adelie_dream.shape)
+print(adelie_dream[['species', 'island', 'body_mass_g']].head(3))
 ```
 
 ```text
-      sitio  especie  conteo  proporcion
-0  laguna_A  tilapia      15        0.15
-2  laguna_A    guppy      10        0.10
-4  laguna_A  tilapia      20        0.20
+(56, 8)
+   species island  body_mass_g
+30  Adelie  Dream       3250.0
+31  Adelie  Dream       3900.0
+32  Adelie  Dream       3300.0
 ```
 
-Fíjate en el índice: `0, 2, 4`. Al filtrar, Pandas **conserva las etiquetas originales** de las filas (eran la 0, la 2 y la 4 en la tabla completa). Para renumerar desde 0 se usa `reset_index(drop=True)`:
-
 ```python
-print(dfA.reset_index(drop=True))
+dos_islas = df[(df['island'] == 'Dream') |
+               (df['island'] == 'Torgersen')]
+print(dos_islas.shape)
 ```
 
 ```text
-      sitio  especie  conteo  proporcion
-0  laguna_A  tilapia      15        0.15
-1  laguna_A    guppy      10        0.10
-2  laguna_A  tilapia      20        0.20
+(176, 8)
 ```
 
-Ahora el índice es `0, 1, 2`. El `drop=True` descarta el índice viejo (sin él, Pandas lo guardaría como una columna nueva).
+56 pingüinos son Adelie **y** viven en Dream; 176 viven en Dream **o** en Torgersen (`124 + 52`). (Son 8 columnas: las 7 originales más `masa_lb`.)
 
-## Agrupaciones
+La regla, en una línea: `(cond1) & (cond2)` para "y", `(cond1) | (cond2)` para "o" -- nunca `and` ni `or`, y siempre con paréntesis. Los dos errores típicos dan mensajes poco claros. **Sin paréntesis**, Python evalúa el `&` **antes** que el `==` e intenta un "y" entre un texto y una columna: "TypeError: Cannot perform 'rand_' with a dtyped [object] array...". **Con `and`**, Python le pide a toda una columna un único `True` o `False`: "ValueError: The truth value of a Series is ambiguous". En los dos casos la solución es la misma: `&` o `|`, y paréntesis.
 
-Este es el verbo más potente. `groupby('columna')` divide las filas en **grupos** según esa columna, y luego aplica un **agregado** a cada grupo. ¿Cuántos individuos acumula cada laguna? Agrupamos por `sitio` y sumamos `conteo`:
+**El índice tras filtrar.** Mira las etiquetas de `adelie_dream`: `30, 31, 32`. Como viste en la L21, al filtrar cada fila **conserva su etiqueta**. Para **renumerarlas** desde 0, `reset_index(drop=True)` (el `drop=True` descarta las etiquetas viejas; sin él, Pandas las guardaría como una columna nueva):
 
 ```python
-print(df.groupby('sitio')['conteo'].sum())
+adelie_dream = adelie_dream.reset_index(drop=True)
+print(adelie_dream[['species', 'island', 'body_mass_g']].head(3))
 ```
 
 ```text
-sitio
-laguna_A    45
-laguna_B    55
-Name: conteo, dtype: int64
+  species island  body_mass_g
+0  Adelie  Dream       3250.0
+1  Adelie  Dream       3900.0
+2  Adelie  Dream       3300.0
 ```
 
-`laguna_B` acumula más (55 vs. 45). ¿Y el conteo **promedio** de cada especie? Agrupamos por `especie` y promediamos:
+**Filas y columnas en un paso: `.loc`.** `df.loc[filas, columnas]` filtra las filas (con una condición) y elige las columnas (con una lista) en una sola operación. Los Chinstrap de más de 4500 g:
 
 ```python
-print(df.groupby('especie')['conteo'].mean())
+pesados = df.loc[(df['species'] == 'Chinstrap') &
+                 (df['body_mass_g'] > 4500),
+                 ['island', 'sex', 'body_mass_g']]
+print(pesados)
 ```
 
 ```text
-especie
-guppy      12.5
-molly       7.5
-tilapia    20.0
-Name: conteo, dtype: float64
+    island   sex  body_mass_g
+181  Dream  MALE       4550.0
+189  Dream  MALE       4800.0
 ```
 
-`tilapia` tiene el promedio más alto (20.0). En una línea, `groupby` hizo el "para cada grupo, calcula..." que a mano sería un bucle con un `dict`. Se puede agregar con `.sum()`, `.mean()` o `.count()` (cuántas filas por grupo), entre otros:
+Solo 2, y los dos son machos.
+
+## Ordenar
+
+`sort_values('columna')` ordena las filas por una columna, de menor a mayor; con `ascending=False`, de mayor a menor. Los picos más largos:
+
+```python
+picos = df.sort_values('bill_length_mm', ascending=False)
+print(picos[['species', 'sex', 'bill_length_mm']].head())
+```
+
+```text
+       species     sex  bill_length_mm
+253     Gentoo    MALE            59.6
+169  Chinstrap  FEMALE            58.0
+321     Gentoo    MALE            55.9
+215  Chinstrap    MALE            55.8
+335     Gentoo    MALE            55.1
+```
+
+El pico más largo es de un Gentoo macho; el segundo, de una **hembra** Chinstrap. Ordenar cambia las filas de **lugar**, no de etiqueta (`253`, `169`, ...). Los `NaN` quedan al final.
+
+## Agrupar
+
+`groupby('columna')` divide las filas en **grupos** según una columna categórica y aplica un **agregado** a cada grupo. La masa promedio de cada especie, ordenada para ver cuál pesa más:
+
+```python
+masa = df.groupby('species')['body_mass_g'].mean().round(1)
+print(masa.sort_values(ascending=False))
+```
+
+```text
+species
+Gentoo       5076.0
+Chinstrap    3733.1
+Adelie       3700.7
+Name: body_mass_g, dtype: float64
+```
+
+Sin el `sort_values`, `groupby` ordena por la **clave del grupo** (alfabética: Adelie, Chinstrap, Gentoo). Los agregados más comunes:
 
 | Agregado | Qué calcula por grupo |
 |---|---|
-| `.count()` | cuántas filas tiene el grupo |
-| `.sum()` | la suma de la columna |
 | `.mean()` | el promedio de la columna |
+| `.sum()` | la suma de la columna |
+| `.count()` | cuántos valores **presentes** (sin `NaN`) tiene la columna |
+| `.size()` | cuántas **filas** tiene el grupo (con `NaN` incluidos) |
 
-## value_counts vs. groupby
+`.count()` no es lo mismo que `value_counts`. `df.groupby('species')['body_mass_g'].count()` da `Adelie 151`, `Chinstrap 68`, `Gentoo 123`: falta la masa de un Adelie y de un Gentoo. `value_counts` contaba **filas** (152, 124, 68), y ordenaba por frecuencia.
 
-Ambos resumen por categoría, pero responden preguntas distintas y **ordenan distinto**:
+**Agrupar por dos columnas.** Con una **lista** de columnas, `groupby` forma un grupo por cada **combinación**:
 
-| | `df['col'].value_counts()` | `df.groupby('col')['otra'].agg()` |
+```python
+por_isla = df.groupby(['species', 'island'])['body_mass_g'].mean()
+por_isla = por_isla.round(1)
+print(por_isla)
+```
+
+```text
+species    island
+Adelie     Biscoe       3709.7
+           Dream        3688.4
+           Torgersen    3706.4
+Chinstrap  Dream        3733.1
+Gentoo     Biscoe       5076.0
+Name: body_mass_g, dtype: float64
+```
+
+El resultado tiene un índice de **dos niveles**, y solo 5 combinaciones existen: los Chinstrap viven solo en Dream y los Gentoo solo en Biscoe. Para leer un grupo, `.loc` con la etiqueta -- el índice es una etiqueta, como en la L21:
+
+```python
+print(por_isla.loc['Adelie'])
+```
+
+```text
+island
+Biscoe       3709.7
+Dream        3688.4
+Torgersen    3706.4
+Name: body_mass_g, dtype: float64
+```
+
+Los Adelie pesan casi lo mismo en las tres islas.
+
+## Tablas de dos entradas
+
+`pd.crosstab` acomoda los conteos de **dos** columnas categóricas en una tabla: una en las filas, otra en las columnas, y en cada casilla **cuántas filas** hay de esa combinación. Es un `value_counts` de dos columnas (con `margins=True` agrega una fila y una columna `All` con los totales):
+
+```python
+print(pd.crosstab(df['species'], df['island']))
+```
+
+```text
+island     Biscoe  Dream  Torgersen
+species
+Adelie         44     56         52
+Chinstrap       0     68          0
+Gentoo        124      0          0
+```
+
+Los ceros cuentan una historia: Chinstrap solo en Dream, Gentoo solo en Biscoe. Por eso, en estos datos, comparar **islas** es en buena parte comparar **especies**. Biscoe tiene los pingüinos más pesados (4716 g en promedio, contra unos 3710 g en Dream y Torgersen) porque ahí viven los Gentoo, no por la isla: los Adelie, que están en las tres, pesan casi igual en todas. Una tabla de conteos antes de comparar grupos evita conclusiones falsas.
+
+Si en las casillas quieres un **agregado** de una columna numérica, `pivot_table`: es un `groupby` de dos columnas, acomodado como tabla. `values` es la columna que se agrega, `index` va a las filas, `columns` a las columnas y `aggfunc` dice qué agregado:
+
+```python
+tabla = df.pivot_table(values='body_mass_g', index='species',
+                       columns='island', aggfunc='mean').round(1)
+print(tabla)
+print(tabla.loc['Gentoo', 'Biscoe'])
+```
+
+```text
+island     Biscoe   Dream  Torgersen
+species
+Adelie     3709.7  3688.4     3706.4
+Chinstrap     NaN  3733.1        NaN
+Gentoo     5076.0     NaN        NaN
+5076.0
+```
+
+Los mismos números de `por_isla`, en forma de tabla. Donde el `crosstab` tenía un `0`, aquí hay `NaN`: sin pingüinos no hay promedio. `tabla.loc['Gentoo', 'Biscoe']` lee **una casilla** por sus etiquetas (fila, columna).
+
+Las cuatro herramientas de resumen, en un cuadro:
+
+| Pregunta | Una columna | Dos columnas |
 |---|---|---|
-| pregunta | ¿cuántas filas hay de cada valor? | ¿qué agregado da `otra` por cada grupo? |
-| usa | una sola columna | una columna para agrupar + otra para agregar |
-| ordena por | la **frecuencia** (de mayor a menor) | la **clave del grupo** (p. ej. alfabética) |
+| ¿cuántas filas hay de cada valor? | `df['a'].value_counts()` (ordena por frecuencia) | `pd.crosstab(df['a'], df['b'])` |
+| ¿qué agregado da otra columna por grupo? | `df.groupby('a')['x'].mean()` (ordena por la clave) | `df.pivot_table(values='x', index='a', columns='b', aggfunc='mean')` |
 
-Cuando solo quieres **contar ocurrencias** de una columna, `value_counts`. Cuando quieres **calcular algo de otra columna por cada categoría** (un promedio, una suma), `groupby`.
+## De vuelta a la pregunta: ¿hay dimorfismo sexual?
+
+Ya tienes las herramientas. Para decidir si los machos y las hembras de cada especie difieren, piensa qué tabla lo mostraría: ¿qué va en las filas, qué en las columnas, qué columna numérica se agrega? ¿Basta con el promedio, o conviene mirar también el mínimo y el máximo de cada grupo? ¿Una medida o varias? ¿Los grupos que comparas tienen tamaños parecidos? En el **Tu turno** del Lab lo calculas paso a paso y escribes tu conclusión. La interpretación es tuya: lo que se evalúa es que la **justifiques** con tus números.
 
 ## Preguntas frecuentes
 
-**"¿`value_counts` o `groupby`?"** — `value_counts` **cuenta** cuántas filas hay de cada valor en **una** columna. `groupby` toma **dos**: una para formar los grupos y otra para **agregar** (promedio, suma, conteo). Si la pregunta es "¿cuántos de cada uno?", `value_counts`; si es "¿qué promedio/suma de *otra* columna por cada categoría?", `groupby`.
+**"¿`value_counts`, `groupby`, `crosstab` o `pivot_table`?"** — Pregúntate dos cosas. ¿Quieres **contar** filas o **agregar** otra columna (un promedio, una suma)? ¿Por **una** categoría o por **dos**? Contar por una: `value_counts`; contar por dos: `crosstab`; agregar por una: `groupby`; agregar por dos: `pivot_table` (o `groupby` con una lista, si te sirve la forma de lista larga).
 
-**"¿Por qué el índice salta después de filtrar?"** — Porque `df[...]` **conserva las etiquetas de fila originales**. Las filas que pasaron el filtro mantienen su número de la tabla completa (`0, 2, 4`). Para renumerar desde 0, `reset_index(drop=True)`.
+**"¿Por qué `&` y no `and`? ¿Y por qué tantos paréntesis?"** — `and` espera **un solo** `True` o `False` de cada lado; una condición sobre una columna da **muchos** (uno por fila), y `&` los combina fila por fila. Los paréntesis hacen falta porque Python evalúa `&` y `|` **antes** que `==`, `>` o `<`: sin ellos, la expresión se agrupa mal y da un `TypeError`.
 
-**"¿Y si escribo mal el nombre de la columna en `groupby`?"** — Pandas lanza un `KeyError`, igual que al seleccionar una columna en la L21. Los nombres de columna distinguen mayúsculas de minúsculas y deben coincidir exactamente.
+**"Me salió un `SettingWithCopyWarning`. ¿Qué hice mal?"** — Probablemente guardaste un subconjunto (`gentoo = df[df['species'] == 'Gentoo']`) y luego le agregaste una columna. Pandas no sabe si quieres cambiar la copia o la tabla original, y avisa. Si vas a modificar un subconjunto, guárdalo como una copia independiente con `.copy()`: `gentoo = df[df['species'] == 'Gentoo'].copy()`.
 
-**"¿La columna calculada cambia el archivo CSV?"** — No. `df['proporcion'] = ...` agrega la columna al DataFrame **en memoria**; el `biodiversidad.csv` en disco no se toca. (Guardar los cambios sería otro paso, `to_csv`, fuera del alcance de hoy.)
+**"¿Por qué `.count()` no da lo mismo que `value_counts()`?"** — Porque cuentan cosas distintas. `value_counts` cuenta **filas** por valor (y ordena por frecuencia). `groupby(...)['col'].count()` cuenta los valores **presentes** de esa columna en cada grupo, sin los `NaN` (y ordena por la clave). Si quieres las filas de cada grupo con `groupby`, usa `.size()`.
+
+**"¿Y si escribo mal el nombre de una columna en `groupby`?"** — Pandas lanza un `KeyError`, igual que al seleccionar una columna en la L21. Los nombres distinguen mayúsculas de minúsculas: `df.groupby('Species')` falla porque la columna se llama `species`.
+
+**"Ordené por masa y dos pingüinos que pesan lo mismo salieron en otro orden que el de mi compañero. ¿Está mal?"** — No. Cuando dos filas empatan en la columna por la que ordenas, `sort_values` no garantiza en qué orden quedan entre sí. Si el orden de los empates te importa, ordena por una segunda columna, por ejemplo `df.sort_values(['body_mass_g', 'bill_length_mm'])`.
+
+**"¿La columna calculada cambia el archivo?"** — No. `df['masa_lb'] = ...` la agrega al DataFrame **en memoria**; el CSV de internet no se toca. Para guardar tu tabla analizada, el `to_csv('archivo.csv', index=False)` de la L21.
 
 ## Para reflexionar
 
 Practica y discute (en clase o por escrito):
 
-1. ¿Qué pregunta responde `value_counts` que no responde `groupby`, y al revés?
-2. ¿Por qué `df['conteo'] / df['conteo'].sum()` no necesita un `for`? (Pista: ¿qué es una columna por dentro?)
-3. Después de `df[df['sitio'] == 'laguna_B']`, ¿qué índice tendrían las filas? ¿Cómo lo renumerarías?
-4. Escribe (en papel o en Colab) cómo calcularías el conteo **total** por especie con `groupby`.
-5. `df.groupby('especie')['conteo'].mean()` da `tilapia 20.0`. ¿Qué pregunta sobre los datos responde ese número?
+1. `info()` dice `333 non-null` en `sex`. ¿Qué te dice eso, y qué cambiaría en un `value_counts()` de esa columna?
+2. La columna `island` es `object` y `body_mass_g` es `float64`. ¿De qué tipo de variable es cada una? ¿Qué preguntas tienen sentido para cada una?
+3. Escribe (en papel o en Colab) cómo seleccionarías los Gentoo hembras de más de 5000 g. ¿Qué pasaría si usaras `and`?
+4. `groupby('species')` y `value_counts()` resumen por especie, pero ordenan distinto. ¿Cómo ordena cada uno, y cómo pondrías un `groupby` de mayor a menor?
+5. El `crosstab` de especie por isla tiene ceros. ¿Por qué eso importa antes de decir que "en Biscoe los pingüinos pesan más"?
+6. Para la pregunta del dimorfismo: ¿qué tabla armarías primero, y qué más mirarías antes de concluir?
 
 ## Resumen
 
 | Idea clave | En una frase |
 |------------|--------------|
-| Valores únicos / conteos | `df['col'].unique()` y `df['col'].value_counts()` (ordena por frecuencia) -- el conteo de la L19, ahora un método |
-| Columna calculada | `df['nueva'] = expresión` opera la columna entera (vectorizado, L20); no cambia el CSV |
-| Subconjunto | `df[df['col'] == valor]` recorta filas; `reset_index(drop=True)` renumera el índice |
-| Agrupación | `df.groupby('col')['otra'].mean()` (o `.sum()`, `.count()`) -- un agregado por cada grupo |
-| `value_counts` vs. `groupby` | uno cuenta ocurrencias de una columna; el otro agrega otra columna por grupo |
+| `info()` | filas, columnas, valores no nulos (dónde están los `NaN`) y `Dtype`, en una llamada |
+| Tipos de variable | categórica (grupos), numérica (cantidades), ordinal (categorías con orden); el tipo decide la herramienta y no es el `Dtype` |
+| Contar | `unique()` y `value_counts()` (de mayor a menor, sin `NaN`); `normalize=True` da proporciones, `dropna=False` muestra los `NaN` |
+| Columna calculada | `df['nueva'] = expresión`, sobre la columna entera (vectorizado, L20); vive en memoria |
+| Filtrar | `==` para texto; `&` ("y") y la barra vertical ("o") con cada condición entre paréntesis (nunca `and` / `or`); `reset_index(drop=True)` renumera |
+| `.loc` | `df.loc[filas, columnas]` filtra y elige columnas en un paso; `resultado.loc['etiqueta']` lee un grupo o una casilla |
+| Ordenar | `sort_values('col', ascending=False)`; también ordena un resultado de `groupby` |
+| Agrupar | `df.groupby('col')['otra'].mean()` (o `.sum()`, `.count()`, `.size()`); con una lista, por varias columnas |
+| Tablas de dos entradas | `pd.crosstab` cuenta; `pivot_table(values=, index=, columns=, aggfunc=)` agrega |
+| Preguntas abiertas | calcula la tabla que responde, mira también los extremos y el tamaño de los grupos, y justifica con los números |
 
 ## Para profundizar
 
 - **Texto del curso (código abierto):** *Introducción a la programación con Python 3* (Marzal, Gracia y García, UJI/Sapientia, licencia CC).
-- **Documentación oficial:** *10 minutes to pandas* en `pandas.pydata.org` (`value_counts`, `groupby`, columnas calculadas).
-- **Más allá de esta lección:** en la **S23** **graficarás** estos conteos y promedios con matplotlib (líneas, barras, dispersión, histograma). También se puede agrupar por **varias** columnas (`groupby(['sitio', 'especie'])`), ordenar resultados (`sort_values`) y guardar la tabla analizada (`to_csv`). La idea de hoy -- *contar, calcular, recortar y agrupar* -- es el núcleo de todo análisis de datos tabulares.
+- **Documentación oficial:** *10 minutes to pandas* y la guía *Group by: split-apply-combine* en `pandas.pydata.org` (`groupby`, `pivot_table`, `crosstab`).
+- **Los datos:** Palmer Penguins (Gorman, Williams y Fraser, 2014; `allisonhorst.github.io/palmerpenguins`). El artículo original estudia justamente el dimorfismo sexual de estas tres especies.
+- **Más allá de esta lección:** en la **S23** **graficarás** estos conteos y promedios con matplotlib -- por ejemplo, una barra por especie. Varios agregados a la vez (`.agg(['mean', 'min', 'max'])`), qué hacer con los `NaN` (`dropna`, rellenarlos) y la selección por posición (`.iloc`) quedan para cuando las necesites. La idea de hoy -- *contar, filtrar, ordenar, agrupar y cruzar, y justificar una conclusión con una tabla* -- es el núcleo de todo análisis de datos tabulares.
