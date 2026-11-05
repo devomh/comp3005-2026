@@ -24,9 +24,14 @@ u03_scientific_computing/vinos_top.csv
 # local copy is never staged; drop this line once no copy remains on disk.
 u03_scientific_computing/biodiversidad.csv
 
-# L23 (Visualizacion) lab writes these at runtime -- setup-cell-regenerated
-# artifacts, never source. The PNGs in
-# assets/ are author-generated figures, TRACKED (the website needs them).
+# L23 v2 (Visualizacion) lab saves these figures with savefig at runtime --
+# student-run artifacts, never source (Paso 8 executes; Ej3 is the student's).
+# The PNGs in assets/ are author-generated figures, TRACKED (the website needs
+# them; _tools/figures/comp3005_l23_figures.py regenerates them).
+u03_scientific_computing/pinguinos_zoom.png
+u03_scientific_computing/mi_figura.png
+# L23 v1 wrote these CSVs; v2 reads Penguins from a URL and nothing writes
+# them. Kept ignored so a leftover local copy is never staged.
 u03_scientific_computing/crecimiento.csv
 u03_scientific_computing/absorbancia.csv
 u03_scientific_computing/lecturas_ph.csv

@@ -610,4 +610,4 @@ Tu conclusión puede ser distinta -- por ejemplo, que en la aleta la diferencia 
 - **Ordenar:** `df.sort_values('col', ascending=False)`; también sirve para ordenar un resultado.
 - **Agrupar:** `df.groupby('col')['otra'].mean()` (o `.sum()`, `.count()`); con una lista, `groupby(['a', 'b'])`; `.size()` cuenta filas; `.loc['etiqueta']` lee un grupo.
 - **Tablas de dos entradas:** `pd.crosstab(df['a'], df['b'])` cuenta; `df.pivot_table(values=..., index=..., columns=..., aggfunc=...)` agrega; `tabla.loc['fila', 'columna']` lee una casilla.
-- **Sigue en la L23:** graficar estos conteos y promedios (líneas, barras, dispersión, histograma) con matplotlib.
+- **Sigue en la L23:** graficar estos conteos, promedios y tablas de dos entradas (barras, pastel, histogramas, cajas, dispersión, heatmaps) con matplotlib, Pandas y seaborn.
