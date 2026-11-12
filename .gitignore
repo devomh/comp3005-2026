@@ -45,6 +45,12 @@ u03_scientific_computing/gel.png
 u03_scientific_computing/campo.png
 u03_scientific_computing/campo.jpg
 
-# L25 (Biopython) lab writes this FASTA at runtime -- setup-cell-regenerated
-# artifact, never source. Colab/local users regenerate it by running the lab.
+# L25 v1 (Biopython) wrote genes.fasta at runtime; since v2 (2026-11-11) nothing
+# writes it. Kept ignored so a leftover local copy is never staged.
 u03_scientific_computing/genes.fasta
+
+# L25 v2 lab downloads these GenBank records from NCBI at runtime (Entrez, or the
+# course copy as plan B) -- student-run artifacts, never source. The pinned copies
+# in secuencias/ are TRACKED (the plan-B URLs point at them).
+u03_scientific_computing/hbb.gb
+u03_scientific_computing/cftr.gb
